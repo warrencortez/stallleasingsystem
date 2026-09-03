@@ -2,7 +2,7 @@ const { pool } = require('../config/database');
 
 class Payment {
     /**
-     * Create a new payment record
+     * Create a new payment record / invoice
      */
     static async create(paymentData) {
         const {
@@ -15,6 +15,8 @@ class Payment {
             payment_method,
             reference_number,
             proof_image,
+            paymongo_checkout_id,
+            paymongo_checkout_url,
             description,
             late_fee
         } = paymentData;
@@ -22,20 +24,24 @@ class Payment {
         const result = await pool.query(
             `INSERT INTO payments 
              (tenant_id, stall_id, amount, due_date, payment_date, 
-              status, payment_method, reference_number, proof_image, description, late_fee) 
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) 
+              status, payment_method, reference_number, proof_image, 
+              paymongo_checkout_id, paymongo_checkout_url, 
+              description, late_fee) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) 
              RETURNING id`,
             [
                 tenant_id,
-                stall_id,
+                stall_id || null,
                 amount,
                 due_date,
                 payment_date || null,
                 status || 'unpaid',
-                payment_method,
-                reference_number,
-                proof_image,
-                description,
+                payment_method || null,
+                reference_number || null,
+                proof_image || null,
+                paymongo_checkout_id || null,
+                paymongo_checkout_url || null,
+                description || 'Stall Lease Rental',
                 late_fee || 0
             ]
         );
@@ -49,8 +55,8 @@ class Payment {
     static async findAll(filters = {}) {
         let query = `
             SELECT p.*,
-                   t.name as tenant_name, t.email as tenant_email,
-                   s.stall_number, s.location
+                   t.name as tenant_name, t.email as tenant_email, t.business_name,
+                   s.stall_number, s.location as stall_location
             FROM payments p
             LEFT JOIN tenants t ON p.tenant_id = t.id
             LEFT JOIN stalls s ON p.stall_id = s.id
@@ -89,7 +95,7 @@ class Payment {
             paramCount++;
         }
 
-        query += ' ORDER BY p.due_date DESC';
+        query += ' ORDER BY p.due_date DESC, p.created_at DESC';
 
         const result = await pool.query(query, values);
         return result.rows;
@@ -101,8 +107,8 @@ class Payment {
     static async findById(id) {
         const result = await pool.query(
             `SELECT p.*,
-                    t.name as tenant_name, t.email as tenant_email,
-                    s.stall_number, s.location
+                    t.name as tenant_name, t.email as tenant_email, t.phone as tenant_phone, t.business_name,
+                    s.stall_number, s.location as stall_location
              FROM payments p
              LEFT JOIN tenants t ON p.tenant_id = t.id
              LEFT JOIN stalls s ON p.stall_id = s.id
@@ -118,7 +124,7 @@ class Payment {
     static async findByTenantId(tenantId) {
         const result = await pool.query(
             `SELECT p.*,
-                    s.stall_number, s.location
+                    s.stall_number, s.location as stall_location
              FROM payments p
              LEFT JOIN stalls s ON p.stall_id = s.id
              WHERE p.tenant_id = $1
@@ -129,23 +135,7 @@ class Payment {
     }
 
     /**
-     * Get payments by tenant ID with status filter
-     */
-    static async findByTenantIdAndStatus(tenantId, status) {
-        const result = await pool.query(
-            `SELECT p.*,
-                    s.stall_number, s.location
-             FROM payments p
-             LEFT JOIN stalls s ON p.stall_id = s.id
-             WHERE p.tenant_id = $1 AND p.status = $2
-             ORDER BY p.due_date DESC`,
-            [tenantId, status]
-        );
-        return result.rows;
-    }
-
-    /**
-     * Update a payment
+     * Update payment
      */
     static async update(id, updateData) {
         const fields = [];
@@ -165,58 +155,68 @@ class Payment {
         values.push(id);
         const result = await pool.query(
             `UPDATE payments SET ${fields.join(', ')}, updated_at = CURRENT_TIMESTAMP 
-             WHERE id = $${paramCount}`,
+             WHERE id = $${paramCount} RETURNING *`,
             values
         );
 
-        return result.rowCount > 0;
+        return result.rows[0];
     }
 
     /**
-     * Update payment status
+     * Record payment (mark as paid via PayMongo or manual verification)
      */
-    static async updateStatus(id, status, paymentDate = null) {
+    static async recordPayment(id, paymentData) {
+        const {
+            payment_method,
+            reference_number,
+            proof_image,
+            paymongo_checkout_id,
+            status = 'paid'
+        } = paymentData;
+
         const result = await pool.query(
             `UPDATE payments 
              SET status = $1, 
-                 payment_date = COALESCE($2, payment_date),
+                 payment_date = CURRENT_DATE,
+                 payment_method = COALESCE($2, payment_method, 'cash'),
+                 reference_number = COALESCE($3, reference_number, 'SETTLED-' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDD-HH24MI')),
+                 proof_image = COALESCE($4, proof_image),
+                 paymongo_checkout_id = COALESCE($5, paymongo_checkout_id),
                  updated_at = CURRENT_TIMESTAMP
-             WHERE id = $3`,
-            [status, paymentDate, id]
+             WHERE id = $6
+             RETURNING *`,
+            [
+                status,
+                payment_method || null,
+                reference_number || null,
+                proof_image || null,
+                paymongo_checkout_id || null,
+                id
+            ]
         );
-        return result.rowCount > 0;
+
+        return result.rows[0];
     }
 
     /**
-     * Record payment (mark as paid)
+     * Save PayMongo checkout session URL
      */
-    static async recordPayment(id, paymentData) {
-        const { payment_method, reference_number, proof_image } = paymentData;
-        
+    static async setCheckoutSession(id, checkoutId, checkoutUrl, refNumber) {
         const result = await pool.query(
             `UPDATE payments 
-             SET status = 'paid', 
-                 payment_date = CURRENT_DATE,
-                 payment_method = $1,
-                 reference_number = $2,
-                 proof_image = COALESCE($3, proof_image),
+             SET paymongo_checkout_id = $1,
+                 paymongo_checkout_url = $2,
+                 reference_number = COALESCE($3, reference_number),
                  updated_at = CURRENT_TIMESTAMP
              WHERE id = $4
-             RETURNING id, status, payment_date, payment_method, reference_number`,
-            [payment_method, reference_number, proof_image, id]
+             RETURNING *`,
+            [checkoutId, checkoutUrl, refNumber, id]
         );
-        
-        if (result.rows.length === 0) {
-            console.log('⚠️ No payment found with ID:', id);
-            return false;
-        }
-        
-        console.log('✅ Payment recorded:', result.rows[0]);
-        return result.rowCount > 0;
+        return result.rows[0];
     }
 
     /**
-     * Delete a payment
+     * Delete payment
      */
     static async delete(id) {
         const result = await pool.query('DELETE FROM payments WHERE id = $1', [id]);
@@ -227,66 +227,51 @@ class Payment {
      * Generate monthly bills for all active tenants
      */
     static async generateMonthlyBills(month, year) {
-        try {
-            // Build the date string (e.g., "2026-07-30")
-            const monthStr = String(month).padStart(2, '0');
-            const dateStr = `${year}-${monthStr}-30`;
-            
-            // Get all active tenants with their stalls
-            const tenantsResult = await pool.query(
-                `SELECT t.id as tenant_id, t.stall_id, s.monthly_rent
-                 FROM tenants t
-                 LEFT JOIN stalls s ON t.stall_id = s.id
-                 WHERE t.status = 'active' 
-                 AND t.stall_id IS NOT NULL`
-            );
+        // 1. Get all active tenants with their stall monthly rents
+        const activeTenantsResult = await pool.query(`
+            SELECT t.id as tenant_id, t.stall_id, t.name as tenant_name, 
+                   s.stall_number, s.monthly_rent
+            FROM tenants t
+            INNER JOIN stalls s ON t.stall_id = s.id
+            WHERE t.status = 'active'
+        `);
 
-            const tenants = tenantsResult.rows;
-            
-            if (tenants.length === 0) {
-                console.log('ℹ️ No active tenants found to generate bills');
-                return [];
+        const tenants = activeTenantsResult.rows;
+        const insertedBills = [];
+        const dueDate = new Date(year, month - 1, 28); // Due on 28th of the specified month
+
+        for (const tenant of tenants) {
+            // Check if bill already exists for this tenant and month/year
+            const checkResult = await pool.query(`
+                SELECT id FROM payments 
+                WHERE tenant_id = $1 
+                AND EXTRACT(MONTH FROM due_date) = $2 
+                AND EXTRACT(YEAR FROM due_date) = $3
+            `, [tenant.tenant_id, month, year]);
+
+            if (checkResult.rows.length === 0) {
+                const insertResult = await pool.query(`
+                    INSERT INTO payments 
+                    (tenant_id, stall_id, amount, due_date, status, description)
+                    VALUES ($1, $2, $3, $4, 'unpaid', $5)
+                    RETURNING id
+                `, [
+                    tenant.tenant_id,
+                    tenant.stall_id,
+                    tenant.monthly_rent,
+                    dueDate,
+                    `Monthly Lease Rent for ${tenant.stall_number} (${month}/${year})`
+                ]);
+
+                insertedBills.push({
+                    id: insertResult.rows[0].id,
+                    stall: tenant.stall_number,
+                    amount: tenant.monthly_rent
+                });
             }
-
-            const insertedBills = [];
-
-            // Loop through each tenant and create a bill
-            for (const tenant of tenants) {
-                // Check if bill already exists for this month
-                const checkResult = await pool.query(
-                    `SELECT id FROM payments 
-                     WHERE tenant_id = $1 
-                     AND EXTRACT(MONTH FROM due_date) = $2 
-                     AND EXTRACT(YEAR FROM due_date) = $3`,
-                    [tenant.tenant_id, month, year]
-                );
-
-                if (checkResult.rows.length === 0) {
-                    // Create the bill
-                    const insertResult = await pool.query(
-                        `INSERT INTO payments 
-                         (tenant_id, stall_id, amount, due_date, status, description) 
-                         VALUES ($1, $2, $3, $4, 'unpaid', $5) 
-                         RETURNING id`,
-                        [
-                            tenant.tenant_id,
-                            tenant.stall_id,
-                            parseFloat(tenant.monthly_rent),
-                            dateStr,
-                            `Monthly rent for ${month}/${year}`
-                        ]
-                    );
-                    
-                    insertedBills.push({ id: insertResult.rows[0].id });
-                }
-            }
-
-            console.log(`✅ Generated ${insertedBills.length} bills for ${month}/${year}`);
-            return insertedBills;
-        } catch (error) {
-            console.error('Generate bills error:', error);
-            throw error;
         }
+
+        return insertedBills;
     }
 
     /**
@@ -296,29 +281,31 @@ class Payment {
         const result = await pool.query(`
             SELECT 
                 COUNT(*) as total,
-                SUM(CASE WHEN status = 'paid' THEN 1 ELSE 0 END) as paid,
-                SUM(CASE WHEN status = 'unpaid' THEN 1 ELSE 0 END) as unpaid,
-                SUM(CASE WHEN status = 'overdue' THEN 1 ELSE 0 END) as overdue,
-                SUM(CASE WHEN status = 'partial' THEN 1 ELSE 0 END) as partial,
-                SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) as total_collected,
-                SUM(CASE WHEN status IN ('unpaid', 'overdue') THEN amount + COALESCE(late_fee, 0) ELSE 0 END) as total_outstanding
+                COALESCE(SUM(CASE WHEN status = 'paid' THEN 1 ELSE 0 END), 0) as paid,
+                COALESCE(SUM(CASE WHEN status = 'unpaid' THEN 1 ELSE 0 END), 0) as unpaid,
+                COALESCE(SUM(CASE WHEN status = 'overdue' THEN 1 ELSE 0 END), 0) as overdue,
+                COALESCE(SUM(CASE WHEN status = 'pending_verification' THEN 1 ELSE 0 END), 0) as pending_verification,
+                COALESCE(SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END), 0) as total_collected,
+                COALESCE(SUM(CASE WHEN status IN ('unpaid', 'overdue') THEN amount + COALESCE(late_fee, 0) ELSE 0 END), 0) as total_outstanding,
+                COALESCE(SUM(CASE WHEN status IN ('unpaid', 'overdue') AND (due_date = CURRENT_DATE OR due_date < CURRENT_DATE) THEN amount + COALESCE(late_fee, 0) ELSE 0 END), 0) as today_unpaid_amount,
+                COALESCE(SUM(CASE WHEN status IN ('unpaid', 'overdue') AND (due_date = CURRENT_DATE OR due_date < CURRENT_DATE) THEN 1 ELSE 0 END), 0) as today_unpaid_count
             FROM payments
         `);
         return result.rows[0];
     }
 
     /**
-     * Get payment summary for a tenant
+     * Get summary for single tenant
      */
     static async getTenantSummary(tenantId) {
         const result = await pool.query(`
             SELECT 
                 COUNT(*) as total,
-                SUM(CASE WHEN status = 'paid' THEN 1 ELSE 0 END) as paid_count,
-                SUM(CASE WHEN status = 'unpaid' THEN 1 ELSE 0 END) as unpaid_count,
-                SUM(CASE WHEN status = 'overdue' THEN 1 ELSE 0 END) as overdue_count,
-                SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) as total_paid,
-                SUM(CASE WHEN status IN ('unpaid', 'overdue') THEN amount + COALESCE(late_fee, 0) ELSE 0 END) as total_balance
+                COALESCE(SUM(CASE WHEN status = 'paid' THEN 1 ELSE 0 END), 0) as paid_count,
+                COALESCE(SUM(CASE WHEN status = 'unpaid' THEN 1 ELSE 0 END), 0) as unpaid_count,
+                COALESCE(SUM(CASE WHEN status = 'overdue' THEN 1 ELSE 0 END), 0) as overdue_count,
+                COALESCE(SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END), 0) as total_paid,
+                COALESCE(SUM(CASE WHEN status IN ('unpaid', 'overdue') THEN amount + COALESCE(late_fee, 0) ELSE 0 END), 0) as total_balance
             FROM payments
             WHERE tenant_id = $1
         `, [tenantId]);
@@ -331,12 +318,12 @@ class Payment {
     static async getOverduePayments() {
         const result = await pool.query(`
             SELECT p.*,
-                   t.name as tenant_name, t.email as tenant_email,
-                   s.stall_number, s.location
+                   t.name as tenant_name, t.email as tenant_email, t.phone as tenant_phone,
+                   s.stall_number, s.location as stall_location
             FROM payments p
             LEFT JOIN tenants t ON p.tenant_id = t.id
             LEFT JOIN stalls s ON p.stall_id = s.id
-            WHERE p.status IN ('unpaid', 'partial')
+            WHERE p.status IN ('unpaid', 'overdue')
             AND p.due_date < CURRENT_DATE
             ORDER BY p.due_date ASC
         `);
@@ -344,15 +331,15 @@ class Payment {
     }
 
     /**
-     * Calculate and apply late fees - FIXED
+     * Apply late fees automatically to overdue bills
      */
     static async applyLateFees() {
         const result = await pool.query(`
             UPDATE payments 
             SET late_fee = CASE 
+                WHEN (CURRENT_DATE - due_date) <= 15 THEN ROUND((amount * 0.03)::numeric, 2)
                 WHEN (CURRENT_DATE - due_date) <= 30 THEN ROUND((amount * 0.05)::numeric, 2)
-                WHEN (CURRENT_DATE - due_date) <= 60 THEN ROUND((amount * 0.10)::numeric, 2)
-                ELSE ROUND((amount * 0.15)::numeric, 2)
+                ELSE ROUND((amount * 0.10)::numeric, 2)
             END,
             status = 'overdue',
             updated_at = CURRENT_TIMESTAMP
@@ -364,30 +351,230 @@ class Payment {
     }
 
     /**
-     * Get monthly collection report
+     * Monthly collection analytics report
      */
     static async getMonthlyReport(month, year) {
         const result = await pool.query(`
             SELECT 
                 COUNT(*) as total_bills,
-                SUM(CASE WHEN status = 'paid' THEN 1 ELSE 0 END) as paid_count,
-                SUM(CASE WHEN status = 'unpaid' THEN 1 ELSE 0 END) as unpaid_count,
-                SUM(CASE WHEN status = 'overdue' THEN 1 ELSE 0 END) as overdue_count,
-                SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) as total_collected,
-                SUM(CASE WHEN status IN ('unpaid', 'overdue') THEN amount + COALESCE(late_fee, 0) ELSE 0 END) as total_outstanding
+                COALESCE(SUM(CASE WHEN status = 'paid' THEN 1 ELSE 0 END), 0) as paid_count,
+                COALESCE(SUM(CASE WHEN status = 'unpaid' THEN 1 ELSE 0 END), 0) as unpaid_count,
+                COALESCE(SUM(CASE WHEN status = 'overdue' THEN 1 ELSE 0 END), 0) as overdue_count,
+                COALESCE(SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END), 0) as total_collected,
+                COALESCE(SUM(CASE WHEN status IN ('unpaid', 'overdue') THEN amount + COALESCE(late_fee, 0) ELSE 0 END), 0) as total_outstanding
             FROM payments
             WHERE EXTRACT(MONTH FROM due_date) = $1 
             AND EXTRACT(YEAR FROM due_date) = $2
         `, [month, year]);
-        
+
         return result.rows[0] || {
-            total_bills: '0',
-            paid_count: '0',
-            unpaid_count: '0',
-            overdue_count: '0',
-            total_collected: '0',
-            total_outstanding: '0'
+            total_bills: 0,
+            paid_count: 0,
+            unpaid_count: 0,
+            overdue_count: 0,
+            total_collected: 0,
+            total_outstanding: 0
         };
+    }
+
+    /**
+     * Comprehensive Analytics Engine for Daily, Weekly, Monthly, and Yearly Reporting
+     */
+    static async getAnalyticsReport(timeframe = 'monthly', targetYear = new Date().getFullYear()) {
+        // 1. Quick Glance Real-Time Metrics
+        const quickGlanceRes = await pool.query(`
+            SELECT 
+                COALESCE(SUM(CASE WHEN (DATE(payment_date) = CURRENT_DATE OR (payment_date IS NULL AND DATE(updated_at) = CURRENT_DATE)) AND status = 'paid' THEN amount ELSE 0 END), 0) as today_collected,
+                COALESCE(SUM(CASE WHEN (payment_date >= CURRENT_DATE - INTERVAL '7 days' OR updated_at >= CURRENT_DATE - INTERVAL '7 days') AND status = 'paid' THEN amount ELSE 0 END), 0) as week_collected,
+                COALESCE(SUM(CASE WHEN EXTRACT(MONTH FROM COALESCE(payment_date, updated_at)) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM COALESCE(payment_date, updated_at)) = EXTRACT(YEAR FROM CURRENT_DATE) AND status = 'paid' THEN amount ELSE 0 END), 0) as month_collected,
+                COALESCE(SUM(CASE WHEN EXTRACT(YEAR FROM COALESCE(payment_date, updated_at)) = $1 AND status = 'paid' THEN amount ELSE 0 END), 0) as year_collected,
+                COALESCE(SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END), 0) as all_time_collected,
+                COALESCE(SUM(CASE WHEN status IN ('unpaid', 'overdue') THEN amount + COALESCE(late_fee, 0) ELSE 0 END), 0) as total_outstanding,
+                COUNT(CASE WHEN status = 'paid' THEN 1 END) as paid_count,
+                COUNT(CASE WHEN status IN ('unpaid', 'overdue') THEN 1 END) as unpaid_count,
+                COUNT(*) as total_invoices
+            FROM payments
+        `, [targetYear]);
+
+        const summary = quickGlanceRes.rows[0] || {};
+        const totalBills = parseInt(summary.total_invoices || 0, 10);
+        const paidBills = parseInt(summary.paid_count || 0, 10);
+        summary.collection_rate = totalBills > 0 ? Math.round((paidBills / totalBills) * 100) : 100;
+
+        // 2. Payment Method Distribution Breakdown
+        const methodRes = await pool.query(`
+            SELECT 
+                COALESCE(payment_method, 'unsettled') as method,
+                COUNT(*) as count,
+                COALESCE(SUM(amount), 0) as total_amount
+            FROM payments
+            WHERE status = 'paid'
+            GROUP BY payment_method
+        `);
+        const paymentMethods = methodRes.rows;
+
+        // 3. Timeframe Detailed Breakdown
+        let chartData = [];
+
+        if (timeframe === 'daily') {
+            // Last 14 days
+            const dailyRes = await pool.query(`
+                SELECT 
+                    TO_CHAR(d.date, 'Mon DD') as label,
+                    TO_CHAR(d.date, 'YYYY-MM-DD') as full_date,
+                    COALESCE(SUM(CASE WHEN p.status = 'paid' THEN p.amount ELSE 0 END), 0) as collected,
+                    COALESCE(SUM(p.amount), 0) as expected,
+                    COUNT(p.id) as count
+                FROM (
+                    SELECT CURRENT_DATE - (n || ' days')::interval as date
+                    FROM generate_series(13, 0, -1) n
+                ) d
+                LEFT JOIN payments p ON DATE(COALESCE(p.payment_date, p.created_at)) = DATE(d.date)
+                GROUP BY d.date
+                ORDER BY d.date ASC
+            `);
+            chartData = dailyRes.rows;
+        } else if (timeframe === 'weekly') {
+            // Last 8 weeks
+            const weeklyRes = await pool.query(`
+                SELECT 
+                    'Week ' || TO_CHAR(w.week_start, 'WW (Mon DD)') as label,
+                    COALESCE(SUM(CASE WHEN p.status = 'paid' THEN p.amount ELSE 0 END), 0) as collected,
+                    COALESCE(SUM(p.amount), 0) as expected,
+                    COUNT(p.id) as count
+                FROM (
+                    SELECT (DATE_TRUNC('week', CURRENT_DATE) - (n || ' weeks')::interval)::date as week_start
+                    FROM generate_series(7, 0, -1) n
+                ) w
+                LEFT JOIN payments p ON DATE_TRUNC('week', COALESCE(p.payment_date, p.created_at)) = w.week_start
+                GROUP BY w.week_start
+                ORDER BY w.week_start ASC
+            `);
+            chartData = weeklyRes.rows;
+        } else if (timeframe === 'yearly') {
+            // 4-year trend
+            const yearlyRes = await pool.query(`
+                SELECT 
+                    y.year::text as label,
+                    COALESCE(SUM(CASE WHEN p.status = 'paid' THEN p.amount ELSE 0 END), 0) as collected,
+                    COALESCE(SUM(p.amount), 0) as expected,
+                    COUNT(p.id) as count
+                FROM (
+                    SELECT generate_series($1 - 3, $1 + 1) as year
+                ) y
+                LEFT JOIN payments p ON EXTRACT(YEAR FROM COALESCE(p.payment_date, p.due_date)) = y.year
+                GROUP BY y.year
+                ORDER BY y.year ASC
+            `, [targetYear]);
+            chartData = yearlyRes.rows;
+        } else {
+            // Monthly for target year (Jan to Dec)
+            const monthlyRes = await pool.query(`
+                SELECT 
+                    TO_CHAR(TO_DATE(m.month::text, 'MM'), 'Mon') as label,
+                    m.month as month_num,
+                    COALESCE(SUM(CASE WHEN p.status = 'paid' THEN p.amount ELSE 0 END), 0) as collected,
+                    COALESCE(SUM(p.amount), 0) as expected,
+                    COALESCE(SUM(CASE WHEN p.status IN ('unpaid', 'overdue') THEN p.amount ELSE 0 END), 0) as outstanding,
+                    COUNT(p.id) as count
+                FROM (
+                    SELECT generate_series(1, 12) as month
+                ) m
+                LEFT JOIN payments p ON EXTRACT(MONTH FROM COALESCE(p.payment_date, p.due_date)) = m.month 
+                                    AND EXTRACT(YEAR FROM COALESCE(p.payment_date, p.due_date)) = $1
+                GROUP BY m.month
+                ORDER BY m.month ASC
+            `, [targetYear]);
+            chartData = monthlyRes.rows;
+        }
+
+        return {
+            summary,
+            paymentMethods,
+            timeframe,
+            year: targetYear,
+            chartData
+        };
+    }
+
+    /**
+     * Get Stalls Billing & Dues Master Overview
+     * Returns all stalls alphabetically, with stalls having due/unpaid rent floated to the top!
+     */
+    static async getStallsBillingOverview(search = '') {
+        let query = `
+            SELECT 
+                s.id as stall_id,
+                s.stall_number,
+                s.location as stall_location,
+                s.size as stall_size,
+                s.monthly_rent,
+                s.rent_type,
+                s.status as stall_status,
+                t.id as tenant_id,
+                t.name as tenant_name,
+                t.business_name,
+                t.phone as tenant_phone,
+                t.email as tenant_email,
+                -- Active due info
+                due_p.id as active_due_id,
+                due_p.amount as active_due_amount,
+                due_p.due_date as active_due_date,
+                due_p.status as active_due_status,
+                due_p.late_fee as active_late_fee,
+                due_p.description as active_due_description,
+                -- Aggregates
+                COALESCE(agg.total_unpaid_amount, 0) as total_unpaid_amount,
+                COALESCE(agg.unpaid_invoices_count, 0) as unpaid_invoices_count,
+                COALESCE(agg.total_paid_amount, 0) as total_paid_amount,
+                COALESCE(agg.paid_invoices_count, 0) as paid_invoices_count,
+                agg.latest_payment_date,
+                agg.latest_payment_method,
+                agg.latest_reference_number
+            FROM stalls s
+            LEFT JOIN tenants t ON t.stall_id = s.id AND t.status = 'active'
+            LEFT JOIN LATERAL (
+                SELECT * FROM payments 
+                WHERE (stall_id = s.id OR (tenant_id = t.id AND tenant_id IS NOT NULL))
+                  AND status IN ('overdue', 'unpaid', 'pending_verification')
+                ORDER BY 
+                    CASE WHEN status = 'overdue' THEN 1 WHEN status = 'unpaid' THEN 2 ELSE 3 END ASC,
+                    due_date ASC
+                LIMIT 1
+            ) due_p ON true
+            LEFT JOIN LATERAL (
+                SELECT 
+                    SUM(CASE WHEN status IN ('unpaid', 'overdue') THEN amount + COALESCE(late_fee, 0) ELSE 0 END) as total_unpaid_amount,
+                    SUM(CASE WHEN status IN ('unpaid', 'overdue') THEN 1 ELSE 0 END) as unpaid_invoices_count,
+                    SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) as total_paid_amount,
+                    SUM(CASE WHEN status = 'paid' THEN 1 ELSE 0 END) as paid_invoices_count,
+                    MAX(CASE WHEN status = 'paid' THEN payment_date ELSE NULL END) as latest_payment_date,
+                    (SELECT payment_method FROM payments WHERE (stall_id = s.id OR tenant_id = t.id) AND status = 'paid' ORDER BY payment_date DESC, created_at DESC LIMIT 1) as latest_payment_method,
+                    (SELECT reference_number FROM payments WHERE (stall_id = s.id OR tenant_id = t.id) AND status = 'paid' ORDER BY payment_date DESC, created_at DESC LIMIT 1) as latest_reference_number
+                FROM payments
+                WHERE stall_id = s.id OR (tenant_id = t.id AND tenant_id IS NOT NULL)
+            ) agg ON true
+        `;
+
+        const values = [];
+        if (search) {
+            query += ` WHERE s.stall_number ILIKE $1 OR s.location ILIKE $1 OR t.name ILIKE $1 OR t.business_name ILIKE $1`;
+            values.push(`%${search}%`);
+        }
+
+        query += `
+            ORDER BY 
+                CASE 
+                    WHEN due_p.status = 'overdue' THEN 1
+                    WHEN due_p.status = 'unpaid' THEN 2
+                    WHEN due_p.status = 'pending_verification' THEN 3
+                    ELSE 4
+                END ASC,
+                s.stall_number ASC
+        `;
+
+        const result = await pool.query(query, values);
+        return result.rows;
     }
 }
 

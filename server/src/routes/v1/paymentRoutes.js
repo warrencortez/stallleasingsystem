@@ -5,6 +5,8 @@ const {
     getPayment,
     getTenantPayments,
     createPayment,
+    createPaymongoCheckout,
+    verifyPaymongoPayment,
     updatePayment,
     recordPayment,
     generateBills,
@@ -13,37 +15,62 @@ const {
     getTenantSummary,
     getOverduePayments,
     getMonthlyReport,
+    getAnalytics,
+    getStallsBillingOverview,
     deletePayment
 } = require('../../controllers/paymentController');
 const { authenticate, authorize } = require('../../middleware/auth');
+const upload = require('../../middleware/upload');
+const Tenant = require('../../models/Tenant');
+const Payment = require('../../models/Payment');
 
 // ==================================================
 // ALL ROUTES REQUIRE AUTHENTICATION
 // ==================================================
+router.use(authenticate);
+
+// Get comprehensive analytics report (Daily, Weekly, Monthly, Yearly)
+router.get('/analytics', getAnalytics);
+
+// Get master stalls dues and billing summary (Admin/Staff only)
+router.get('/stalls-overview', authorize('admin', 'staff'), getStallsBillingOverview);
 
 // Get payment statistics (Admin/Staff only)
-router.get('/stats', authenticate, authorize('admin', 'staff'), getPaymentStats);
+router.get('/stats', authorize('admin', 'staff'), getPaymentStats);
 
 // Get overdue payments (Admin/Staff only)
-router.get('/overdue', authenticate, authorize('admin', 'staff'), getOverduePayments);
+router.get('/overdue', authorize('admin', 'staff'), getOverduePayments);
 
 // Get monthly report (Admin/Staff only)
-router.get('/report', authenticate, authorize('admin', 'staff'), getMonthlyReport);
+router.get('/report', authorize('admin', 'staff'), getMonthlyReport);
 
 // Generate monthly bills (Admin only)
-router.post('/generate-bills', authenticate, authorize('admin'), generateBills);
+router.post('/generate-bills', authorize('admin'), generateBills);
 
 // Apply late fees (Admin only)
-router.post('/apply-late-fees', authenticate, authorize('admin'), applyLateFees);
+router.post('/apply-late-fees', authorize('admin'), applyLateFees);
 
-// Get all payments (Admin/Staff only)
-router.get('/', authenticate, authorize('admin', 'staff'), getAllPayments);
+// Get all payments (Admin/Staff or Filtered)
+router.get('/', async (req, res, next) => {
+    if (req.userRole === 'tenant') {
+        const tenant = await Tenant.findByUserId(req.userId);
+        if (tenant) {
+            req.query.tenant_id = tenant.id;
+        }
+    }
+    next();
+}, getAllPayments);
 
-// Get payments by tenant (Admin/Staff/Tenant can view their own)
-router.get('/tenant/:tenantId', authenticate, async (req, res, next) => {
-    // Allow tenant to view their own payments
+// PayMongo Checkout Session generation
+router.post('/:id/paymongo-checkout', createPaymongoCheckout);
+
+// PayMongo Payment verification
+router.post('/:id/verify-paymongo', verifyPaymongoPayment);
+
+// Get payments by tenant
+router.get('/tenant/:tenantId', async (req, res, next) => {
     const { tenantId } = req.params;
-    const tenant = await require('../../models/Tenant').findById(tenantId);
+    const tenant = await Tenant.findById(tenantId);
     
     if (req.userRole === 'tenant' && tenant && tenant.user_id !== req.userId) {
         return res.status(403).json({
@@ -55,9 +82,9 @@ router.get('/tenant/:tenantId', authenticate, async (req, res, next) => {
 }, getTenantPayments);
 
 // Get tenant payment summary
-router.get('/tenant/:tenantId/summary', authenticate, async (req, res, next) => {
+router.get('/tenant/:tenantId/summary', async (req, res, next) => {
     const { tenantId } = req.params;
-    const tenant = await require('../../models/Tenant').findById(tenantId);
+    const tenant = await Tenant.findById(tenantId);
     
     if (req.userRole === 'tenant' && tenant && tenant.user_id !== req.userId) {
         return res.status(403).json({
@@ -69,22 +96,21 @@ router.get('/tenant/:tenantId/summary', authenticate, async (req, res, next) => 
 }, getTenantSummary);
 
 // Get a single payment
-router.get('/:id', authenticate, getPayment);
+router.get('/:id', getPayment);
 
 // Create a new payment (Admin/Staff only)
-router.post('/', authenticate, authorize('admin', 'staff'), createPayment);
+router.post('/', authorize('admin', 'staff'), createPayment);
 
 // Update a payment (Admin/Staff only)
-router.put('/:id', authenticate, authorize('admin', 'staff'), updatePayment);
+router.put('/:id', authorize('admin', 'staff'), updatePayment);
 
-// Record payment (mark as paid) - Tenant can record their own
-router.patch('/:id/record', authenticate, async (req, res, next) => {
+// Record payment or submit proof upload
+router.patch('/:id/record', upload.single('proof_image'), async (req, res, next) => {
     const { id } = req.params;
-    const payment = await require('../../models/Payment').findById(id);
+    const payment = await Payment.findById(id);
     
     if (payment && req.userRole === 'tenant') {
-        // Check if this payment belongs to the tenant's tenant record
-        const tenant = await require('../../models/Tenant').findByUserId(req.userId);
+        const tenant = await Tenant.findByUserId(req.userId);
         if (tenant && payment.tenant_id !== tenant.id) {
             return res.status(403).json({
                 success: false,
@@ -96,6 +122,6 @@ router.patch('/:id/record', authenticate, async (req, res, next) => {
 }, recordPayment);
 
 // Delete a payment (Admin only)
-router.delete('/:id', authenticate, authorize('admin'), deletePayment);
+router.delete('/:id', authorize('admin'), deletePayment);
 
 module.exports = router;

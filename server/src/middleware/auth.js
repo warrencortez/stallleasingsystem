@@ -91,7 +91,33 @@ const authorize = (...roles) => {
     };
 };
 
+/**
+ * Optional Authentication Middleware
+ * If token is provided, attaches user; otherwise proceeds as guest
+ */
+const optionalAuth = async (req, res, next) => {
+    try {
+        const authHeader = req.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            const token = authHeader.split(' ')[1];
+            const decoded = verifyToken(token);
+            if (decoded) {
+                const user = await User.findById(decoded.id);
+                if (user && user.is_active) {
+                    req.user = user;
+                    req.userId = user.id;
+                    req.userRole = user.role;
+                }
+            }
+        }
+        next();
+    } catch (error) {
+        next();
+    }
+};
+
 module.exports = {
     authenticate,
-    authorize
+    authorize,
+    optionalAuth
 };

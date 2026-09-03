@@ -13,26 +13,28 @@ class Application {
             phone,
             business_name,
             business_type,
-            application_date,
-            notes
+            notes,
+            valid_id_url,
+            business_permit_url
         } = applicationData;
 
         const result = await pool.query(
             `INSERT INTO applications 
              (user_id, stall_id, full_name, email, phone, 
-              business_name, business_type, application_date, notes) 
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
+              business_name, business_type, notes, valid_id_url, business_permit_url) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
              RETURNING id`,
             [
                 user_id || null,
                 stall_id || null,
                 full_name,
-                email,
-                phone,
+                email || null,
+                phone || null,
                 business_name,
-                business_type,
-                application_date || new Date(),
-                notes
+                business_type || 'General Retail',
+                notes || null,
+                valid_id_url || null,
+                business_permit_url || null
             ]
         );
 

@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "LeaseHub Tenant",
+    "slug": "leasehub-tenant",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#4f46e5"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#4f46e5"
+      },
+      "package": "com.leasehub.tenant"
+    }
+  }
+}

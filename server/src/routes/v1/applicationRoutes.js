@@ -8,10 +8,10 @@ const {
     getApplicationStats,
     deleteApplication
 } = require('../../controllers/applicationController');
-const { authenticate, authorize } = require('../../middleware/auth');
+const { authenticate, authorize, optionalAuth } = require('../../middleware/auth');
 
 // ==================================================
-// ALL ROUTES REQUIRE AUTHENTICATION
+// ALL ROUTES
 // ==================================================
 
 // Get application statistics (Admin/Staff only)
@@ -23,8 +23,8 @@ router.get('/', authenticate, authorize('admin', 'staff'), getAllApplications);
 // Get a single application (Admin/Staff only)
 router.get('/:id', authenticate, authorize('admin', 'staff'), getApplication);
 
-// Create a new application (Anyone can apply)
-router.post('/', authenticate, createApplication);
+// Create a new application (Public or authenticated applicants)
+router.post('/', optionalAuth, createApplication);
 
 // Review application (Admin/Staff only)
 router.patch('/:id/review', authenticate, authorize('admin', 'staff'), reviewApplication);

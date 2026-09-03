@@ -1,6 +1,8 @@
 const Application = require('../models/Application');
 const Stall = require('../models/Stall');
 const Tenant = require('../models/Tenant');
+const Notification = require('../models/Notification');
+const { pool } = require('../config/database');
 
 /**
  * Get all applications
@@ -8,7 +10,10 @@ const Tenant = require('../models/Tenant');
  */
 const getAllApplications = async (req, res) => {
     try {
-        const { status, user_id, search } = req.query;
+        let { status, user_id, search } = req.query;
+        if ((req.userRole === 'tenant' || req.userRole === 'applicant') && !user_id) {
+            user_id = req.userId;
+        }
         const applications = await Application.findAll({ status, user_id, search });
         
         res.status(200).json({
@@ -151,44 +156,113 @@ const reviewApplication = async (req, res) => {
         }
 
         // =============================================
-        // ✅ FIXED: CREATE TENANT WHEN APPROVED
-        // Now handles user_id: null properly
+        // 1-TENANT-PER-STALL & AUTO-REJECT CASCADE
         // =============================================
         if (status === 'approved') {
             try {
-                // Check if tenant already exists with this email
-                const existingTenant = await Tenant.findByEmail(application.email);
-                
-                if (!existingTenant) {
-                    // ✅ FIX: Create tenant even if user_id is null
-                    const tenantData = {
-                        user_id: application.user_id || null,  // Allow null
-                        stall_id: application.stall_id,
-                        name: application.full_name,
-                        email: application.email,
-                        phone: application.phone,
-                        address: null,
-                        business_name: application.business_name,
-                        business_type: application.business_type,
-                        status: 'active',
-                        contract_start: new Date(),
-                        contract_end: new Date(new Date().setFullYear(new Date().getFullYear() + 1))
-                    };
-
-                    const tenantId = await Tenant.create(tenantData);
-                    console.log(`✅ Tenant created with ID: ${tenantId}`);
-                    
-                    // Update stall status to occupied
-                    if (application.stall_id) {
-                        await Stall.updateStatus(application.stall_id, 'occupied');
-                        console.log(`✅ Stall ${application.stall_id} updated to occupied`);
+                if (application.stall_id) {
+                    // 1. Verify stall is not already occupied by another tenant
+                    const currentStall = await Stall.findById(application.stall_id);
+                    if (currentStall && currentStall.status === 'occupied') {
+                        return res.status(400).json({
+                            success: false,
+                            message: 'This stall is already occupied by an active tenant. A stall can only have 1 tenant.'
+                        });
                     }
-                } else {
-                    console.log(`ℹ️ Tenant already exists for email: ${application.email}`);
+
+                    // 2. Mark stall status as occupied
+                    await Stall.updateStatus(application.stall_id, 'occupied');
+                    console.log(`[Stall ${application.stall_id}] Status updated to OCCUPIED.`);
+
+                    // 3. Create/Link Tenant record
+                    const existingTenant = await Tenant.findByEmail(application.email);
+                    if (!existingTenant) {
+                        const tenantData = {
+                            user_id: application.user_id || null,
+                            stall_id: application.stall_id,
+                            name: application.full_name,
+                            email: application.email,
+                            phone: application.phone,
+                            address: null,
+                            business_name: application.business_name,
+                            business_type: application.business_type,
+                            status: 'active',
+                            contract_start: new Date(),
+                            contract_end: new Date(new Date().setFullYear(new Date().getFullYear() + 1))
+                        };
+                        const tenantId = await Tenant.create(tenantData);
+                        console.log(`[Tenant Created] ID: ${tenantId}`);
+                    } else {
+                        await Tenant.update(existingTenant.id, {
+                            stall_id: application.stall_id,
+                            status: 'active'
+                        });
+                    }
+
+                    // 4. AUTO-REJECT ALL OTHER PENDING APPLICATIONS FOR THIS STALL
+                    const { pool } = require('../config/database');
+                    const otherPendingResult = await pool.query(
+                        `SELECT id, user_id, full_name, email 
+                         FROM applications 
+                         WHERE stall_id = $1 AND id != $2 AND status = 'pending'`,
+                        [application.stall_id, id]
+                    );
+
+                    if (otherPendingResult.rows.length > 0) {
+                        await pool.query(
+                            `UPDATE applications 
+                             SET status = 'rejected', 
+                                 rejection_reason = 'Stall has been leased to an approved applicant.',
+                                 notes = COALESCE(notes, '') || E'\\n[System Auto-Reject]: Stall occupied by another tenant.',
+                                 reviewed_by = $1,
+                                 reviewed_at = CURRENT_TIMESTAMP,
+                                 updated_at = CURRENT_TIMESTAMP
+                             WHERE stall_id = $2 AND id != $3 AND status = 'pending'`,
+                            [req.userId, application.stall_id, id]
+                        );
+                        console.log(`[Cascade Auto-Reject] Rejected ${otherPendingResult.rows.length} competing application(s) for stall ${application.stall_id}`);
+
+                        // 5. Send notification to each rejected applicant
+                        const Notification = require('../models/Notification');
+                        for (const rejectedApp of otherPendingResult.rows) {
+                            if (rejectedApp.user_id) {
+                                await Notification.create({
+                                    user_id: rejectedApp.user_id,
+                                    title: 'Stall Application Notice',
+                                    message: `Your application for ${currentStall?.stall_number || 'Stall'} was not accepted because the stall has been leased to another approved applicant.`,
+                                    type: 'application_rejected',
+                                    link: '/stalls'
+                                });
+                            }
+                        }
+                    }
+
+                    // 6. Send approval notification to approved applicant
+                    let targetApplicantUserId = application.user_id;
+                    if (!targetApplicantUserId && application.email) {
+                        const userRes = await pool.query("SELECT id FROM users WHERE lower(email) = lower($1)", [application.email.trim()]);
+                        targetApplicantUserId = userRes.rows[0]?.id;
+                    }
+                    if (!targetApplicantUserId && application.phone) {
+                        const userPhoneRes = await pool.query("SELECT id FROM users WHERE phone = $1", [application.phone.trim()]);
+                        targetApplicantUserId = userPhoneRes.rows[0]?.id;
+                    }
+
+                    console.log(`[Approval Debug] Application ${id} approved. targetApplicantUserId: ${targetApplicantUserId}, email: ${application.email}`);
+
+                    if (targetApplicantUserId) {
+                        await Notification.create({
+                            user_id: targetApplicantUserId,
+                            title: 'Application Approved! 🎉',
+                            message: `Application approved! Congratulations, your application for Stall ${currentStall?.stall_number || ''} has been approved. Click here to check the details.`,
+                            type: 'application_approved',
+                            link: `/stalls?stall_id=${application.stall_id}`
+                        });
+                        console.log(`[Notification Created] Created application_approved notification for user ID: ${targetApplicantUserId}`);
+                    }
                 }
             } catch (error) {
-                console.error('Error creating tenant:', error);
-                // Don't fail the whole request, just log it
+                console.error('Error during application approval cascade:', error);
             }
         }
 

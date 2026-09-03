@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Commercial Stall Leasing System - Architecture Specification</title>
+  <!-- Mermaid.js for rendering diagrams -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+  <!-- jsPDF for clean vector/raster diagram-only PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0b0f19;
+      --bg-secondary: #111827;
+      --bg-card: #1e293b;
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.25);
+      --purple: #818cf8;
+      --emerald: #34d399;
+      --amber: #fbbf24;
+      --rose: #fb7185;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #0f172a 40%, var(--bg-primary) 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* Compact Topbar */
+    header {
+      padding: 0.55rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.94);
+      backdrop-filter: blur(16px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.55rem;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      border-radius: 9999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ffffff 30%, #38bdf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    /* Navigation Bar */
+    nav {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.78rem;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      background: #1f293d;
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: white;
+      border-color: #38bdf8;
+      box-shadow: 0 2px 10px var(--accent-glow);
+    }
+
+    /* Main Container */
+    main {
+      max-width: 1440px;
+      margin: 0.75rem auto;
+      padding: 0 1rem 3rem;
+    }
+
+    .section-card {
+      display: none;
+      background: rgba(30, 41, 59, 0.75);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+      animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .section-card.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 0.65rem;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .section-desc {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-top: 0.15rem;
+    }
+
+    /* Action Controls & Toolbar */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .tool-btn {
+      background: #1e293b;
+      border: 1px solid #475569;
+      color: #e2e8f0;
+      padding: 0.35rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: all 0.15s ease;
+    }
+
+    .tool-btn:hover {
+      background: #334155;
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .tool-btn.btn-primary {
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      border-color: #38bdf8;
+      color: #fff;
+    }
+
+    .tool-btn.btn-primary:hover {
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+    }
+
+    /* Diagram Canvas (Optimized for Folio Landscape Dimensions) */
+    .diagram-wrapper {
+      background: #090d16;
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      padding: 1.5rem 1rem;
+      display: block;
+      overflow-x: auto;
+      overflow-y: auto;
+      min-height: 580px;
+      max-height: 82vh;
+      text-align: center;
+      position: relative;
+      box-shadow: inset 0 2px 12px rgba(0,0,0,0.6);
+    }
+
+    .diagram-render {
+      display: inline-block;
+      min-width: 1100px;
+      width: 100%;
+      max-width: 1600px;
+      margin: 0 auto;
+      text-align: center;
+      transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+      transform-origin: top center;
+    }
+
+    .diagram-render svg {
+      width: 100% !important;
+      min-width: 1100px !important;
+      max-width: 1550px !important;
+      height: auto !important;
+      display: block;
+      margin: 0 auto;
+    }
+
+    /* Legend / Highlights */
+    .legend-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 0.85rem;
+      margin-top: 1.25rem;
+    }
+
+    .legend-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .legend-card:hover {
+      transform: translateY(-2px);
+      border-color: #475569;
+    }
+
+    .legend-card h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .legend-card p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* DFD Table */
+    .dfd-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1.25rem;
+      font-size: 0.85rem;
+      background: #0f172a;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .dfd-table th {
+      background: #1e293b;
+      color: #38bdf8;
+      text-align: left;
+      padding: 0.65rem 0.95rem;
+      font-weight: 700;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .dfd-table td {
+      padding: 0.6rem 0.95rem;
+      border-bottom: 1px solid #1e293b;
+      color: #cbd5e1;
+    }
+
+    .dfd-table tr:hover td {
+      background: rgba(56, 189, 248, 0.05);
+    }
+
+    .code-pill {
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(56, 189, 248, 0.12);
+      color: #38bdf8;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      font-size: 0.78rem;
+    }
+
+    /* High-Legibility Diagram Text & Swimlane Styling */
+    .diagram-render svg text {
+      font-family: 'Plus Jakarta Sans', sans-serif !important;
+      font-size: 14px !important;
+    }
+
+    .diagram-render svg .nodeLabel {
+      font-weight: 600 !important;
+      font-size: 14px !important;
+    }
+
+    .diagram-render svg .cluster rect {
+      fill: rgba(15, 23, 42, 0.75) !important;
+      stroke: #334155 !important;
+      stroke-width: 1.5px !important;
+      rx: 8px !important;
+      ry: 8px !important;
+    }
+
+    .diagram-render svg .cluster text,
+    .diagram-render svg .cluster-label text {
+      font-size: 15px !important;
+      font-weight: 700 !important;
+      fill: #38bdf8 !important;
+    }
+
+    .diagram-render svg .edgeLabel {
+      font-size: 12px !important;
+      font-weight: 500 !important;
+    }
+
+    /* Colors */
+    .c-blue { color: var(--accent); }
+    .c-purple { color: var(--purple); }
+    .c-green { color: var(--emerald); }
+    .c-amber { color: var(--amber); }
+    .c-rose { color: var(--rose); }
+
+    .loading-spinner {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Folio Landscape Print Styles (8.5 x 13 in / 330.2mm x 215.9mm) */
+    @page {
+      size: 330.2mm 215.9mm; /* Exact Folio Landscape */
+      margin: 6mm;
+    }
+
+    @media print {
+      body {
+        background: #090d16 !important;
+        color: #f8fafc !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      header, .toolbar, nav, .legend-grid, .dfd-table {
+        display: none !important;
+      }
+      main {
+        margin: 0 !important;
+        padding: 0 !important;
+        max-width: 100% !important;
+      }
+      .section-card {
+        display: none !important;
+      }
+      .section-card.active {
+        display: block !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        page-break-inside: avoid !important;
+      }
+      .section-header {
+        border-bottom: 1px solid #334155 !important;
+        padding-bottom: 4px !important;
+        margin-bottom: 8px !important;
+      }
+      .section-title {
+        font-size: 1.1rem !important;
+      }
+      .diagram-wrapper {
+        background: #090d16 !important;
+        border: none !important;
+        max-height: none !important;
+        height: auto !important;
+        overflow: visible !important;
+        padding: 0 !important;
+      }
+      .diagram-render svg {
+        width: 100% !important;
+        max-height: 185mm !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand-group">
+      <h1>🏪 Stall Leasing Architecture</h1>
+      <span class="badge">Docs & Blueprints</span>
+    </div>
+    <nav>
+      <button class="tab-btn active" onclick="switchTab('mobile-flow', this)">📱 Mobile App Flowchart</button>
+      <button class="tab-btn" onclick="switchTab('admin-flow', this)">💻 Admin Web Flowchart</button>
+      <button class="tab-btn" onclick="switchTab('paymongo-flow', this)">💳 Billing Flow</button>
+      <button class="tab-btn" onclick="switchTab('maint-flow', this)">🛠️ Maintenance Flow</button>
+      <button class="tab-btn" onclick="switchTab('erd-view', this)">🗄️ Database ERD</button>
+      <button class="tab-btn" onclick="switchTab('dfd0-view', this)">🧭 DFD Level 0</button>
+      <button class="tab-btn" onclick="switchTab('dfd1-view', this)">⚙️ DFD Level 1</button>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- 1. MOBILE APP FLOWCHART -->
+    <div id="mobile-flow" class="section-card active">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">📱 Tenant Mobile Application Flowchart (Expo Go)</h2>
+          <p class="section-desc">Complete end-to-end mobile user journey: Onboarding, JWT Auth, Stall Discovery & QR Scanning, Application KYC Submissions, PayMongo E-Wallets/Card Checkout, Cash Deposit Slip Uploads, Maintenance Ticketing, and Community Advisories.</p>
+        </div>
+        <div class="toolbar">
+          <button class="tool-btn" onclick="adjustZoom('mobile-flow', 0.15)">➕ Zoom In</button>
+          <button class="tool-btn" onclick="adjustZoom('mobile-flow', -0.15)">➖ Zoom Out</button>
+          <button class="tool-btn" onclick="resetZoom('mobile-flow')">🔄 Reset</button>
+          <button class="tool-btn btn-primary" onclick="exportPDF('mobile-flow', 'Tenant_Mobile_App_Flowchart')">📥 Export Folio PDF</button>
+          <button class="tool-btn" onclick="window.print()">🖨️ Print Folio</button>
+          <button class="tool-btn" onclick="exportPNG('mobile-flow', 'Tenant_Mobile_App_Flowchart')">🖼️ Export PNG</button>
+        </div>
+      </div>
+
+      <div class="diagram-wrapper">
+        <div id="render-mobile-flow" class="diagram-render">
+          <div class="loading-spinner">Rendering diagram...</div>
+        </div>
+      </div>
+
+      <div class="legend-grid">
+        <div class="legend-card">
+          <h4 class="c-blue">🔍 Vacant Stall Discovery</h4>
+          <p>Tenants can browse the digital stall catalog filtered by area dimensions (sqm) and monthly rent, or walk in and scan physical stall QR codes with their camera.</p>
+        </div>
+        <div class="legend-card">
+          <h4 class="c-purple">💳 Dual-Channel Billing Hub</h4>
+          <p>Instant online checkout with GCash, Maya, and Visa/Mastercard via PayMongo, or manual bank transfer with photo deposit slip uploads.</p>
+        </div>
+        <div class="legend-card">
+          <h4 class="c-green">🛠️ Real-Time Self Service</h4>
+          <p>Tenants submit facility repair tickets with urgency priorities, view management broadcasts, and chat live with management staff.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. ADMIN WEB PORTAL FLOWCHART -->
+    <div id="admin-flow" class="section-card">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">💻 Admin & Management Web Portal Flowchart (React 19)</h2>
+          <p class="section-desc">Comprehensive administrative operations: Role-based Authentication, Stall Catalog & QR Generation, Application KYC Auditing (Valid IDs & Mayor's Permits), Billing Cycles & Cash Reconciliation, Maintenance Work Order Dispatching, and Lease Contract Monitoring.</p>
+        </div>
+        <div class="toolbar">
+          <button class="tool-btn" onclick="adjustZoom('admin-flow', 0.15)">➕ Zoom In</button>
+          <button class="tool-btn" onclick="adjustZoom('admin-flow', -0.15)">➖ Zoom Out</button>
+          <button class="tool-btn" onclick="resetZoom('admin-flow')">🔄 Reset</button>
+          <button class="tool-btn btn-primary" onclick="exportPDF('admin-flow', 'Admin_Management_Web_Flowchart')">📥 Export Folio PDF</button>
+          <button class="tool-btn" onclick="window.print()">🖨️ Print Folio</button>
+          <button class="tool-btn" onclick="exportPNG('admin-flow', 'Admin_Management_Web_Flowchart')">🖼️ Export PNG</button>
+        </div>
+      </div>
+
+      <div class="diagram-wrapper">
+        <div id="render-admin-flow" class="diagram-render">
+          <div class="loading-spinner">Rendering diagram...</div>
+        </div>
+      </div>
+
+      <div class="legend-grid">
+        <div class="legend-card">
+          <h4 class="c-purple">🏢 Stall & QR Code Management</h4>
+          <p>Create, update, and manage stall inventory, set pricing structures, and generate high-resolution QR codes for physical stall display.</p>
+        </div>
+        <div class="legend-card">
+          <h4 class="c-amber">⚖️ KYC Verification Pipeline</h4>
+          <p>Review applicant queue, inspect uploaded valid IDs and Mayor's/DTI permits, approve applications (auto-creating tenant profiles), or reject with feedback.</p>
+        </div>
+        <div class="legend-card">
+          <h4 class="c-green">📊 Finance & Facility Dispatch</h4>
+          <p>Audit bank deposit reference numbers, monitor automated PayMongo webhooks, dispatch maintenance crews, and manage lease contract renewals.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. APPLICATION FLOW -->
+    <div id="onboarding-flow" class="section-card">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Stall Application & KYC Pipeline Flow</h2>
+          <p class="section-desc">Detailed applicant workflow for stall discovery, document uploads, staff review, and lease creation.</p>
+        </div>
+        <div class="toolbar">
+          <button class="tool-btn" onclick="adjustZoom('onboarding-flow', 0.15)">➕ Zoom In</button>
+          <button class="tool-btn" onclick="adjustZoom('onboarding-flow', -0.15)">➖ Zoom Out</button>
+          <button class="tool-btn" onclick="resetZoom('onboarding-flow')">🔄 Reset</button>
+          <button class="tool-btn btn-primary" onclick="exportPDF('onboarding-flow', 'Stall_Application_Flow')">📥 Export Folio PDF</button>
+          <button class="tool-btn" onclick="window.print()">🖨️ Print Folio</button>
+          <button class="tool-btn" onclick="exportPNG('onboarding-flow', 'Stall_Application_Flow')">🖼️ Export PNG</button>
+        </div>
+      </div>
+
+      <div class="diagram-wrapper">
+        <div id="render-onboarding-flow" class="diagram-render">
+          <div class="loading-spinner">Rendering diagram...</div>
+        </div>
+      </div>
+
+      <div class="legend-grid">
+        <div class="legend-card">
+          <h4 class="c-blue">🔍 Vacant Stall Catalog</h4>
+          <p>Applicants filter vacant stalls by location, dimensions (sqm), and monthly rental rates before applying.</p>
+        </div>
+        <div class="legend-card">
+          <h4 class="c-amber">📄 KYC Document Submissions</h4>
+          <p>Applicants submit government-issued Valid IDs and Mayor's / DTI Business Permits for administrative compliance.</p>
+        </div>
+        <div class="legend-card">
+          <h4 class="c-green">🏢 Automated Tenancy</h4>
+          <p>Staff approval automatically links the user account to a new tenant record, assigns the stall, and schedules lease contract milestones.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. PAYMONGO BILLING FLOW -->
+    <div id="paymongo-flow" class="section-card">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Billing & Dual-Channel Payment Flow</h2>
+          <p class="section-desc">Automated invoicing supporting PayMongo (GCash, Maya, Cards) and OTC Cash / Bank Transfer receipt audit.</p>
+        </div>
+        <div class="toolbar">
+          <button class="tool-btn" onclick="adjustZoom('paymongo-flow', 0.15)">➕ Zoom In</button>
+          <button class="tool-btn" onclick="adjustZoom('paymongo-flow', -0.15)">➖ Zoom Out</button>
+          <button class="tool-btn" onclick="resetZoom('paymongo-flow')">🔄 Reset</button>
+          <button class="tool-btn btn-primary" onclick="exportPDF('paymongo-flow', 'PayMongo_Billing_Flow')">📥 Export Folio PDF</button>
+          <button class="tool-btn" onclick="window.print()">🖨️ Print Folio</button>
+          <button class="tool-btn" onclick="exportPNG('paymongo-flow', 'PayMongo_Billing_Flow')">🖼️ Export PNG</button>
+        </div>
+      </div>
+
+      <div class="diagram-wrapper">
+        <div id="render-paymongo-flow" class="diagram-render">
+          <div class="loading-spinner">Rendering diagram...</div>
+        </div>
+      </div>
+
+      <div class="legend-grid">
+        <div class="legend-card">
+          <h4 class="c-purple">💳 Hosted PayMongo Checkout</h4>
+          <p>Generates secure hosted checkout sessions with automated redirection back to mobile and web dashboards.</p>
+        </div>
+        <div class="legend-card">
+          <h4 class="c-green">🔐 Webhook Verification</h4>
+          <p>Backend validates PayMongo webhook signatures to ensure authenticity before marking payments as <code>paid</code>.</p>
+        </div>
+        <div class="legend-card">
+          <h4 class="c-amber">🧾 OTC Bank Verification</h4>
+          <p>Tenants can upload bank deposit slips with reference numbers for manual audit and confirmation by management staff.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. MAINTENANCE FLOW -->
+    <div id="maint-flow" class="section-card">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Maintenance Ticketing & Repair Lifecycle</h2>
+          <p class="section-desc">Facility defect reporting, priority assessment, crew dispatch, and tenant sign-off.</p>
+        </div>
+        <div class="toolbar">
+          <button class="tool-btn" onclick="adjustZoom('maint-flow', 0.15)">➕ Zoom In</button>
+          <button class="tool-btn" onclick="adjustZoom('maint-flow', -0.15)">➖ Zoom Out</button>
+          <button class="tool-btn" onclick="resetZoom('maint-flow')">🔄 Reset</button>
+          <button class="tool-btn btn-primary" onclick="exportPDF('maint-flow', 'Maintenance_Flow')">📥 Export Folio PDF</button>
+          <button class="tool-btn" onclick="window.print()">🖨️ Print Folio</button>
+          <button class="tool-btn" onclick="exportPNG('maint-flow', 'Maintenance_Flow')">🖼️ Export PNG</button>
+        </div>
+      </div>
+
+      <div class="diagram-wrapper">
+        <div id="render-maint-flow" class="diagram-render">
+          <div class="loading-spinner">Rendering diagram...</div>
+        </div>
+      </div>
+
+      <div class="legend-grid">
+        <div class="legend-card">
+          <h4 class="c-amber">🚨 Priority Classification</h4>
+          <p>Tickets are triaged by severity: Low, Medium, High, and Emergency for urgent plumbing or electrical failures.</p>
+        </div>
+        <div class="legend-card">
+          <h4 class="c-blue">🛠️ Crew Assignment</h4>
+          <p>Staff update tickets to <code>in_progress</code> upon dispatching technicians and record final resolution notes upon completion.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. DATABASE ERD -->
+    <div id="erd-view" class="section-card">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Entity-Relationship Diagram (ERD)</h2>
+          <p class="section-desc">Comprehensive database schema showing all 9 core PostgreSQL tables, primary/foreign keys, and relational cardinalities.</p>
+        </div>
+        <div class="toolbar">
+          <button class="tool-btn" onclick="adjustZoom('erd-view', 0.15)">➕ Zoom In</button>
+          <button class="tool-btn" onclick="adjustZoom('erd-view', -0.15)">➖ Zoom Out</button>
+          <button class="tool-btn" onclick="resetZoom('erd-view')">🔄 Reset</button>
+          <button class="tool-btn btn-primary" onclick="exportPDF('erd-view', 'Database_ERD')">📥 Export Folio PDF</button>
+          <button class="tool-btn" onclick="window.print()">🖨️ Print Folio</button>
+          <button class="tool-btn" onclick="exportPNG('erd-view', 'Database_ERD')">🖼️ Export PNG</button>
+        </div>
+      </div>
+
+      <div class="diagram-wrapper">
+        <div id="render-erd-view" class="diagram-render">
+          <div class="loading-spinner">Rendering diagram...</div>
+        </div>
+      </div>
+
+      <div class="legend-grid">
+        <div class="legend-card">
+          <h4 class="c-blue">🔑 Relational Integrity</h4>
+          <p>Foreign keys enforce strict referential integrity across Users, Stalls, Applications, Tenants, Invoices, and Maintenance tickets.</p>
+        </div>
+        <div class="legend-card">
+          <h4 class="c-green">📊 Financial Audit Trails</h4>
+          <p>The <code>payments</code> table stores PayMongo checkout IDs, transaction reference numbers, late fees, and receipt URLs.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. DFD LEVEL 0 -->
+    <div id="dfd0-view" class="section-card">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Data Flow Diagram (DFD) Level 0 - Context Diagram</h2>
+          <p class="section-desc">High-level boundary model depicting data inputs and outputs between external actors and the core system boundary.</p>
+        </div>
+        <div class="toolbar">
+          <button class="tool-btn" onclick="adjustZoom('dfd0-view', 0.15)">➕ Zoom In</button>
+          <button class="tool-btn" onclick="adjustZoom('dfd0-view', -0.15)">➖ Zoom Out</button>
+          <button class="tool-btn" onclick="resetZoom('dfd0-view')">🔄 Reset</button>
+          <button class="tool-btn btn-primary" onclick="exportPDF('dfd0-view', 'DFD_Level_0_Context')">📥 Export Folio PDF</button>
+          <button class="tool-btn" onclick="window.print()">🖨️ Print Folio</button>
+          <button class="tool-btn" onclick="exportPNG('dfd0-view', 'DFD_Level_0_Context')">🖼️ Export PNG</button>
+        </div>
+      </div>
+
+      <div class="diagram-wrapper">
+        <div id="render-dfd0-view" class="diagram-render">
+          <div class="loading-spinner">Rendering diagram...</div>
+        </div>
+      </div>
+
+      <div class="legend-grid">
+        <div class="legend-card">
+          <h4 class="c-blue">🧑‍💼 Admin & Staff Entity</h4>
+          <p>Inputs stall parameters, reviews leases, and broadcasts advisories. Receives income analytics, audit reports, and maintenance alerts.</p>
+        </div>
+        <div class="legend-card">
+          <h4 class="c-purple">📱 Tenant / Applicant Entity</h4>
+          <p>Submits rental applications, deposits, and maintenance tickets. Receives lease contracts, invoice notices, and receipts.</p>
+        </div>
+        <div class="legend-card">
+          <h4 class="c-green">💳 PayMongo Gateway Entity</h4>
+          <p>Receives session requests and transmits signed payment completion webhooks to reconcile balances.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. DFD LEVEL 1 -->
+    <div id="dfd1-view" class="section-card">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Data Flow Diagram (DFD) Level 1 - Detailed Processes</h2>
+          <p class="section-desc">Structured vertical layout breaking down the 6 core business subsystems, external entities, and relational data stores.</p>
+        </div>
+        <div class="toolbar">
+          <button class="tool-btn" onclick="adjustZoom('dfd1-view', 0.15)">➕ Zoom In</button>
+          <button class="tool-btn" onclick="adjustZoom('dfd1-view', -0.15)">➖ Zoom Out</button>
+          <button class="tool-btn" onclick="resetZoom('dfd1-view')">🔄 Reset</button>
+          <button class="tool-btn btn-primary" onclick="exportPDF('dfd1-view', 'DFD_Level_1_Processes')">📥 Export Folio PDF</button>
+          <button class="tool-btn" onclick="window.print()">🖨️ Print Folio</button>
+          <button class="tool-btn" onclick="exportPNG('dfd1-view', 'DFD_Level_1_Processes')">🖼️ Export PNG</button>
+        </div>
+      </div>
+
+      <div class="diagram-wrapper">
+        <div id="render-dfd1-view" class="diagram-render">
+          <div class="loading-spinner">Rendering diagram...</div>
+        </div>
+      </div>
+
+      <!-- Clear Technical Breakdown Table for DFD Level 1 -->
+      <table class="dfd-table">
+        <thead>
+          <tr>
+            <th>Process # & Name</th>
+            <th>Primary Input (Source)</th>
+            <th>Target Data Store</th>
+            <th>Generated Output (Destination)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="code-pill">1.0 Auth & Access</span></td>
+            <td>User Login / Credentials (Tenant / Admin)</td>
+            <td><code>D1: Users</code></td>
+            <td>Signed JWT Token & Role Permissions</td>
+          </tr>
+          <tr>
+            <td><span class="code-pill">2.0 Stall Pipeline</span></td>
+            <td>Stall Application + KYC Valid ID / Permit</td>
+            <td><code>D2: Stalls, D3: Applications</code></td>
+            <td>Application Status & Review Alerts</td>
+          </tr>
+          <tr>
+            <td><span class="code-pill">3.0 Lease Management</span></td>
+            <td>Staff Approval & Lease Contract Dates</td>
+            <td><code>D4: Tenants, D2: Stalls</code></td>
+            <td>Active Tenancy Record & Occupancy State</td>
+          </tr>
+          <tr>
+            <td><span class="code-pill">4.0 Invoicing & PayMongo</span></td>
+            <td>Monthly Rent Due & GCash / Maya Checkout</td>
+            <td><code>D5: Payments</code></td>
+            <td>Electronic Official Receipt & Settled Ledger</td>
+          </tr>
+          <tr>
+            <td><span class="code-pill">5.0 Maintenance</span></td>
+            <td>Issue Report + Severity Priority (Tenant)</td>
+            <td><code>D6: Maintenance Requests</code></td>
+            <td>Dispatch Order & Resolution Notice</td>
+          </tr>
+          <tr>
+            <td><span class="code-pill">6.0 Advisories & Chat</span></td>
+            <td>Broadcast Advisory / Direct Messages</td>
+            <td><code>D7: Messages & Announcements</code></td>
+            <td>Live Notification Feed & Chat History</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+  <script>
+    // Diagram Definitions (High readability, Landscape-optimized syntax)
+    const DIAGRAM_SOURCES = {
+      'mobile-flow': `flowchart TD
+    Start([📱 User Launches Expo Mobile App]) --> Splash[Splash & Welcome Screen]
+    Splash --> AuthCheck{Existing Account?}
+    
+    AuthCheck -- "No" --> Register[Register: Full Name, Email, Phone, Password]
+    Register --> SaveUser[(PostgreSQL: users Table)]
+    SaveUser --> Login[Login Screen]
+    AuthCheck -- "Yes" --> Login
+    Login --> JWTVerify[JWT Authentication & Store Session Token]
+    
+    JWTVerify --> MobileHome[Tenant Mobile Home Dashboard]
+    MobileHome --> ExploreStalls{Stall Discovery Method}
+    ExploreStalls -- "Catalog Browsing" --> BrowseCatalog[Filter Stalls by Location, Dimensions sqm, Monthly Rent]
+    ExploreStalls -- "Camera QR Scanner" --> ScanQR[Scan Physical Stall QR Code]
+    ScanQR --> StallDetails[View Stall Specs, Photos & Pricing]
+    BrowseCatalog --> StallDetails
+    
+    StallDetails --> StartApply[Tap 'Apply for Lease']
+    StartApply --> FillForm[Input Business Name & Trade Category]
+    FillForm --> UploadKYC[Upload KYC: Valid Govt ID & Mayor's/DTI Permit]
+    UploadKYC --> SubmitApp[Submit Application to System]
+    SubmitApp --> SaveApp[(PostgreSQL: applications Table\nStatus: 'pending')]
+    
+    SaveApp --> AwaitReview[Application Under Staff KYC Review]
+    AwaitReview --> DecisionAlert{Staff Review Decision}
+    DecisionAlert -- "❌ Rejected" --> PushReject[Receive In-App Rejection Notice with Feedback]
+    PushReject --> BrowseCatalog
+    DecisionAlert -- "✅ Approved" --> PushApprove[Receive Approval Notice: Stall Assigned & Contract Setup]
+    
+    PushApprove --> ViewInvoice[Receive Initial Rent & Security Deposit Invoice]
+    ViewInvoice --> SelectPayMethod{Select Payment Route}
+    
+    SelectPayMethod -- "⚡ PayMongo Online" --> InitPayMongo[Request PayMongo Hosted Checkout]
+    InitPayMongo --> HostedGateway[Pay via GCash, Maya, Debit/Credit Card]
+    HostedGateway --> CompleteGateway{Payment Result}
+    CompleteGateway -- "Failed / Cancelled" --> RetryPay[Payment Remains Unpaid]
+    RetryPay --> ViewInvoice
+    CompleteGateway -- "Success" --> WebhookReceipt[PayMongo HMAC Webhook Verified: Status 'paid']
+    
+    SelectPayMethod -- "💵 Bank Deposit / Cash" --> UploadSlip[Upload Bank Deposit Slip & Input Reference #]
+    UploadSlip --> SlipPending[(Payment Status: 'pending_review')]
+    SlipPending --> StaffAudit{Staff Audits Slip}
+    StaffAudit -- "❌ Invalid Slip" --> SlipReject[Re-upload Valid Bank Slip]
+    SlipReject --> UploadSlip
+    StaffAudit -- "✅ Valid Slip" --> CashReceipt[Staff Confirms Payment: Status 'paid']
+    
+    WebhookReceipt --> DigitalReceipt[Issue Electronic Official Receipt & Balance Settled]
+    CashReceipt --> DigitalReceipt
+    DigitalReceipt --> ActiveDashboard[Enter Active Tenancy Dashboard]
+    
+    ActiveDashboard --> NotifEvents{Real-Time Notifications Hub}
+    NotifEvents -- "Admin Adds Stall" --> LiveStallAlert["🔔 Real-Time Alert: 'New Stall Added! 🏪'\nInstant Banner on Mobile Home"]
+    NotifEvents -- "Admin Completes Work" --> LiveMaintAlert["🔔 Real-Time Alert: 'Maintenance Completed! 🛠️✅'\nInstant Banner on Mobile Home"]
+    NotifEvents -- "Notification Bell Tap" --> OpenNotifsScreen["Open Dedicated Notifications Screen\nFilter: Unread, Maintenance, Stalls\nMark as Read & Route to Screen"]
+    
+    ActiveDashboard --> TenancyHub{Tenancy Self-Service}
+    TenancyHub -- "Facility Defect" --> ReportTicket[File Maintenance Ticket: Category & Urgency Priority]
+    ReportTicket --> SaveMaint[(PostgreSQL: maintenance_requests\nStatus: 'pending')]
+    SaveMaint --> TrackRepair[Track Real-time Repair Status: In Progress to Completed]
+    TrackRepair --> ActiveDashboard
+    
+    TenancyHub -- "Community Advisories" --> ViewBulletins[View Broadcast Announcements & Advisories]
+    ViewBulletins --> ActiveDashboard
+    TenancyHub -- "Support Chat" --> DirectChat[Direct Messaging & Inquiry with Staff]
+    DirectChat --> ActiveDashboard
+    
+    TenancyHub -- "Lease Expiration" --> LeaseNotice{Lease Term Milestone Reached}
+    LeaseNotice -- "Renew Lease" --> SignRenewal[Sign Lease Renewal: Extended Term]
+    SignRenewal --> ActiveDashboard
+    LeaseNotice -- "Terminate Lease" --> FinalClearance[Turnover Stall, Clear Balance & Conclude Lease]
+    FinalClearance --> EndFlow([🏁 Tenancy Successfully Concluded])`,
+
+      'admin-flow': `flowchart TD
+    AdminStart([🧑‍💼 Staff / Admin Opens Web Portal]) --> StaffLogin[Staff Secure Login: Email & Password]
+    StaffLogin --> RoleAuth{Role Authorization}
+    RoleAuth -- "Invalid Credentials" --> LoginError[Display Error Notification]
+    LoginError --> StaffLogin
+    RoleAuth -- "Authorized (Admin / Staff)" --> AdminDashboard[Admin Management Executive Dashboard]
+    
+    AdminDashboard --> NavHub{Select Management Module}
+    
+    %% MODULE 1: STALL INVENTORY
+    NavHub -- "Stalls & Inventory" --> StallModule[Stall Inventory Management Hub]
+    StallModule --> StallAction{Inventory Operation}
+    StallAction -- "Add / Edit Stall" --> StallForm[Input Stall Number, Location, Sqm, Monthly Rental Rate]
+    StallForm --> SaveStall[(PostgreSQL: stalls Table)]
+    SaveStall --> BroadcastNewStall["📢 Broadcast Notification: 'New Stall Added! 🏪'\nPushed to All Tenant Mobile Phones"]
+    StallAction -- "Generate QR Code" --> CreateQR[Generate High-Res Stall QR Code for Physical Display]
+    CreateQR --> SaveStall
+    StallAction -- "Update Facility Status" --> UpdateStallStatus[Toggle Status: Available / Occupied / Maintenance]
+    UpdateStallStatus --> SaveStall
+    SaveStall --> AdminDashboard
+    
+    %% MODULE 2: APPLICATION & KYC PIPELINE
+    NavHub -- "Applications Pipeline" --> AppQueue[Review Incoming Applications Queue]
+    AppQueue --> ViewApp[Open Applicant Profile & Inspect KYC: Valid ID + Business Permit]
+    ViewApp --> AuditDecision{Staff KYC Evaluation}
+    AuditDecision -- "❌ Reject" --> RejectApp[Input Rejection Reason & Send Mobile Push Notification]
+    RejectApp --> SaveAppStatus[(PostgreSQL: applications Table\nStatus: 'rejected')]
+    AuditDecision -- "✅ Approve" --> ApproveApp[Approve Application & Assign Selected Stall]
+    ApproveApp --> UpdateStallOccupied[Update Stall Status to 'occupied']
+    UpdateStallOccupied --> CreateTenantProfile[Auto-Create Record in 'tenants' Table]
+    CreateTenantProfile --> SetLeaseDates[Generate Lease Contract Start & End Dates]
+    SetLeaseDates --> TriggerFirstBill[Auto-Trigger Security Deposit & First Month Rent Invoice]
+    TriggerFirstBill --> SavePaymentPending[(PostgreSQL: payments Table\nStatus: 'unpaid')]
+    SavePaymentPending --> AdminDashboard
+    
+    %% MODULE 3: BILLING & PAYMENTS
+    NavHub -- "Billing & Payments" --> BillingHub[Financial & Payment Operations Hub]
+    BillingHub --> BillAction{Billing Operation}
+    BillAction -- "Automated Monthly Dues" --> CronBilling[Execute Automated Recurring Rent Billing Cycle]
+    CronBilling --> SavePaymentPending
+    BillAction -- "Audit Cash Slips" --> AuditQueue[Review Uploaded Bank / Cash Deposit Slips]
+    AuditQueue --> MatchSlip{Verify Bank Reference # & Deposit Slip}
+    MatchSlip -- "❌ Invalid Slip" --> RejectSlip[Reject Slip & Notify Tenant to Provide Valid Proof]
+    MatchSlip -- "✅ Valid Deposit" --> ConfirmPaid[Manually Mark Payment as 'paid' & Issue Official Receipt]
+    ConfirmPaid --> UpdateLedger[(PostgreSQL: payments Table\nUpdate Collection Ledger)]
+    BillAction -- "PayMongo Transaction Logs" --> MonitorGateway[Monitor Real-time PayMongo Webhook Transaction Logs]
+    MonitorGateway --> UpdateLedger
+    UpdateLedger --> AdminDashboard
+    
+    %% MODULE 4: MAINTENANCE WORK ORDERS
+    NavHub -- "Maintenance Management" --> MaintHub[Maintenance & Facility Operations Hub]
+    MaintHub --> ViewTickets[Receive Incoming Defect Reports: Low, Medium, High, Emergency]
+    ViewTickets --> DispatchCrew[Assign Maintenance Technician / Repair Crew]
+    DispatchCrew --> SetInProgress[(PostgreSQL: maintenance_requests\nStatus: 'in_progress')]
+    SetInProgress --> PerformRepairs[Physical Repairs Executed at Stall]
+    PerformRepairs --> LogResolution[Input Resolution Notes, Material Costs & Staff Sign-off]
+    LogResolution --> MarkCompleted[(PostgreSQL: maintenance_requests\nStatus: 'completed')]
+    MarkCompleted --> SendMaintDoneNotif["🔔 Push Notification: 'Maintenance Completed! 🛠️✅'\nInstant Live Alert to Tenant Mobile Phone"]
+    SendMaintDoneNotif --> AdminDashboard
+    
+    %% MODULE 5: ADVISORIES & LIVE CHAT
+    NavHub -- "Communication Hub" --> CommsHub[Advisories & Direct Messaging Hub]
+    CommsHub --> CommAction{Communication Action}
+    CommAction -- "Broadcast Bulletin" --> PostAnnouncement[Compose & Publish Advisory to announcements Table]
+    PostAnnouncement --> BroadcastMobile[Push Bulletin to All Tenant Mobile Feeds]
+    CommAction -- "Direct Chat Support" --> ChatDesk[Live Chat Support Desk: Reply to Tenant Inquiries]
+    ChatDesk --> SaveMessages[(PostgreSQL: messages Table)]
+    SaveMessages --> AdminDashboard
+    
+    %% MODULE 6: LEASE CONTRACT AUDIT
+    NavHub -- "Lease Contracts" --> LeaseHub[Tenant Directory & Lease Contracts Audit]
+    LeaseHub --> ExpirationMonitor{Monitor Lease Expiration Dates}
+    ExpirationMonitor -- "Renew Contract" --> ExtendContract[Generate Renewal Agreement & Extend Contract End Date]
+    ExtendContract --> SaveTenantContract[(PostgreSQL: tenants Table\nStatus: 'active')]
+    ExpirationMonitor -- "Terminate Tenancy" --> EndContract[Execute Lease Clearance & Mark Tenant 'terminated']
+    EndContract --> ResetStallAvailable[Reset Stall Status to 'available' in stalls Table]
+    ResetStallAvailable --> RestockedInventory([🏁 Stall Restocked to Vacant Catalog])`,
+
+      'onboarding-flow': `flowchart TD
+    Start([Tenant Opens Mobile App]) --> Browse[Browse Available Stalls & View Dimensions / Rent]
+    Browse --> SelectStall[Select Desired Stall]
+    SelectStall --> SubmitApp[Fill Application & Upload KYC: Valid ID & Permit]
+    SubmitApp --> SaveApp[(PostgreSQL: applications\nStatus: Pending)]
+    
+    SaveApp --> AdminAlert[Real-time Notification on Admin WebApp]
+    AdminAlert --> ReviewDecision{Admin KYC Review}
+    
+    ReviewDecision -- Reject --> MarkReject[Update Status: Rejected\nSend Rejection Reason]
+    MarkReject --> EndReject([Applicant Notified via Mobile])
+    
+    ReviewDecision -- Approve --> UpdateStall[Update Stall Status: Occupied]
+    UpdateStall --> CreateTenant[Create Tenant Record in tenants Table]
+    CreateTenant --> GenLease[Set Contract Start & End Dates]
+    GenLease --> CreateFirstInvoice[Generate Security Deposit & First Month Invoice]
+    CreateFirstInvoice --> EndApprove([Tenant Granted Full Dashboard Access])`,
+
+      'paymongo-flow': `flowchart TD
+    BillDue([Monthly Rent Invoice Generated]) --> SelectMethod{Select Payment Route}
+    
+    SelectMethod -- "Bank Transfer / Cash" --> UploadProof[Tenant Uploads Deposit Slip / Ref #]
+    UploadProof --> PendingReview[(PostgreSQL: payments\nStatus: Pending_Review)]
+    PendingReview --> AdminVerify{Staff Verifies Slip}
+    AdminVerify -- Invalid --> SlipReject[Mark Rejected / Request Valid Slip]
+    AdminVerify -- Valid --> SlipApprove[(PostgreSQL: payments\nStatus: Paid\nRecord Settled Amount)]
+    
+    SelectMethod -- "PayMongo Online" --> InitPayMongo[POST /api/v1/payments/paymongo/checkout]
+    InitPayMongo --> CreateSession[Backend Creates PayMongo Checkout Session]
+    CreateSession --> RedirectGateway[Tenant Redirected to PayMongo Hosted Gateway]
+    RedirectGateway --> CustomerPays[Pay via GCash / Maya / Credit Card]
+    
+    CustomerPays --> GatewayProcess{Transaction Result}
+    GatewayProcess -- Failed / Cancelled --> CancelFlow[Payment Remains Unpaid]
+    GatewayProcess -- Success --> Webhook[PayMongo Webhook Sent to Server]
+    
+    Webhook --> VerifySignature[Backend Verifies Signature & Checkout Session]
+    VerifySignature --> UpdateDB[(PostgreSQL: payments\nStatus: Paid\nRecord Ref # & Checkout ID)]
+    UpdateDB --> AutoReceipt[Issue Instant Digital Receipt & Reset Balance]
+    AutoReceipt --> EndPay([Transaction Fully Reconciled])`,
+
+      'maint-flow': `flowchart TD
+    StartMaint([Stall Issue Occurs]) --> SubmitTicket[Submit Ticket via Mobile App\nSpecify Title, Priority & Details]
+    SubmitTicket --> SaveTicket[(PostgreSQL: maintenance_requests\nStatus: Pending)]
+    SaveTicket --> NotifyStaff[Instant Alert on Staff Dashboard]
+    NotifyStaff --> AssignStaff[Dispatch Maintenance Crew\nStatus: In_Progress]
+    AssignStaff --> PerformRepairs[Physical Repairs Performed at Stall]
+    PerformRepairs --> CloseTicket[Staff Submits Resolution Notes\nStatus: Completed]
+    CloseTicket --> TenantAlert([Tenant Notified of Completion])`,
+
+      'erd-view': `erDiagram
+    USERS ||--o{ TENANTS : "assigned_to"
+    USERS ||--o{ APPLICATIONS : "submits"
+    USERS ||--o{ APPLICATIONS : "reviewed_by"
+    USERS ||--o{ MESSAGES : "sends_or_receives"
+    USERS ||--o{ NOTIFICATIONS : "receives"
+    USERS ||--o{ ANNOUNCEMENTS : "posts"
+
+    STALLS ||--o{ TENANTS : "leased_by"
+    STALLS ||--o{ APPLICATIONS : "applied_for"
+    STALLS ||--o{ PAYMENTS : "billed_for"
+    STALLS ||--o{ MAINTENANCE_REQUESTS : "located_at"
+
+    TENANTS ||--o{ PAYMENTS : "pays"
+    TENANTS ||--o{ MAINTENANCE_REQUESTS : "requests"
+
+    USERS {
+        uuid id PK
+        string name
+        string email UK
+        string password
+        string role "admin / staff / tenant"
+        string phone
+        string address
+        timestamp created_at
+    }
+
+    STALLS {
+        uuid id PK
+        string stall_number UK
+        string location
+        decimal size_sqm
+        decimal monthly_rent
+        string status "available / occupied / maintenance"
+        string qr_code_url
+        timestamp created_at
+    }
+
+    TENANTS {
+        uuid id PK
+        uuid user_id FK
+        uuid stall_id FK
+        string name
+        string email
+        string phone
+        string address
+        string business_name
+        string business_type
+        date contract_start
+        date contract_end
+        string status "active / pending / terminated"
+    }
+
+    APPLICATIONS {
+        uuid id PK
+        uuid user_id FK
+        uuid stall_id FK
+        string full_name
+        string email
+        string phone
+        string business_name
+        string business_type
+        string valid_id_url
+        string business_permit_url
+        string notes
+        string status "pending / approved / rejected"
+        uuid reviewed_by FK
+        timestamp reviewed_at
+        timestamp created_at
+    }
+
+    PAYMENTS {
+        uuid id PK
+        uuid tenant_id FK
+        uuid stall_id FK
+        decimal amount
+        decimal late_fee
+        date due_date
+        timestamp payment_date
+        string status "unpaid / paid / pending / overdue"
+        string payment_method "paymongo / cash / gcash / maya"
+        string reference_number
+        string proof_image
+        string paymongo_checkout_id
+        string paymongo_checkout_url
+        string description
+        timestamp created_at
+    }
+
+    MAINTENANCE_REQUESTS {
+        uuid id PK
+        uuid tenant_id FK
+        uuid stall_id FK
+        string title
+        string description
+        string priority "low / medium / high / emergency"
+        string status "pending / in_progress / completed / rejected"
+        uuid resolved_by FK
+        timestamp created_at
+    }
+
+    MESSAGES {
+        uuid id PK
+        uuid sender_id FK
+        uuid receiver_id FK
+        string message
+        boolean is_read
+        timestamp created_at
+    }
+
+    ANNOUNCEMENTS {
+        uuid id PK
+        string title
+        string content
+        string target_role "all / tenant / staff"
+        uuid posted_by FK
+        boolean is_active
+        timestamp created_at
+    }
+
+    NOTIFICATIONS {
+        uuid id PK
+        uuid user_id FK
+        string title
+        string message
+        boolean is_read
+        timestamp created_at
+    }`,
+
+      'dfd0-view': `flowchart TD
+    subgraph External_Actors [External Actors]
+        AdminUser["🧑‍💼 Admin & Staff\n(Management Web Portal)"]
+        TenantUser["📱 Tenant & Applicant\n(Expo Go Mobile App)"]
+        PayMongoGateway["💳 PayMongo Gateway\n(Payment Service Provider)"]
+    end
+
+    System(("🏪 0.0\nCommercial Stall\nLeasing & Billing\nManagement System"))
+
+    AdminUser -->|1. Stall Setup, Lease Approvals, Invoices & Broadcasts| System
+    System -->|2. Financial KPIs, Tenant Lists & Maintenance Alerts| AdminUser
+
+    TenantUser -->|3. Applications, KYC Docs, Repair Tickets & Slips| System
+    System -->|4. Stall Catalog, Invoices, Receipts & Announcements| TenantUser
+
+    System -->|5. Create Checkout Session Amount, Order ID| PayMongoGateway
+    PayMongoGateway -->|6. Webhook Payment Success & Verification Event| System`,
+
+      'dfd1-view': `flowchart TD
+    %% EXTERNAL ENTITIES (TOP ROW)
+    subgraph Layer_Entities [External Entities]
+        E_Tenant["📱 Tenant / Applicant"]
+        E_Admin["🧑‍💼 Admin / Staff"]
+        E_Gateway["💳 PayMongo Gateway"]
+    end
+
+    %% CORE PROCESSES (MIDDLE ROW)
+    subgraph Layer_Processes [Core Business Subsystems]
+        P1["(1.0) Auth & Identity Management"]
+        P2["(2.0) Stall Discovery & Application Pipeline"]
+        P3["(3.0) Lease & Tenant Management"]
+        P4["(4.0) Invoicing & PayMongo Billing Hub"]
+        P5["(5.0) Maintenance Ticketing Subsystem"]
+        P6["(6.0) Advisories & Direct Messaging"]
+    end
+
+    %% DATABASE STORES (BOTTOM ROW)
+    subgraph Layer_Stores [Relational Database Stores]
+        D_Users[("D1: Users Store")]
+        D_Stalls[("D2: Stalls Store")]
+        D_Apps[("D3: Applications Store")]
+        D_Tenants[("D4: Tenants Store")]
+        D_Payments[("D5: Payments & Invoices Store")]
+        D_Maint[("D6: Maintenance Requests Store")]
+        D_Msgs[("D7: Messages & Advisories Store")]
+    end
+
+    %% 1.0 Auth Connections
+    E_Tenant -->|Credentials| P1
+    E_Admin -->|Credentials| P1
+    P1 <-->|Verify / Store User Auth| D_Users
+
+    %% 2.0 Applications Connections
+    E_Tenant -->|Submit KYC & App| P2
+    P2 <-->|Check Vacancy| D_Stalls
+    P2 -->|Save Pending App| D_Apps
+    E_Admin -->|Review & Approve| P2
+    P2 -->|Trigger Tenant Profile| P3
+
+    %% 3.0 Lease Connections
+    P3 <-->|Manage Contracts| D_Tenants
+    P3 -->|Update Stall Status to Occupied| D_Stalls
+    E_Admin -->|Directory & Audits| P3
+
+    %% 4.0 Billing Connections
+    P3 -->|Generate Monthly Dues| P4
+    P4 <-->|Read & Update Invoices| D_Payments
+    E_Tenant -->|Initiate Checkout| P4
+    P4 -->|Create Session Request| E_Gateway
+    E_Gateway -->|Webhook Paid Event| P4
+    E_Admin -->|Verify Cash Deposit Slips| P4
+
+    %% 5.0 Maintenance Connections
+    E_Tenant -->|File Repair Ticket| P5
+    P5 <-->|Store / Update Tickets| D_Maint
+    E_Admin -->|Dispatch Crew & Resolve| P5
+
+    %% 6.0 Messaging Connections
+    E_Admin -->|Broadcast Advisories| P6
+    E_Tenant -->|Direct Chat with Staff| P6
+    P6 <-->|Store Chat & Advisories| D_Msgs`
+    };
+
+    // Initialize Mermaid with enhanced font size
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'dark',
+      securityLevel: 'loose',
+      fontFamily: 'Plus Jakarta Sans',
+      themeVariables: {
+        darkMode: true,
+        background: '#090d16',
+        primaryColor: '#0284c7',
+        primaryTextColor: '#f8fafc',
+        primaryBorderColor: '#38bdf8',
+        lineColor: '#60a5fa',
+        secondaryColor: '#1e293b',
+        tertiaryColor: '#0f172a',
+        edgeLabelBackground: '#1e293b',
+        fontFamily: 'Plus Jakarta Sans',
+        fontSize: '15px'
+      }
+    });
+
+    const renderedCache = {};
+    const zoomLevels = {};
+
+    async function renderDiagramForTab(tabId) {
+      const renderContainer = document.getElementById('render-' + tabId);
+      if (!renderContainer) return;
+
+      if (!zoomLevels[tabId]) {
+        zoomLevels[tabId] = 1.0;
+      }
+
+      if (renderedCache[tabId]) {
+        renderContainer.innerHTML = renderedCache[tabId];
+        applyZoom(tabId);
+        return;
+      }
+
+      const sourceCode = DIAGRAM_SOURCES[tabId];
+      if (!sourceCode) return;
+
+      try {
+        const uniqueId = 'svg_' + tabId + '_' + Date.now();
+        const { svg } = await mermaid.render(uniqueId, sourceCode);
+        renderedCache[tabId] = svg;
+        renderContainer.innerHTML = svg;
+        applyZoom(tabId);
+      } catch (err) {
+        console.error('Error rendering diagram for ' + tabId + ':', err);
+        renderContainer.innerHTML = '<div style="color:#fb7185; padding:1.5rem; text-align:center;"><b>Rendering Error:</b> ' + err.message + '</div>';
+      }
+    }
+
+    function switchTab(tabId, clickedBtn) {
+      document.querySelectorAll('.section-card').forEach(card => card.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      
+      const activeCard = document.getElementById(tabId);
+      if (activeCard) {
+        activeCard.classList.add('active');
+      }
+
+      if (clickedBtn) {
+        clickedBtn.classList.add('active');
+      }
+
+      renderDiagramForTab(tabId);
+    }
+
+    /* Zoom Controls */
+    function adjustZoom(tabId, delta) {
+      if (!zoomLevels[tabId]) zoomLevels[tabId] = 1.0;
+      zoomLevels[tabId] = Math.max(0.5, Math.min(2.5, zoomLevels[tabId] + delta));
+      applyZoom(tabId);
+    }
+
+    function resetZoom(tabId) {
+      zoomLevels[tabId] = 1.0;
+      applyZoom(tabId);
+    }
+
+    function applyZoom(tabId) {
+      const container = document.getElementById('render-' + tabId);
+      if (container) {
+        const scale = zoomLevels[tabId] || 1.0;
+        container.style.transform = `scale(${scale})`;
+      }
+    }
+
+    /* Export Clean Diagram-Only PDF (Strict Folio Landscape 330.2mm x 215.9mm) */
+    async function exportPDF(tabId, filename) {
+      const renderContainer = document.getElementById('render-' + tabId);
+      const svgElement = renderContainer ? renderContainer.querySelector('svg') : null;
+      const btn = event ? event.currentTarget : null;
+      const originalText = btn ? btn.innerHTML : '';
+
+      if (!svgElement) {
+        alert("Diagram is still loading. Please try again in a moment.");
+        return;
+      }
+
+      if (btn) {
+        btn.innerHTML = '⏳ Exporting Folio PDF...';
+        btn.disabled = true;
+      }
+
+      try {
+        resetZoom(tabId);
+
+        const svgData = new XMLSerializer().serializeToString(svgElement);
+        const svgDataUri = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgData);
+
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+
+        img.onload = function() {
+          try {
+            const bbox = svgElement.getBoundingClientRect();
+            const svgW = bbox.width || 1400;
+            const svgH = bbox.height || 900;
+
+            const scale = 3;
+            const canvas = document.createElement('canvas');
+            canvas.width = svgW * scale;
+            canvas.height = svgH * scale;
+
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#090d16';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            const imgData = canvas.toDataURL('image/png');
+
+            // Exact Folio / F4 Landscape dimensions in mm (8.5 x 13 inches = 330.2mm x 215.9mm)
+            const pdfW = 330.2;
+            const pdfH = 215.9;
+            const margin = 8;
+            const usableW = pdfW - (margin * 2);
+            const usableH = pdfH - (margin * 2) - 8;
+
+            const imgRatio = svgW / svgH;
+            const pageRatio = usableW / usableH;
+
+            let renderW, renderH, posX, posY;
+
+            if (imgRatio > pageRatio) {
+              renderW = usableW;
+              renderH = usableW / imgRatio;
+              posX = margin;
+              posY = margin + (usableH - renderH) / 2;
+            } else {
+              renderH = usableH;
+              renderW = usableH * imgRatio;
+              posX = margin + (usableW - renderW) / 2;
+              posY = margin;
+            }
+
+            const jsPDFConstructor = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : window.jsPDF;
+            
+            if (jsPDFConstructor) {
+              const doc = new jsPDFConstructor({
+                orientation: 'landscape',
+                unit: 'mm',
+                format: [pdfW, pdfH]
+              });
+
+              doc.setFillColor(9, 13, 22);
+              doc.rect(0, 0, pdfW, pdfH, 'F');
+
+              doc.addImage(imgData, 'PNG', posX, posY, renderW, renderH, undefined, 'FAST');
+
+              doc.setFontSize(9);
+              doc.setTextColor(56, 189, 248);
+              doc.text(`Commercial Stall Leasing System — Folio Blueprint: ${filename.replace(/_/g, ' ')}`, margin, pdfH - 4);
+
+              doc.save(`Stall_Leasing_${filename}_Folio_Landscape.pdf`);
+            } else {
+              const a = document.createElement('a');
+              a.download = `Stall_Leasing_${filename}.png`;
+              a.href = imgData;
+              a.click();
+            }
+
+            if (btn) {
+              btn.innerHTML = '✅ Downloaded!';
+              setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2000);
+            }
+          } catch (innerErr) {
+            console.error("Canvas conversion error:", innerErr);
+            downloadRawSVG(svgData, filename);
+            if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
+          }
+        };
+
+        img.onerror = function(e) {
+          console.error("Image loading error:", e);
+          downloadRawSVG(svgData, filename);
+          if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
+        };
+
+        img.src = svgDataUri;
+      } catch (err) {
+        console.error("PDF export error:", err);
+        alert("Unable to generate PDF: " + err.message);
+        if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
+      }
+    }
+
+    /* Fallback Direct SVG Downloader */
+    function downloadRawSVG(svgData, filename) {
+      const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.download = `Stall_Leasing_${filename}.svg`;
+      a.href = url;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    /* Export High-Res PNG */
+    function exportPNG(tabId, filename) {
+      const renderContainer = document.getElementById('render-' + tabId);
+      const svgElement = renderContainer ? renderContainer.querySelector('svg') : null;
+      if (!svgElement) {
+        alert("Diagram SVG not found.");
+        return;
+      }
+
+      const svgData = new XMLSerializer().serializeToString(svgElement);
+      const svgDataUri = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgData);
+
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+
+      img.onload = function() {
+        const bbox = svgElement.getBoundingClientRect();
+        const scale = 2.5; // High DPI
+        canvas.width = (bbox.width || 1200) * scale;
+        canvas.height = (bbox.height || 800) * scale;
+        ctx.fillStyle = '#090d16';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        const a = document.createElement('a');
+        a.download = `Stall_Leasing_${filename}_Folio.png`;
+        a.href = canvas.toDataURL('image/png');
+        a.click();
+      };
+
+      img.src = svgDataUri;
+    }
+
+    // Render active tab on initial load
+    window.addEventListener('DOMContentLoaded', () => {
+      renderDiagramForTab('mobile-flow');
+    });
+  </script>
+</body>
+</html>

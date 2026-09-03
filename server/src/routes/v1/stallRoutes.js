@@ -3,11 +3,13 @@ const router = express.Router();
 const {
     getAllStalls,
     getStall,
+    getStallDetails,
     createStall,
     updateStall,
     updateStallStatus,
     deleteStall,
-    getStallStats
+    getStallStats,
+    getStallQRCode
 } = require('../../controllers/stallController');
 const { authenticate, authorize } = require('../../middleware/auth');
 
@@ -17,6 +19,12 @@ const { authenticate, authorize } = require('../../middleware/auth');
 
 // Get stall statistics (Admin only)
 router.get('/stats', authenticate, authorize('admin', 'staff'), getStallStats);
+
+// Get stall QR code payload
+router.get('/:id/qrcode', authenticate, getStallQRCode);
+
+// Get comprehensive stall details and history
+router.get('/:id/details', authenticate, getStallDetails);
 
 // Get all stalls
 router.get('/', authenticate, getAllStalls);

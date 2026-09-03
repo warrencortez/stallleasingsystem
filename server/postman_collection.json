@@ -1,0 +1,287 @@
+{
+  "info": {
+    "_postman_id": "c0f1cdac-71c1-4234-896b-stall-leasing-api",
+    "name": "Stall Leasing Management System API",
+    "description": "Production RESTful API Collection for Stall Leasing System. Ready-to-click requests for Auth, Stalls, Applications, PayMongo, Maintenance, and Advisories.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "1. Login Admin (Auto-fetches Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.token) {",
+                  "        pm.collectionVariables.set('token', json.data.token);",
+                  "        console.log('✅ Admin Token Saved Automatically to Collection Variables!');",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@stalllease.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] },
+            "description": "Logs in as administrator and automatically stores the JWT token."
+          }
+        },
+        {
+          "name": "2. Get Current Admin Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Stalls Management",
+      "item": [
+        {
+          "name": "1. Create Available Stall (STALL-A101)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.id) {",
+                  "        pm.collectionVariables.set('stallId', json.data.id);",
+                  "        console.log('✅ Stall ID Saved: ' + json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stall_number\": \"STALL-A101\",\n  \"location\": \"Ground Floor, Main Entrance East\",\n  \"size\": \"20 sqm (4m x 5m)\",\n  \"monthly_rent\": 15000.00,\n  \"status\": \"available\",\n  \"description\": \"Prime commercial stall with glass front and high foot traffic.\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/stalls", "host": ["{{baseUrl}}"], "path": ["stalls"] }
+          }
+        },
+        {
+          "name": "2. List All Stalls",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/stalls", "host": ["{{baseUrl}}"], "path": ["stalls"] }
+          }
+        },
+        {
+          "name": "3. Get Stall QR Code Payload",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/stalls/{{stallId}}/qrcode", "host": ["{{baseUrl}}"], "path": ["stalls", "{{stallId}}", "qrcode"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Stall Applications (Ready-to-Run)",
+      "item": [
+        {
+          "name": "1. Submit Stall Application (Maria Santos)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.id) {",
+                  "        pm.collectionVariables.set('applicationId', json.data.id);",
+                  "        console.log('✅ Application ID Saved: ' + json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stall_id\": \"{{stallId}}\",\n  \"full_name\": \"Maria Santos\",\n  \"email\": \"maria.santos@gmail.com\",\n  \"phone\": \"+63 920 555 1234\",\n  \"business_name\": \"Santos Artisan Coffee & Bakery\",\n  \"business_type\": \"Food & Beverage\",\n  \"notes\": \"We specialize in freshly brewed artisan coffee, espresso, and baked pastries.\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/applications", "host": ["{{baseUrl}}"], "path": ["applications"] },
+            "description": "Submits a new stall application and automatically stores applicationId in collection variables."
+          }
+        },
+        {
+          "name": "2. View All Pending Applications (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/applications?status=pending", "host": ["{{baseUrl}}"], "path": ["applications"], "query": [{ "key": "status", "value": "pending" }] }
+          }
+        },
+        {
+          "name": "3. Approve Application (Activates Tenant & Lease)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"approved\",\n  \"notes\": \"Application verified and approved! Lease contract generated.\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/applications/{{applicationId}}/review", "host": ["{{baseUrl}}"], "path": ["applications", "{{applicationId}}", "review"] },
+            "description": "Approves the application, automatically sets the stall to 'occupied', and creates the new Tenant record."
+          }
+        },
+        {
+          "name": "4. Get Application Statistics",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/applications/stats", "host": ["{{baseUrl}}"], "path": ["applications", "stats"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Payments & PayMongo",
+      "item": [
+        {
+          "name": "1. Generate Monthly Bills (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.bills && json.data.bills.length > 0) {",
+                  "        pm.collectionVariables.set('paymentId', json.data.bills[0].id);",
+                  "        console.log('✅ Payment ID Auto-Saved from Generated Bills: ' + json.data.bills[0].id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"month\": 8,\n  \"year\": 2026\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/payments/generate-bills", "host": ["{{baseUrl}}"], "path": ["payments", "generate-bills"] }
+          }
+        },
+        {
+          "name": "2. Get All Payments List",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.length > 0) {",
+                  "        pm.collectionVariables.set('paymentId', json.data[0].id);",
+                  "        console.log('✅ Payment ID Auto-Saved from Payments List: ' + json.data[0].id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/payments", "host": ["{{baseUrl}}"], "path": ["payments"] }
+          }
+        },
+        {
+          "name": "3. Create PayMongo Checkout Session",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/payments/{{paymentId}}/paymongo-checkout", "host": ["{{baseUrl}}"], "path": ["payments", "{{paymentId}}", "paymongo-checkout"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Maintenance & Advisories",
+      "item": [
+        {
+          "name": "1. Submit Maintenance Ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Ceiling water leak near counter\",\n  \"description\": \"Water dripping when raining. Requires sealant strip.\",\n  \"category\": \"roof_leak\",\n  \"priority\": \"high\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/maintenance", "host": ["{{baseUrl}}"], "path": ["maintenance"] }
+          }
+        },
+        {
+          "name": "2. Broadcast Announcement (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"📢 Weekend Artisan Fair & Extended Mall Hours\",\n  \"content\": \"Mall operating hours extended to 10:00 PM this weekend!\",\n  \"category\": \"event\",\n  \"is_pinned\": true,\n  \"target_audience\": \"all\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/announcements", "host": ["{{baseUrl}}"], "path": ["announcements"] }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000/api/v1" },
+    { "key": "token", "value": "" },
+    { "key": "stallId", "value": "cd6e83d1-9565-41a6-a517-1e5aadc0ca0b" },
+    { "key": "applicationId", "value": "b47518ab-6da3-4da2-811b-ba379a9603b8" },
+    { "key": "paymentId", "value": "516d9d61-a016-434e-ae52-697ab522cfc8" }
+  ]
+}

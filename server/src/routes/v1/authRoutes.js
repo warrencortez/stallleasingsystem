@@ -9,16 +9,17 @@ const {
     changePassword
 } = require('../../controllers/authController');
 const { authenticate } = require('../../middleware/auth');
+const { authRateLimiter } = require('../../middleware/rateLimiter');
 
 // ==================================================
-// PUBLIC ROUTES (No authentication needed)
+// PUBLIC ROUTES (No authentication needed - Rate Limited)
 // ==================================================
 
 // Register a new user
-router.post('/register', register);
+router.post('/register', authRateLimiter, register);
 
 // Login user
-router.post('/login', login);
+router.post('/login', authRateLimiter, login);
 
 // ==================================================
 // PROTECTED ROUTES (Need authentication)
