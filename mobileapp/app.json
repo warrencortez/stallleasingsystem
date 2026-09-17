@@ -17,6 +17,9 @@
         "backgroundColor": "#4f46e5"
       },
       "package": "com.leasehub.tenant"
-    }
+    },
+    "plugins": [
+      "expo-web-browser"
+    ]
   }
 }
