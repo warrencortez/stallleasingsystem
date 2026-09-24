@@ -63,7 +63,7 @@ const register = async (req, res) => {
         // 8. Send response
         res.status(201).json({
             success: true,
-            message: 'Registration successful! Welcome to LeaseHub.',
+            message: 'Registration successful! Welcome to Dela Costa HOA Stall Leasing.',
             data: {
                 user,
                 token

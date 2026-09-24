@@ -54,7 +54,7 @@ const MobileRegister = () => {
                 role: 'tenant'
             });
             if (res.success) {
-                toast.success('Registration successful. Welcome to LeaseHub.');
+                toast.success('Registration successful. Welcome to Dela Costa HOA Stall Leasing.');
                 navigate('/mobile/dashboard');
             } else {
                 toast.error(res.message || 'Registration failed');

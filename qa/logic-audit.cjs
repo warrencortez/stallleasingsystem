@@ -1,0 +1,31 @@
+const fs=require('node:fs');
+const path=require('node:path');
+require('../server/node_modules/dotenv').config=()=>({});
+process.env.JWT_SECRET='isolated-qa-only-secret';
+const User=require('../server/src/models/User');
+const auth=require('../server/src/controllers/authController');
+const Application=require('../server/src/models/Application');
+const apps=require('../server/src/controllers/applicationController');
+const results=[];
+const result=(name,passed,actual)=>{results.push({name,passed,actual});console.log(JSON.stringify(results.at(-1)));};
+const response=()=>({code:200,status(n){this.code=n;return this;},json(body){this.body=body;return this;}});
+async function main(){
+ const hash=await require('../server/node_modules/bcryptjs').hash('ChangedAdminPassword987',10);
+ User.findByEmailOrPhone=async()=>({id:'qa-admin',email:'rentastall@gmail.com',password:hash,role:'admin',is_active:true});
+ let reset=false;User.updatePassword=async()=>{reset=true;return true;};
+ const res=response();await auth.login({body:{email:'rentastall@gmail.com',password:'admin123'}},res);
+ result('Old hardcoded admin password rejected after change',res.code===401,{status:res.code,passwordReset:reset});
+ let filter;Application.findAll=async f=>(filter=f,[]);
+ await apps.getAllApplications({query:{user_id:'other-user'},userRole:'tenant',userId:'qa-self'},response());
+ result('Application filter cannot be overridden by tenant',filter.user_id==='qa-self',{filterUser:filter.user_id});
+ const registeredId=await User.create({name:'QA Person',email:'person@example.invalid',password:'QaPass123',role:'tenant',phone:'09000000000'});
+ await User.update(registeredId,{phone:'09111111111'});
+ const updated=await User.findById(registeredId);
+ result('Fallback partial profile update preserves name and changes phone',updated.name==='QA Person'&&updated.phone==='09111111111',{name:updated.name,phone:updated.phone});
+ const sql=fs.readFileSync(path.join(__dirname,'../server/supabase_schema.sql'),'utf8');
+ const allowed=sql.match(/type VARCHAR\(50\)[^\n]*CHECK \(type IN \(([^\n]+)\)\)/)[1];
+ const emitted=['application_approved','application_rejected','payment_confirmed','maintenance_new','maintenance_completed','stall_added'];
+ result('Emitted notification types fit supplied schema',emitted.every(t=>allowed.includes(`'${t}'`)),{unsupported:emitted.filter(t=>!allowed.includes(`'${t}'`))});
+ fs.writeFileSync(path.join(__dirname,'logic-results.json'),JSON.stringify(results,null,2));
+}
+main().catch(e=>{console.error(e);process.exitCode=1;});

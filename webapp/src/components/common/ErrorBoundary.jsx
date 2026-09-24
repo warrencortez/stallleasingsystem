@@ -21,7 +21,7 @@ class ErrorBoundary extends React.Component {
     }
 
     handleCopyReport = () => {
-        const report = `=== LEASEHUB DIAGNOSTIC REPORT ===
+        const report = `=== DELA COSTA HOA STALL LEASING DIAGNOSTIC REPORT ===
 Timestamp: ${new Date().toISOString()}
 Error: ${this.state.error?.toString()}
 Component Stack: ${this.state.errorInfo?.componentStack}

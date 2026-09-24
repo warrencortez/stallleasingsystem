@@ -1,0 +1,136 @@
+{
+  "results": [
+    {
+      "name": "Unauthenticated users blocked",
+      "passed": true,
+      "actual": "GET /payments",
+      "mode": "isolated HTTP with repository fallback store"
+    },
+    {
+      "name": "Public registration cannot grant admin",
+      "passed": false,
+      "actual": {
+        "status": 201,
+        "role": "admin"
+      },
+      "mode": "isolated HTTP with repository fallback store"
+    },
+    {
+      "name": "Registration does not expose password hashes",
+      "passed": false,
+      "actual": {
+        "passwordFieldPresent": true
+      },
+      "mode": "isolated HTTP with repository fallback store"
+    },
+    {
+      "name": "Repeated valid login succeeds in fallback",
+      "passed": false,
+      "actual": {
+        "first": 200,
+        "second": 401
+      },
+      "mode": "isolated HTTP with repository fallback store"
+    },
+    {
+      "name": "Wrong demo password rejected for bcrypt 2a hashes",
+      "passed": false,
+      "actual": {
+        "accepted": true
+      },
+      "mode": "isolated model test"
+    },
+    {
+      "name": "Tenant cannot list other tenants private records",
+      "passed": false,
+      "actual": {
+        "status": 200,
+        "count": 1
+      },
+      "mode": "isolated HTTP with repository fallback store"
+    },
+    {
+      "name": "Unlinked tenant cannot list another tenant invoices",
+      "passed": false,
+      "actual": {
+        "status": 200,
+        "count": 1
+      },
+      "mode": "isolated HTTP with repository fallback store"
+    },
+    {
+      "name": "Tenant cannot read another tenant invoice by ID",
+      "passed": false,
+      "actual": {
+        "status": 200
+      },
+      "mode": "isolated HTTP with repository fallback store"
+    },
+    {
+      "name": "Unlinked tenant cannot self-approve another invoice",
+      "passed": false,
+      "actual": {
+        "status": 200,
+        "writtenStatus": "paid"
+      },
+      "mode": "HTTP; payment write captured"
+    },
+    {
+      "name": "Failed provider verification cannot mark invoice paid",
+      "passed": false,
+      "actual": {
+        "status": 200,
+        "writtenStatus": "paid"
+      },
+      "mode": "HTTP; provider returns null; payment write captured"
+    },
+    {
+      "name": "Express 5 tenant filter reaches payment model",
+      "passed": false,
+      "actual": {
+        "tenant_id": null
+      },
+      "mode": "HTTP; model filter captured"
+    },
+    {
+      "name": "Change-password works with live SQL user projection",
+      "passed": false,
+      "actual": {
+        "status": 401,
+        "message": "Current password is incorrect."
+      },
+      "mode": "HTTP; exact live SELECT projection simulated"
+    },
+    {
+      "name": "Negative invoice rejected",
+      "passed": false,
+      "actual": {
+        "status": 201,
+        "amount": -100
+      },
+      "mode": "isolated HTTP with repository fallback store"
+    },
+    {
+      "name": "Fallback application creation works",
+      "passed": false,
+      "actual": {
+        "status": 500
+      },
+      "mode": "isolated HTTP with repository fallback store"
+    },
+    {
+      "name": "Rejected approval leaves application pending",
+      "passed": false,
+      "actual": {
+        "httpStatus": 400,
+        "storedStatus": "approved"
+      },
+      "mode": "HTTP; isolated application/stall models"
+    }
+  ],
+  "performance": {
+    "scope": "30 sequential requests, local fallback, two invoices; not production load",
+    "p50ms": 2.478700000000117,
+    "p95ms": 3.893199999999979
+  }
+}

@@ -20,7 +20,7 @@ const MobileLogin = () => {
             setLoading(true);
             const res = await login(formData.email, formData.password);
             if (res.success) {
-                toast.success('Welcome back to LeaseHub.');
+                toast.success('Welcome back to Dela Costa HOA Stall Leasing.');
                 navigate('/mobile/dashboard');
             } else {
                 toast.error(res.message || 'Invalid email or password');
@@ -51,7 +51,7 @@ const MobileLogin = () => {
                     >
                         <FaStore size={32} />
                     </div>
-                    <h4 className="fw-bold text-dark mb-1">LeaseHub Mobile</h4>
+                    <h4 className="fw-bold text-dark mb-1">Dela Costa HOA Stall Leasing</h4>
                     <p className="text-muted small">Tenant Self-Service & Commercial Space Portal</p>
                 </div>
 

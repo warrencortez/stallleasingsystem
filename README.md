@@ -1,6 +1,12 @@
-# 🏪 Commercial Stall Leasing Management System
+# 🏪 Dela Costa HOA Stall Leasing
 
-A multi-platform Commercial Stall Leasing Management & Billing System featuring a **Node.js/Express REST API**, an **Admin Web Application**, and a **Standalone Tenant Mobile Application (Expo Go)** with integrated **PayMongo Online Payments**.
+A multi-platform Dela Costa HOA Stall Leasing system featuring a **Node.js/Express REST API**, an **Admin Web Application**, and a **Standalone Tenant Mobile Application (Expo Go)** with integrated **PayMongo Online Payments**.
+
+The website and mobile app include a floating, system-only assistant for stall availability, rent due dates, maintenance reports, applications, announcements, and billing summaries. It uses local system records and does not require an external AI key. See [assistant behavior and setup](server/SYSTEM_ASSISTANT.md).
+
+The tenant directory and dashboard no longer offer manual tenant registration shortcuts. Tenant records are created through the stall application approval workflow; editing existing tenants remains available.
+
+Tenant chat includes animated assistant typing and a **Talk to an admin** option. Administrators receive live-agent request alerts and can browse all tenant accounts, read saved conversations, and take over through **Tenant Conversations** or the floating chat's **Tenant inbox** tab. Conversations are stored privately in `server/data/`; retain that directory across deployments. See the assistant documentation above for the single-server storage scope and API details.
 
 ---
 

@@ -4,7 +4,7 @@ import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 
 // Fallback IP for development machine
-const FALLBACK_IP = '192.168.100.137';
+const FALLBACK_IP = '192.168.1.187';
 
 // Dynamically extract the host IP address Expo Go is connected to
 const getExpoHost = () => {

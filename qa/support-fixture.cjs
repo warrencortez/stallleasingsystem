@@ -1,0 +1,37 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const assert = require('node:assert/strict');
+require('../server/node_modules/dotenv').config = () => ({});
+process.env.JWT_SECRET = 'isolated-support-fixture-secret';
+const storeDir = fs.mkdtempSync(path.join(__dirname, 'support-fixture-store-'));
+process.env.SUPPORT_CHAT_FILE = path.join(storeDir, 'chat.json');
+const express = require('../server/node_modules/express');
+const User = require('../server/src/models/User');
+const { generateToken } = require('../server/src/config/jwt');
+async function main() {
+    const adminId = await User.create({name:'QA Administrator',email:'support-admin@example.invalid',password:'QaPass123',role:'admin'});
+    const tenantId = await User.create({name:'Ana Santos',email:'ana@example.invalid',password:'QaPass123',role:'tenant'});
+    const otherId = await User.create({name:'Ben Cruz',email:'ben@example.invalid',password:'QaPass123',role:'tenant'});
+    const token = generateToken(adminId,'admin'); const tenantToken = generateToken(tenantId,'tenant'); const otherToken = generateToken(otherId,'tenant');
+    await require('../server/src/models/Stall').create({stall_number:'A-101',location:'Dela Costa Market',monthly_rent:5000,status:'available'});
+    const app = express();app.use(express.json());app.use('/api/v1',require('../server/src/routes'));
+    app.use(express.static(path.join(__dirname,'../webapp/dist')));app.use((req,res)=>res.sendFile(path.join(__dirname,'../webapp/dist/index.html')));
+    const server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));const base=`http://127.0.0.1:${server.address().port}`;
+    const call=async(route,bearer=token,body)=>{const res=await fetch(base+'/api/v1'+route,{method:body?'POST':'GET',headers:{'Content-Type':'application/json',...(bearer?{Authorization:'Bearer '+bearer}:{})},...(body?{body:JSON.stringify(body)}:{})});return {status:res.status,body:await res.json()};};
+    assert.equal((await call('/support/inbox',null)).status,401);
+    assert.equal((await call('/support/inbox',tenantToken)).status,403);
+    assert.equal((await call('/support/threads/'+tenantId,otherToken)).status,403);
+    assert.equal((await call('/support/messages',tenantToken,{message:'',client_id:'fixture-001'})).status,400);
+    const bot=await call('/support/messages',tenantToken,{message:'Which stalls are available?',client_id:'fixture-001'});
+    assert.match(bot.body.data.messages.at(-1).text,/A-101/);
+    await call('/support/request-agent',tenantToken,{});await call('/support/request-agent',tenantToken,{});
+    await call('/support/messages',tenantToken,{message:'Please help me understand the stall application.',client_id:'fixture-002'});
+    await call('/support/messages',otherToken,{message:'Check rent due dates',client_id:'fixture-003'});
+    const list=await call('/support/inbox');assert.equal(list.body.data.length,2);assert.equal(list.body.data[0].status,'waiting');
+    const notifications=await call('/notifications');assert.equal(notifications.body.data.filter(n=>n.link?.includes(tenantId)).length,1);
+    assert.equal((await call(`/support/threads/${tenantId}/claim`,otherToken,{})).status,403);
+    const thread=await call('/support/thread',tenantToken);assert.equal(thread.body.data.messages.filter(m=>m.sender_role==='assistant').length,1);
+    fs.writeFileSync(path.join(__dirname,'browser-fixture.json'),JSON.stringify({base,token,tenantToken,tenantId,otherToken,otherId,user:{id:adminId,name:'QA Administrator',email:'support-admin@example.invalid',role:'admin'}}));
+    console.log('Support HTTP checks passed. Isolated fixture: '+base);
+}
+main().catch(error=>{console.error(error);process.exit(1);});

@@ -1,0 +1,593 @@
+{
+  "browser": "local headless Edge",
+  "fixture": "production web build; API intercepted to isolated fallback server",
+  "pages": [
+    {
+      "label": "login-desktop",
+      "title": "LeaseHub | Stall Leasing Management System",
+      "path": "/login",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "LeaseHub\n\nAdministrative Management Portal\n\nAdministrator Email\nPassword\nSign In to Admin Portal\nEnterprise Security Active\nAuthorized facility management personnel only.",
+      "inputs": [
+        {
+          "type": "email",
+          "name": "email",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "rentastall@gmail.com"
+        },
+        {
+          "type": "password",
+          "name": "password",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "••••••••"
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 535.6000000000931,
+          "loadMs": 540.6000000000931
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "login-mobile",
+      "title": "LeaseHub | Stall Leasing Management System",
+      "path": "/login",
+      "width": 375,
+      "scrollWidth": 375,
+      "text": "LeaseHub\n\nAdministrative Management Portal\n\nAdministrator Email\nPassword\nSign In to Admin Portal\nEnterprise Security Active\nAuthorized facility management personnel only.",
+      "inputs": [
+        {
+          "type": "email",
+          "name": "email",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "rentastall@gmail.com"
+        },
+        {
+          "type": "password",
+          "name": "password",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "••••••••"
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 116.39999999990687,
+          "loadMs": 120.70000000018626
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "dashboard",
+      "title": "LeaseHub | Stall Leasing Management System",
+      "path": "/dashboard",
+      "width": 1440,
+      "scrollWidth": 1432,
+      "text": "LeaseHub\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA admin\nCommercial Lease Hub\nEnterprise Stall Management & Operations Platform\nAdministrator Portal\nQA admin\nqa-admin@example.invalid\nExecutive Operations Dashboard\n\nReal-time commercial stall operations, occupancy pipeline, and revenue tracking.\n\nFriday, September 25, 2026 • 06:10:01 AM\nLive Auto-Sync Active\nACTION REQUIRED\nToday's Unpaid Rent\n₱900\n\n2 pending invoice(s) due for collection\n\nReview Outstanding Invoices\nCOMMERCIAL STALLS\n1\n1 Available • 0 Occupied\n0 Active Leases\nACTIVE TENANTS\n1\n1 Total Registered\n0 Inactive\nAPPLICATIONS\n0\n0 Total • 0 Approved\n0 Rejected\nTOTAL COLLECTED\n₱0\n0 Invoices Settled\n₱900 Balance\nOperational Quick Shortcuts\nAdd Commercial Stall\nRegister Tenant\nReview Applications (0)\nBilling & PayMongo Gateway\nOverdue Rental Invoices (2)\nOther tenant\nQA-01\n₱-100\nOther tenant\nQA-01\n₱1,000\nLease Contracts Expiring Soon (1)\nOther tenant\nMerchant\nStall\nRecent Operations & Tenant Activity\nOther tenant has an overdue rental bill of ₱-100 (-7 days overdue)\n10/1/2026\nOther tenant has an overdue rental bill of ₱1,000 (-7 days overdue)\n10/1/2026\nOther tenant's lease contract for Stall expires in NaN days\nInvalid Date",
+      "inputs": [],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 160.60000000009313,
+          "loadMs": 162.29999999981374
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "stalls",
+      "title": "LeaseHub | Stall Leasing Management System",
+      "path": "/stalls",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "LeaseHub\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA admin\nCommercial Lease Hub\nEnterprise Stall Management & Operations Platform\nAdministrator Portal\nQA admin\nqa-admin@example.invalid\nStalls Directory & QR Identification\n\nCommercial spaces overview, tenant assignment, live maintenance tickets, and QR placards.\n\nAdd New Commercial Stall\nSearch\nAll Statuses (1)\nAvailable Only\nOccupied Only\nUnder Maintenance\nReserved\nAuto-Sync Active\nQA-01\nDetails\nAvailable\n\nQA\n\nSpace Size:\n10\nRental Rate:\n₱1,000 / mo\nQR Card",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Search by stall number or location zone..."
+        },
+        {
+          "type": "select-one",
+          "name": "",
+          "labels": 0,
+          "aria": null
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 140,
+          "loadMs": 144.29999999981374
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "tenants",
+      "title": "LeaseHub | Stall Leasing Management System",
+      "path": "/tenants",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "LeaseHub\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA admin\nCommercial Lease Hub\nEnterprise Stall Management & Operations Platform\nAdministrator Portal\nQA admin\nqa-admin@example.invalid\nCommercial Tenants Directory\n\nRoster of registered market merchants, lease contracts, and assigned retail spaces.\n\nAdd New Tenant\nSearch\nAll Statuses (1)\nActive Occupants\nInactive\nPending\nAuto-Sync Active\nMerchant Name\tBusiness Entity\tAssigned Stall\tContact Information\tStatus\tActions\n\nOther tenant\nother@example.invalid\t\nN/A\n\tUnassigned\t\nN/A\n\tACTIVE\t",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Search by name, email, or business..."
+        },
+        {
+          "type": "select-one",
+          "name": "",
+          "labels": 0,
+          "aria": null
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 146.39999999990687,
+          "loadMs": 151.1999999997206
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "applications",
+      "title": "LeaseHub | Stall Leasing Management System",
+      "path": "/applications",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "LeaseHub\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA admin\nCommercial Lease Hub\nEnterprise Stall Management & Operations Platform\nAdministrator Portal\nQA admin\nqa-admin@example.invalid\nStall Lease Applications Pipeline\n\nReview incoming applicant submissions from the Tenant Mobile App and manage lease approvals.\n\nPending: 0\nTotal Submissions: 0\nSearch\nPending Review Only\nApproved Applications\nRejected Applications\nAll Applications\nLive Auto-Sync Active\nNo applications found\n\nNo applicant submissions match your current filter.",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Search by applicant name, email, or business..."
+        },
+        {
+          "type": "select-one",
+          "name": "",
+          "labels": 0,
+          "aria": null
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 146.1999999997206,
+          "loadMs": 151
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "payments",
+      "title": "LeaseHub | Stall Leasing Management System",
+      "path": "/payments",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "LeaseHub\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA admin\nCommercial Lease Hub\nEnterprise Stall Management & Operations Platform\nAdministrator Portal\nQA admin\nqa-admin@example.invalid\nCommercial Stalls Billing & Payment Ledger\n\nAudit active stall rental dues, view payment methods (GCash, Maya, Bank Transfer, Cards), and inspect official receipts.\n\nApply Late Fees\nGenerate Monthly Dues\nCreate Custom Bill\nTOTAL REVENUE COLLECTED\n₱0\n0 Settled Invoices\nTOTAL OUTSTANDING DUES\n₱900\n2 Stalls with Balance\nTODAY'S UNPAID DUES\n₱0\n0 Dues Matured Today\nOVERDUE INVOICES\n0\nSubject to Late Penalties\n Stalls Dues & Rent Master (Top Priority)\n All Payments & Receipts Ledger\nCommercial Stalls Rent & Dues Roster\nStalls with outstanding dues and overdue rents are automatically sorted to the top.\n1 Stalls Registered\nSTALL SPACE\tOCCUPANT / MERCHANT\tCONTRACT RENT\tCURRENT ACTIVE DUE\tTOTAL OUTSTANDING\tLATEST SETTLED MODE\tACTIONS\n\nQA-01\nCommercial Area\n\t\nOther tenant\nActive Tenant\n\t₱1,000\n/Monthly\n\t\nUNPAID\n₱-100\nDue: 10/1/2026\n\t\n₱900\n2 Pending Invoices\n\tNo prior receipts\t\nHistory & Receipts",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Search stall #, tenant name, or ref..."
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 116.70000000018626,
+          "loadMs": 117.5
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "maintenance",
+      "title": "LeaseHub | Stall Leasing Management System",
+      "path": "/maintenance",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "LeaseHub\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA admin\nCommercial Lease Hub\nEnterprise Stall Management & Operations Platform\nAdministrator Portal\nQA admin\nqa-admin@example.invalid\nMaintenance & Repair Operations\n\nTrack stall issues submitted by tenants, assign building technicians, and record resolutions.\n\nReport New Stall Issue\nAll Categories\nRoof Leak\nElectrical\nPlumbing\nStructural\nPest Control\nGeneral\nAll Statuses (0)\nPending\nIn Progress\nCompleted\nNo maintenance requests recorded.",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Search by issue title, stall #, or tenant..."
+        },
+        {
+          "type": "select-one",
+          "name": "",
+          "labels": 0,
+          "aria": null
+        },
+        {
+          "type": "select-one",
+          "name": "",
+          "labels": 0,
+          "aria": null
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 131.90000000037253,
+          "loadMs": 132.90000000037253
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "announcements",
+      "title": "LeaseHub | Stall Leasing Management System",
+      "path": "/announcements",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "LeaseHub\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA admin\nCommercial Lease Hub\nEnterprise Stall Management & Operations Platform\nAdministrator Portal\nQA admin\nqa-admin@example.invalid\nMarket Announcements & Advisories\n\nBroadcast center news, mall schedule adjustments, and advisories to all tenants.\n\nPost Announcement\nAll Announcements\nEvents\nMarket Advisories\nBilling Notices\nMaintenance\nNo announcements posted in this category.",
+      "inputs": [],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 131.79999999981374,
+          "loadMs": 137.29999999981374
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "reports",
+      "title": "LeaseHub | Stall Leasing Management System",
+      "path": "/reports",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "UI Component Diagnostic Alert\nAn unhandled UI exception was caught:\nTypeError: Cannot read properties of undefined (reading 'replace')\nView Component Stack Trace\nReload Page\nCopy Diagnostic Details",
+      "inputs": [],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 132.29999999981374,
+          "loadMs": 133.20000000018626
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "users",
+      "title": "LeaseHub | Stall Leasing Management System",
+      "path": "/users",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "LeaseHub\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA admin\nCommercial Lease Hub\nEnterprise Stall Management & Operations Platform\nAdministrator Portal\nQA admin\nqa-admin@example.invalid\nUser Accounts & Role Control\n\nManage system users, grant administrative permissions, and deactivate accounts.\n\nAll Roles\nAdministrators\nStaff Members\nTenants / Owners\nName / Contact\tEmail\tRole\tStatus\tCreated\tActions\n\nQA tenant\nNo phone\n\tqa-tenant@example.invalid\tTenant\tACTIVE\t\n9/25/2026\n\t\n\n\nQA admin\nNo phone\n\tqa-admin@example.invalid\tAdmin\tACTIVE\t\n9/25/2026\n\t\n\n\nSystem Administrator\n+63 900 000 0000\n\trentastall@gmail.com\tAdmin\tACTIVE\t\n9/25/2026\n\t",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Search by name or email..."
+        },
+        {
+          "type": "select-one",
+          "name": "",
+          "labels": 0,
+          "aria": null
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 146.3000000002794,
+          "loadMs": 147.3000000002794
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "stalls-new",
+      "title": "LeaseHub | Stall Leasing Management System",
+      "path": "/stalls/new",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "LeaseHub\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA admin\nCommercial Lease Hub\nEnterprise Stall Management & Operations Platform\nAdministrator Portal\nQA admin\nqa-admin@example.invalid\nAdd New Commercial Stall\n\nRegister a new retail space in the commercial complex\n\nCancel\nStall Number / Identifier *\nLocation / Zone\nRental Billing Frequency *\nMonthly Lease\nDaily Rent\nMonthly Rent Rate (₱) *\n₱\n/ month\nFloor Area / Dimensions\nOccupancy Status\nAvailable (Vacant)\nOccupied\nUnder Maintenance\nReserved\nStall Description & Amenities\nCancel\nCreate Stall",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "stall_number",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "e.g. Stall A-101"
+        },
+        {
+          "type": "text",
+          "name": "location",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "e.g. Building A, Ground Floor, Food Court"
+        },
+        {
+          "type": "radio",
+          "name": "rent_type_option",
+          "labels": 1,
+          "aria": null,
+          "placeholder": ""
+        },
+        {
+          "type": "radio",
+          "name": "rent_type_option",
+          "labels": 1,
+          "aria": null,
+          "placeholder": ""
+        },
+        {
+          "type": "number",
+          "name": "monthly_rent",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "e.g. 15000"
+        },
+        {
+          "type": "text",
+          "name": "size",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "e.g. 20 sqm (4m x 5m)"
+        },
+        {
+          "type": "select-one",
+          "name": "status",
+          "labels": 0,
+          "aria": null
+        },
+        {
+          "type": "textarea",
+          "name": "description",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Add notes about power outlets, water line connection, corner visibility..."
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 130.89999999990687,
+          "loadMs": 137.60000000009313
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "tenants-new",
+      "title": "LeaseHub | Stall Leasing Management System",
+      "path": "/tenants/new",
+      "width": 1440,
+      "scrollWidth": 1432,
+      "text": "LeaseHub\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA admin\nCommercial Lease Hub\nEnterprise Stall Management & Operations Platform\nAdministrator Portal\nQA admin\nqa-admin@example.invalid\nRegister New Commercial Tenant\n\nAdd a new market merchant and assign a commercial stall\n\nCancel\nPersonal & Contact Identity\n\nMerchant legal name and communications info\n\nFull Legal Name *\nEmail Address\nContact Phone Number\nResidential / Mailing Address\nBusiness & Lease Terms\n\nCommercial entity and assigned stall information\n\nBusiness Trade Name\nBusiness Concept / Category\nAssign Commercial Stall\n-- No Stall Assigned --\nQA-01 - QA (₱1,000/mo)\nContract Start Date\nContract End Date\nAccount Status\nPending Approval\nActive Occupant\nInactive / Terminated\nCancel\nRegister Tenant",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "name",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Enter full name"
+        },
+        {
+          "type": "email",
+          "name": "email",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "e.g. tenant@example.com"
+        },
+        {
+          "type": "tel",
+          "name": "phone",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "e.g. 0917-123-4567"
+        },
+        {
+          "type": "text",
+          "name": "address",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Enter full address"
+        },
+        {
+          "type": "text",
+          "name": "business_name",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "e.g. Reese Gourmet Cafe"
+        },
+        {
+          "type": "text",
+          "name": "business_type",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "e.g. Food & Beverage, Apparel, Electronics"
+        },
+        {
+          "type": "select-one",
+          "name": "stall_id",
+          "labels": 0,
+          "aria": null
+        },
+        {
+          "type": "date",
+          "name": "contract_start",
+          "labels": 0,
+          "aria": null,
+          "placeholder": ""
+        },
+        {
+          "type": "date",
+          "name": "contract_end",
+          "labels": 0,
+          "aria": null,
+          "placeholder": ""
+        },
+        {
+          "type": "select-one",
+          "name": "status",
+          "labels": 0,
+          "aria": null
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 145.8000000002794,
+          "loadMs": 151.40000000037253
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "dashboard-mobile",
+      "title": "LeaseHub | Stall Leasing Management System",
+      "path": "/dashboard",
+      "width": 375,
+      "scrollWidth": 367,
+      "text": "LeaseHub\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA admin\nCommercial Lease Hub\nEnterprise Stall Management & Operations Platform\nExecutive Operations Dashboard\n\nReal-time commercial stall operations, occupancy pipeline, and revenue tracking.\n\nFriday, September 25, 2026 • 06:10:19 AM\nLive Auto-Sync Active\nACTION REQUIRED\nToday's Unpaid Rent\n₱900\n\n2 pending invoice(s) due for collection\n\nReview Outstanding Invoices\nCOMMERCIAL STALLS\n1\n1 Available • 0 Occupied\n0 Active Leases\nACTIVE TENANTS\n1\n1 Total Registered\n0 Inactive\nAPPLICATIONS\n0\n0 Total • 0 Approved\n0 Rejected\nTOTAL COLLECTED\n₱0\n0 Invoices Settled\n₱900 Balance\nOperational Quick Shortcuts\nAdd Commercial Stall\nRegister Tenant\nReview Applications (0)\nBilling & PayMongo Gateway\nOverdue Rental Invoices (2)\nOther tenant\nQA-01\n₱-100\nOther tenant\nQA-01\n₱1,000\nLease Contracts Expiring Soon (1)\nOther tenant\nMerchant\nStall\nRecent Operations & Tenant Activity\nOther tenant has an overdue rental bill of ₱-100 (-7 days overdue)\n10/1/2026\nOther tenant has an overdue rental bill of ₱1,000 (-7 days overdue)\n10/1/2026\nOther tenant's lease contract for Stall expires in NaN days\nInvalid Date",
+      "inputs": [],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 112.10000000009313,
+          "loadMs": 116.20000000018626
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "payments-mobile",
+      "title": "LeaseHub | Stall Leasing Management System",
+      "path": "/payments",
+      "width": 375,
+      "scrollWidth": 367,
+      "text": "LeaseHub\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA admin\nCommercial Lease Hub\nEnterprise Stall Management & Operations Platform\nCommercial Stalls Billing & Payment Ledger\n\nAudit active stall rental dues, view payment methods (GCash, Maya, Bank Transfer, Cards), and inspect official receipts.\n\nApply Late Fees\nGenerate Monthly Dues\nCreate Custom Bill\nTOTAL REVENUE COLLECTED\n₱0\n0 Settled Invoices\nTOTAL OUTSTANDING DUES\n₱900\n2 Stalls with Balance\nTODAY'S UNPAID DUES\n₱0\n0 Dues Matured Today\nOVERDUE INVOICES\n0\nSubject to Late Penalties\n Stalls Dues & Rent Master (Top Priority)\n All Payments & Receipts Ledger\nCommercial Stalls Rent & Dues Roster\nStalls with outstanding dues and overdue rents are automatically sorted to the top.\n1 Stalls Registered\nSTALL SPACE\tOCCUPANT / MERCHANT\tCONTRACT RENT\tCURRENT ACTIVE DUE\tTOTAL OUTSTANDING\tLATEST SETTLED MODE\tACTIONS\n\nQA-01\nCommercial Area\n\t\nOther tenant\nActive Tenant\n\t₱1,000\n/Monthly\n\t\nUNPAID\n₱-100\nDue: 10/1/2026\n\t\n₱900\n2 Pending Invoices\n\tNo prior receipts\t\nHistory & Receipts",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Search stall #, tenant name, or ref..."
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 196.10000000009313,
+          "loadMs": 200.40000000037253
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "qr-route",
+      "title": "LeaseHub | Stall Leasing Management System",
+      "path": "/dashboard",
+      "width": 1440,
+      "scrollWidth": 1432,
+      "text": "LeaseHub\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA admin\nCommercial Lease Hub\nEnterprise Stall Management & Operations Platform\nAdministrator Portal\nQA admin\nqa-admin@example.invalid\nExecutive Operations Dashboard\n\nReal-time commercial stall operations, occupancy pipeline, and revenue tracking.\n\nFriday, September 25, 2026 • 06:10:23 AM\nLive Auto-Sync Active\nACTION REQUIRED\nToday's Unpaid Rent\n₱900\n\n2 pending invoice(s) due for collection\n\nReview Outstanding Invoices\nCOMMERCIAL STALLS\n1\n1 Available • 0 Occupied\n0 Active Leases\nACTIVE TENANTS\n1\n1 Total Registered\n0 Inactive\nAPPLICATIONS\n0\n0 Total • 0 Approved\n0 Rejected\nTOTAL COLLECTED\n₱0\n0 Invoices Settled\n₱900 Balance\nOperational Quick Shortcuts\nAdd Commercial Stall\nRegister Tenant\nReview Applications (0)\nBilling & PayMongo Gateway\nOverdue Rental Invoices (2)\nOther tenant\nQA-01\n₱-100\nOther tenant\nQA-01\n₱1,000\nLease Contracts Expiring Soon (1)\nOther tenant\nMerchant\nStall\nRecent Operations & Tenant Activity\nOther tenant has an overdue rental bill of ₱-100 (-7 days overdue)\n10/1/2026\nOther tenant has an overdue rental bill of ₱1,000 (-7 days overdue)\n10/1/2026\nOther tenant's lease contract for Stall expires in NaN days\nInvalid Date",
+      "inputs": [],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 133.60000000009313,
+          "loadMs": 140.40000000037253
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "payments-idle",
+      "title": "LeaseHub | Stall Leasing Management System",
+      "path": "/payments",
+      "width": 375,
+      "scrollWidth": 367,
+      "text": "LeaseHub\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA admin\nCommercial Lease Hub\nEnterprise Stall Management & Operations Platform\nCommercial Stalls Billing & Payment Ledger\n\nAudit active stall rental dues, view payment methods (GCash, Maya, Bank Transfer, Cards), and inspect official receipts.\n\nApply Late Fees\nGenerate Monthly Dues\nCreate Custom Bill\nTOTAL REVENUE COLLECTED\n₱0\n0 Settled Invoices\nTOTAL OUTSTANDING DUES\n₱900\n2 Stalls with Balance\nTODAY'S UNPAID DUES\n₱0\n0 Dues Matured Today\nOVERDUE INVOICES\n0\nSubject to Late Penalties\n Stalls Dues & Rent Master (Top Priority)\n All Payments & Receipts Ledger\nCommercial Stalls Rent & Dues Roster\nStalls with outstanding dues and overdue rents are automatically sorted to the top.\n1 Stalls Registered\nSTALL SPACE\tOCCUPANT / MERCHANT\tCONTRACT RENT\tCURRENT ACTIVE DUE\tTOTAL OUTSTANDING\tLATEST SETTLED MODE\tACTIONS\n\nQA-01\nCommercial Area\n\t\nOther tenant\nActive Tenant\n\t₱1,000\n/Monthly\n\t\nUNPAID\n₱-100\nDue: 10/1/2026\n\t\n₱900\n2 Pending Invoices\n\tNo prior receipts\t\nHistory & Receipts",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Search stall #, tenant name, or ref..."
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 134.3000000002794,
+          "loadMs": 139.90000000037253
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "corrupt-session",
+      "title": "LeaseHub | Stall Leasing Management System",
+      "path": "/dashboard",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "UI Component Diagnostic Alert\nAn unhandled UI exception was caught:\nSyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)\nView Component Stack Trace\nReload Page\nCopy Diagnostic Details",
+      "inputs": [],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 168.29999999981374,
+          "loadMs": 170.5
+        }
+      ],
+      "errors": []
+    }
+  ],
+  "idleRequestsOver10_5Seconds": [
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/payments/stalls-overview",
+    "http://localhost:5000/api/v1/payments",
+    "http://localhost:5000/api/v1/payments/stats",
+    "http://localhost:5000/api/v1/tenants?status=active",
+    "http://localhost:5000/api/v1/payments/stalls-overview",
+    "http://localhost:5000/api/v1/payments",
+    "http://localhost:5000/api/v1/payments/stats",
+    "http://localhost:5000/api/v1/tenants?status=active",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/payments/stalls-overview",
+    "http://localhost:5000/api/v1/payments",
+    "http://localhost:5000/api/v1/payments/stats",
+    "http://localhost:5000/api/v1/tenants?status=active",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/payments/stalls-overview",
+    "http://localhost:5000/api/v1/payments",
+    "http://localhost:5000/api/v1/payments/stats",
+    "http://localhost:5000/api/v1/tenants?status=active"
+  ]
+}

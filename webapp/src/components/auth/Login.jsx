@@ -46,7 +46,7 @@ const Login = () => {
                         >
                             <FaStore size={32} />
                         </div>
-                        <h3 className="fw-bold text-dark mb-1">LeaseHub</h3>
+                        <h3 className="fw-bold text-dark mb-1">Dela Costa HOA Stall Leasing</h3>
                         <p className="text-muted small">Administrative Management Portal</p>
                     </div>
 

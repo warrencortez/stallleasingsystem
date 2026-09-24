@@ -295,9 +295,6 @@ const Dashboard = () => {
                                 <button className="btn btn-primary btn-sm d-flex align-items-center gap-2 px-3 py-2 fw-semibold shadow-sm" onClick={() => navigate('/stalls')}>
                                     <FaStore /> Add Commercial Stall
                                 </button>
-                                <button className="btn btn-success btn-sm d-flex align-items-center gap-2 px-3 py-2 fw-semibold shadow-sm" onClick={() => navigate('/tenants')}>
-                                    <FaUsers /> Register Tenant
-                                </button>
                                 <button className="btn btn-warning btn-sm d-flex align-items-center gap-2 px-3 py-2 fw-semibold shadow-sm text-dark" onClick={() => navigate('/applications')}>
                                     <FaFileAlt /> Review Applications ({stats.applications.pending})
                                 </button>

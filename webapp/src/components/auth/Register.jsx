@@ -64,7 +64,7 @@ const Register = () => {
                             <FaStore size={28} />
                         </div>
                         <h3 className="fw-bold text-dark mb-1">Create an Account</h3>
-                        <p className="text-muted small">Join LeaseHub Stall Leasing System</p>
+                        <p className="text-muted small">Join Dela Costa HOA Stall Leasing</p>
                     </div>
 
                     <form onSubmit={handleSubmit}>

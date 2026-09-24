@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { maintenanceAPI } from '../../api/endpoints';
+import { useSupport } from '../../context/supportContext';
 import {
     FaHome,
     FaStore,
@@ -12,11 +13,13 @@ import {
     FaBullhorn,
     FaChartBar,
     FaUserCog,
-    FaSignOutAlt
+    FaSignOutAlt,
+    FaComments
 } from 'react-icons/fa';
 
 const Sidebar = ({ isOpen, onClose }) => {
     const { logout, user, isAdmin } = useAuth();
+    const { waitingCount, unreadCount } = useSupport();
     const [pendingMaintenance, setPendingMaintenance] = useState(0);
 
     useEffect(() => {
@@ -39,6 +42,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         { path: '/dashboard', icon: <FaHome />, label: 'Dashboard' },
         { path: '/stalls', icon: <FaStore />, label: 'Stalls & QR Codes' },
         { path: '/tenants', icon: <FaUsers />, label: 'Tenants Directory' },
+        { path: '/conversations', icon: <FaComments />, label: 'Tenant Conversations', badge: waitingCount || unreadCount },
         { path: '/applications', icon: <FaFileAlt />, label: 'Stall Applications' },
         { path: '/payments', icon: <FaCreditCard />, label: 'Billing & Payments' },
         { path: '/maintenance', icon: <FaWrench />, label: 'Maintenance Hub', badge: pendingMaintenance },
@@ -55,7 +59,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                         <FaStore size={20} />
                     </div>
                     <div>
-                        <h6 className="mb-0 fw-bold text-white">LeaseHub</h6>
+                        <h6 className="mb-0 fw-bold text-white">Dela Costa HOA Stall Leasing</h6>
                         <small className="text-muted" style={{ fontSize: '0.75rem' }}>
                             Admin Operations
                         </small>

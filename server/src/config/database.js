@@ -1,6 +1,7 @@
 const { Pool } = require('pg');
 const dotenv = require('dotenv');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 dotenv.config();
 
@@ -23,11 +24,12 @@ const pool = new Pool({
 // RESILIENT IN-MEMORY STORE (ACTIVE IF SUPABASE IS OFFLINE/PAUSED)
 // ==========================================================
 const adminHashedPassword = bcrypt.hashSync('admin123', 10);
+const createId = () => crypto.randomUUID();
 
 const memoryDB = {
     users: [
         {
-            id: 'usr_admin_master',
+            id: '11111111-1111-4111-8111-111111111111',
             name: 'System Administrator',
             email: 'rentastall@gmail.com',
             password: adminHashedPassword,
@@ -252,7 +254,7 @@ const dbQuery = async (text, params = []) => {
 
     if (sql.startsWith('insert into users')) {
         const newUser = {
-            id: `usr_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+            id: createId(),
             name: params[0],
             email: params[1],
             password: params[2],
@@ -301,7 +303,7 @@ const dbQuery = async (text, params = []) => {
 
     if (sql.startsWith('insert into stalls')) {
         const newStall = {
-            id: `stl_${Date.now()}`,
+            id: createId(),
             stall_number: params[0],
             location: params[1],
             size: params[2],
@@ -361,7 +363,7 @@ const dbQuery = async (text, params = []) => {
 
     if (sql.startsWith('insert into tenants')) {
         const newT = {
-            id: `ten_${Date.now()}`,
+            id: createId(),
             user_id: params[0],
             stall_id: params[1],
             name: params[2],
@@ -466,7 +468,7 @@ const dbQuery = async (text, params = []) => {
 
     if (sql.startsWith('insert into payments')) {
         const newPayment = {
-            id: `pay_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+            id: createId(),
             tenant_id: params[0],
             stall_id: params[1],
             amount: parseFloat(params[2]),
@@ -531,7 +533,7 @@ const dbQuery = async (text, params = []) => {
 
     if (sql.startsWith('insert into maintenance_requests')) {
         const newM = {
-            id: `mnt_${Date.now()}`,
+            id: createId(),
             tenant_id: params[0],
             stall_id: params[1],
             title: params[2],
@@ -554,7 +556,7 @@ const dbQuery = async (text, params = []) => {
 
     if (sql.startsWith('insert into announcements')) {
         const newA = {
-            id: `ann_${Date.now()}`,
+            id: createId(),
             author_id: params[0],
             title: params[1],
             content: params[2],
@@ -594,7 +596,7 @@ const dbQuery = async (text, params = []) => {
 
     if (sql.startsWith('insert into notifications')) {
         const newN = {
-            id: `notif_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+            id: createId(),
             user_id: params[0],
             title: params[1],
             message: params[2],

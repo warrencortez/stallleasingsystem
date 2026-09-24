@@ -27,12 +27,14 @@ router.use('/announcements', announcementRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/messages', messageRoutes);
 router.use('/users', userRoutes);
+router.use('/assistant', require('./v1/assistantRoutes'));
+router.use('/support', require('./v1/supportRoutes'));
 
 // Health check
 router.get('/health', (req, res) => {
     res.json({
         success: true,
-        message: 'Stall Leasing Management System API is running smoothly 🚀',
+        message: 'Dela Costa HOA Stall Leasing API is running smoothly 🚀',
         version: '1.0.0',
         paymentGateway: 'PayMongo',
         database: 'Supabase PostgreSQL',
@@ -44,9 +46,18 @@ router.get('/health', (req, res) => {
 router.get('/', (req, res) => {
     res.json({
         success: true,
-        message: 'Welcome to Stall Leasing Management System REST API',
+        message: 'Welcome to Dela Costa HOA Stall Leasing REST API',
         version: '1.0.0',
         endpoints: {
+            assistant: {
+                ask: 'POST /api/v1/assistant'
+            },
+            support: {
+                inbox: 'GET /api/v1/support/inbox',
+                thread: 'GET /api/v1/support/thread',
+                message: 'POST /api/v1/support/messages',
+                requestAgent: 'POST /api/v1/support/request-agent'
+            },
             auth: {
                 register: 'POST /api/v1/auth/register',
                 login: 'POST /api/v1/auth/login',

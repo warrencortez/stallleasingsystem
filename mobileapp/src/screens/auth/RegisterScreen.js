@@ -84,7 +84,7 @@ const RegisterScreen = ({ navigation }) => {
             });
 
             if (res.success) {
-                Alert.alert('Registration Successful', 'Welcome to LeaseHub!');
+                Alert.alert('Registration Successful', 'Welcome to Dela Costa HOA Stall Leasing!');
             } else {
                 Alert.alert('Registration Failed', res.message || 'Unable to create account.');
             }

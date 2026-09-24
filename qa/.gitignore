@@ -1,0 +1,10 @@
+chrome-profile/
+edge-chrome-profile/
+mobile-export/
+mobile-ios-export/
+browser-fixture.json
+assistant-chrome-profile/
+chatbot-mobile-export/
+support-mobile-export/
+support-chrome-profile/
+support-fixture-store-*/

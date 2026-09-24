@@ -76,7 +76,7 @@ const LoginScreen = ({ navigation }) => {
                     <View style={styles.iconCircle}>
                         <Ionicons name="storefront" size={38} color={theme.colors.white} />
                     </View>
-                    <Text style={styles.title}>LeaseHub Mobile</Text>
+                    <Text style={styles.title}>Dela Costa HOA Stall Leasing</Text>
                     <Text style={styles.subtitle}>Tenant Self-Service & Rent Portal</Text>
                 </View>
 
@@ -129,7 +129,7 @@ const LoginScreen = ({ navigation }) => {
 
                     {showIpConfig && (
                         <View style={styles.ipBox}>
-                            <Text style={styles.ipHint}>Enter host server IP address (e.g. 192.168.100.137):</Text>
+                            <Text style={styles.ipHint}>Enter host server IP address (e.g. 192.168.1.187):</Text>
                             <View style={styles.ipInputRow}>
                                 <TextInput
                                     style={styles.ipInput}
@@ -183,6 +183,7 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 24,
+        textAlign: 'center',
         fontWeight: 'bold',
         color: theme.colors.text
     },

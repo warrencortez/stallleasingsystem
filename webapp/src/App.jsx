@@ -20,12 +20,15 @@ import AnnouncementList from './components/announcements/AnnouncementList';
 import Reports from './components/reports/Reports';
 import UserList from './components/users/UserList';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import SystemAssistant from './components/chat/SystemAssistant';
+import SupportInbox from './components/chat/SupportInbox';
+import SupportProvider from './context/SupportProvider';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/global.css';
 
 const AppContent = () => {
-    const { isAuthenticated, loading, isAdmin } = useAuth();
+    const { isAuthenticated, loading, isAdmin, user } = useAuth();
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     if (loading) {
@@ -50,6 +53,7 @@ const AppContent = () => {
     }
 
     return (
+        <SupportProvider key={user.id}>
         <div className="app-wrapper">
             <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
             <div className="app-main-layout">
@@ -62,7 +66,7 @@ const AppContent = () => {
                         <Route path="/stalls/new" element={<StallForm />} />
                         <Route path="/stalls/edit/:id" element={<StallForm />} />
                         <Route path="/tenants" element={<TenantList />} />
-                        <Route path="/tenants/new" element={<TenantForm />} />
+                        <Route path="/tenants/new" element={<Navigate to="/tenants" replace />} />
                         <Route path="/tenants/edit/:id" element={<TenantForm />} />
                         <Route path="/tenants/:id" element={<TenantProfileView />} />
                         <Route path="/applications" element={<ApplicationList />} />
@@ -73,14 +77,17 @@ const AppContent = () => {
                         <Route path="/announcements" element={<AnnouncementList />} />
                         <Route path="/reports" element={<Reports />} />
                         <Route path="/users" element={<UserList />} />
+                        <Route path="/conversations" element={<SupportInbox />} />
 
                         {/* Default Redirects */}
                         <Route path="/" element={<Navigate to="/dashboard" replace />} />
                         <Route path="*" element={<Navigate to="/dashboard" replace />} />
                     </Routes>
                 </main>
+                <SystemAssistant key={user.id} />
             </div>
         </div>
+        </SupportProvider>
     );
 };
 

@@ -59,7 +59,7 @@ app.use('/api/v1', routes);
 app.get('/', (req, res) => {
     res.json({
         success: true,
-        message: 'Stall Leasing Management System API (Supabase & PayMongo Ready)',
+        message: 'Dela Costa HOA Stall Leasing API (Supabase & PayMongo Ready)',
         version: '1.0.0',
         documentation: '/api/v1'
     });
@@ -109,7 +109,7 @@ app.use((err, req, res, next) => {
 // ================================================
 app.listen(PORT, () => {
     console.log(`\n======================================================`);
-    console.log(`🏪 Stall Leasing Management System API Server`);
+    console.log(`🏪 Dela Costa HOA Stall Leasing API Server`);
     console.log(`🚀 Running at: http://localhost:${PORT}`);
     console.log(`📡 Base API:   http://localhost:${PORT}/api/v1`);
     console.log(`💳 Payment:    PayMongo Gateway Integration Active`);

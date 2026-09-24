@@ -6,7 +6,6 @@ import ConfirmModal from '../common/ConfirmModal';
 import { 
     FaEdit, 
     FaTrash, 
-    FaPlus, 
     FaUserCheck, 
     FaUserTimes, 
     FaEye, 
@@ -104,12 +103,6 @@ const TenantList = () => {
                     </h3>
                     <p className="text-muted mb-0">Roster of registered market merchants, lease contracts, and assigned retail spaces.</p>
                 </div>
-                <button
-                    className="btn btn-primary d-flex align-items-center gap-2 px-3 py-2 fw-semibold shadow-sm"
-                    onClick={() => navigate('/tenants/new')}
-                >
-                    <FaPlus /> Add New Tenant
-                </button>
             </div>
 
             {/* Filters */}

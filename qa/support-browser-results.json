@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "checks": [
+    "all tenant accounts listed",
+    "live-agent alert",
+    "bot history visible",
+    "admin accepts request",
+    "live tenant message arrives",
+    "admin reply received by tenant",
+    "bot paused during live chat",
+    "return to assistant",
+    "compact inbox proactive message",
+    "no cross-tenant delivery",
+    "375px layout and back navigation"
+  ],
+  "errors": []
+}

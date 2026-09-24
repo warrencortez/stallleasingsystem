@@ -46,7 +46,7 @@ const Navbar = ({ onToggleSidebar }) => {
                 if (!isInitial && prevUnreadRef.current !== null && currentUnread > prevUnreadRef.current) {
                     playNotificationSound();
                     const latest = list.find((n) => !n.is_read);
-                    if (latest) {
+                    if (latest && !latest.link?.startsWith('/conversations')) {
                         toast(
                             (t) => (
                                 <div
@@ -132,18 +132,18 @@ const Navbar = ({ onToggleSidebar }) => {
                 >
                     <FaBars />
                 </button>
-                <div>
+                <div className="hoa-brand">
                     <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
                         <FaStore className="text-primary" />
-                        Commercial Lease Hub
+                        Dela Costa HOA Stall Leasing
                     </h5>
-                    <small className="text-muted">Enterprise Stall Management & Operations Platform</small>
+                    <small className="text-muted">Stall leasing & community management</small>
                 </div>
             </div>
 
             <div className="d-flex align-items-center gap-3">
                 {/* Admin Secure Badge */}
-                <div className="d-none d-md-flex align-items-center gap-2 bg-light px-3 py-1.5 rounded-pill border">
+                <div className="d-none d-xl-flex align-items-center gap-2 bg-light px-3 py-1.5 rounded-pill border">
                     <FaUserShield className="text-primary" />
                     <span className="small fw-bold text-dark">Administrator Portal</span>
                 </div>

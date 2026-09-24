@@ -1,0 +1,101 @@
+{
+  "passed": true,
+  "checks": [
+    "dashboard shortcut removed",
+    "directory shortcut removed",
+    "new-tenant route redirected",
+    "available stalls response",
+    "due date question",
+    "maintenance question",
+    "off-topic refusal",
+    "375px chat fits viewport",
+    "close chat",
+    "logged-out chat hidden",
+    "document title"
+  ],
+  "pages": [
+    {
+      "label": "login-desktop",
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/dashboard",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\nStall leasing & community management\nAdministrator Portal\nQA Administrator\nadmin@example.invalid\nExecutive Operations Dashboard\n\nReal-time commercial stall operations, occupancy pipeline, and revenue tracking.\n\nFriday, September 25, 2026 • 07:12:56 AM\nLive Auto-Sync Active\nACTION REQUIRED\nToday's Unpaid Rent\n₱0\n\n0 pending invoice(s) due for collection\n\nReview Outstanding Invoices\nCOMMERCIAL STALLS\n1\n1 Available • 0 Occupied\n0 Active Leases\nACTIVE TENANTS\n0\n0 Total Registered\n0 Inactive\nAPPLICATIONS\n0\n0 Total • 0 Approved\n0 Rejected\nTOTAL COLLECTED\n₱0\n0 Invoices Settled\n₱0 Balance\nOperational Quick Shortcuts\nAdd Commercial Stall\nReview Applications (0)\nBilling & PayMongo Gateway\nRecent System Activity\n\nNo recent activity log recorded.\n\nOperations and lease contract milestones will be logged here in real-time.",
+      "inputs": [],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 442.59999999962747,
+          "loadMs": 445.59999999962747
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "login-mobile",
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/dashboard",
+      "width": 375,
+      "scrollWidth": 367,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\nExecutive Operations Dashboard\n\nReal-time commercial stall operations, occupancy pipeline, and revenue tracking.\n\nFriday, September 25, 2026 • 07:12:58 AM\nLive Auto-Sync Active\nACTION REQUIRED\nToday's Unpaid Rent\n₱0\n\n0 pending invoice(s) due for collection\n\nReview Outstanding Invoices\nCOMMERCIAL STALLS\n1\n1 Available • 0 Occupied\n0 Active Leases\nACTIVE TENANTS\n0\n0 Total Registered\n0 Inactive\nAPPLICATIONS\n0\n0 Total • 0 Approved\n0 Rejected\nTOTAL COLLECTED\n₱0\n0 Invoices Settled\n₱0 Balance\nOperational Quick Shortcuts\nAdd Commercial Stall\nReview Applications (0)\nBilling & PayMongo Gateway\nRecent System Activity\n\nNo recent activity log recorded.\n\nOperations and lease contract milestones will be logged here in real-time.",
+      "inputs": [],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 144.3999999994412,
+          "loadMs": 145.59999999962747
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "dashboard",
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/dashboard",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\nStall leasing & community management\nAdministrator Portal\nQA Administrator\nadmin@example.invalid\nExecutive Operations Dashboard\n\nReal-time commercial stall operations, occupancy pipeline, and revenue tracking.\n\nFriday, September 25, 2026 • 07:12:59 AM\nLive Auto-Sync Active\nACTION REQUIRED\nToday's Unpaid Rent\n₱0\n\n0 pending invoice(s) due for collection\n\nReview Outstanding Invoices\nCOMMERCIAL STALLS\n1\n1 Available • 0 Occupied\n0 Active Leases\nACTIVE TENANTS\n0\n0 Total Registered\n0 Inactive\nAPPLICATIONS\n0\n0 Total • 0 Approved\n0 Rejected\nTOTAL COLLECTED\n₱0\n0 Invoices Settled\n₱0 Balance\nOperational Quick Shortcuts\nAdd Commercial Stall\nReview Applications (0)\nBilling & PayMongo Gateway\nRecent System Activity\n\nNo recent activity log recorded.\n\nOperations and lease contract milestones will be logged here in real-time.",
+      "inputs": [],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 118.20000000018626,
+          "loadMs": 122.79999999981374
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "tenants",
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/tenants",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\nStall leasing & community management\nAdministrator Portal\nQA Administrator\nadmin@example.invalid\nCommercial Tenants Directory\n\nRoster of registered market merchants, lease contracts, and assigned retail spaces.\n\nSearch\nAll Statuses (0)\nActive Occupants\nInactive\nPending\nAuto-Sync Active\nMerchant Name\tBusiness Entity\tAssigned Stall\tContact Information\tStatus\tActions\nNo registered tenants found.",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Search by name, email, or business..."
+        },
+        {
+          "type": "select-one",
+          "name": "",
+          "labels": 0,
+          "aria": null
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 86.5,
+          "loadMs": 87.6000000005588
+        }
+      ],
+      "errors": []
+    }
+  ],
+  "errors": []
+}
