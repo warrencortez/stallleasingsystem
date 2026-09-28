@@ -8,129 +8,126 @@
     },
     {
       "name": "Public registration cannot grant admin",
-      "passed": false,
+      "passed": true,
       "actual": {
         "status": 201,
-        "role": "admin"
+        "role": "tenant"
       },
       "mode": "isolated HTTP with repository fallback store"
     },
     {
       "name": "Registration does not expose password hashes",
-      "passed": false,
+      "passed": true,
       "actual": {
-        "passwordFieldPresent": true
+        "passwordFieldPresent": false
       },
       "mode": "isolated HTTP with repository fallback store"
     },
     {
       "name": "Repeated valid login succeeds in fallback",
-      "passed": false,
+      "passed": true,
       "actual": {
         "first": 200,
-        "second": 401
+        "second": 200
       },
       "mode": "isolated HTTP with repository fallback store"
     },
     {
       "name": "Wrong demo password rejected for bcrypt 2a hashes",
-      "passed": false,
+      "passed": true,
       "actual": {
-        "accepted": true
+        "accepted": false
       },
       "mode": "isolated model test"
     },
     {
       "name": "Tenant cannot list other tenants private records",
-      "passed": false,
+      "passed": true,
       "actual": {
         "status": 200,
-        "count": 1
+        "count": 0
       },
       "mode": "isolated HTTP with repository fallback store"
     },
     {
       "name": "Unlinked tenant cannot list another tenant invoices",
-      "passed": false,
+      "passed": true,
       "actual": {
         "status": 200,
-        "count": 1
+        "count": 0
       },
       "mode": "isolated HTTP with repository fallback store"
     },
     {
       "name": "Tenant cannot read another tenant invoice by ID",
-      "passed": false,
+      "passed": true,
       "actual": {
-        "status": 200
+        "status": 403
       },
       "mode": "isolated HTTP with repository fallback store"
     },
     {
       "name": "Unlinked tenant cannot self-approve another invoice",
-      "passed": false,
+      "passed": true,
       "actual": {
-        "status": 200,
-        "writtenStatus": "paid"
+        "status": 403
       },
       "mode": "HTTP; payment write captured"
     },
     {
       "name": "Failed provider verification cannot mark invoice paid",
-      "passed": false,
+      "passed": true,
       "actual": {
-        "status": 200,
-        "writtenStatus": "paid"
+        "status": 403
       },
       "mode": "HTTP; provider returns null; payment write captured"
     },
     {
       "name": "Express 5 tenant filter reaches payment model",
-      "passed": false,
+      "passed": true,
       "actual": {
-        "tenant_id": null
+        "user_id": "b6380bd3-5ded-410d-9ee4-cf9cdf9729b9"
       },
       "mode": "HTTP; model filter captured"
     },
     {
       "name": "Change-password works with live SQL user projection",
-      "passed": false,
+      "passed": true,
       "actual": {
-        "status": 401,
-        "message": "Current password is incorrect."
+        "status": 200,
+        "message": "Password changed successfully! 🔒"
       },
       "mode": "HTTP; exact live SELECT projection simulated"
     },
     {
       "name": "Negative invoice rejected",
-      "passed": false,
+      "passed": true,
       "actual": {
-        "status": 201,
-        "amount": -100
+        "status": 400
       },
       "mode": "isolated HTTP with repository fallback store"
     },
     {
       "name": "Fallback application creation works",
-      "passed": false,
+      "passed": true,
       "actual": {
-        "status": 500
+        "status": 201
       },
       "mode": "isolated HTTP with repository fallback store"
     },
     {
       "name": "Rejected approval leaves application pending",
-      "passed": false,
+      "passed": true,
       "actual": {
-        "httpStatus": 400,
-        "storedStatus": "approved"
+        "httpStatus": 409,
+        "storedStatus": "pending"
       },
       "mode": "HTTP; isolated application/stall models"
     }
   ],
   "performance": {
     "scope": "30 sequential requests, local fallback, two invoices; not production load",
-    "p50ms": 2.478700000000117,
-    "p95ms": 3.893199999999979
+    "p50ms": 2.712400000000116,
+    "p95ms": 5.432000000000016
   }
 }

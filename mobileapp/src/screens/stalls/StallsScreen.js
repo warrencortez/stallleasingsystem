@@ -94,7 +94,7 @@ const StallsScreen = ({ navigation, route }) => {
                 const list = tenRes.value.data.data || [];
                 // Support multiple stalls rented by the tenant
                 const myTenancies = list.filter((t) =>
-                    (t.email?.toLowerCase() === user?.email?.toLowerCase() || (t.user_id && t.user_id === user?.id)) &&
+                    t.user_id === user?.id &&
                     t.status === 'active' &&
                     t.stall_id
                 );
@@ -103,7 +103,7 @@ const StallsScreen = ({ navigation, route }) => {
 
             if (appsRes.status === 'fulfilled' && appsRes.value.data?.success) {
                 const myApps = appsRes.value.data.data || [];
-                const ids = myApps.map((a) => a.stall_id).filter(Boolean);
+                const ids = myApps.filter(a => a.status === 'pending' || a.status === 'approved').map((a) => a.stall_id).filter(Boolean);
                 setAppliedStallIds(ids);
             }
         } catch (error) {
@@ -202,7 +202,7 @@ const StallsScreen = ({ navigation, route }) => {
                 Alert.alert('Submission Error', res.data?.message || 'Failed to submit application');
             }
         } catch (error) {
-            Alert.alert('Error', 'Unable to reach backend. Please try again.');
+            Alert.alert('Application not submitted', error.response?.data?.message || 'Unable to reach the server. Please try again.');
         } finally {
             setSubmitting(false);
         }

@@ -1,3 +1,4 @@
+process.env.DEMO_MODE = 'true';
 // Isolated QA: no .env, no database connection, no payment-provider requests.
 const fs = require('node:fs');
 const path = require('node:path');
@@ -33,7 +34,9 @@ async function main() {
   check('Unauthenticated users blocked', (await request('/payments')).status === 401, 'GET /payments');
   const reg = await request('/auth/register', null, {name:'QA admin',email:'qa-admin@example.invalid',password:'QaPass123',role:'admin'});
   check('Public registration cannot grant admin', reg.body.data?.user?.role !== 'admin', {status:reg.status,role:reg.body.data?.user?.role});
-  const adminToken = reg.body.data.token;
+  const adminId = await User.create({name:'QA admin',email:'qa-privileged@example.invalid',password:'QaPass123',role:'admin'});
+  const adminUser = await User.findById(adminId);
+  const adminToken = require('../server/src/config/jwt').generateToken(adminId, 'admin');
   const tenantReg = await request('/auth/register', null, {name:'QA tenant',email:'qa-tenant@example.invalid',password:'QaPass123'});
   const tenantToken = tenantReg.body.data.token;
   const tenantUserId = tenantReg.body.data.user.id;
@@ -73,7 +76,7 @@ async function main() {
   let filters;
   Payment.findAll = async f => (filters=f, []);
   await request('/payments',tenantToken);
-  check('Express 5 tenant filter reaches payment model',filters?.tenant_id==='qa-owned-tenant',{tenant_id:filters?.tenant_id??null},'HTTP; model filter captured');
+  check('Express 5 tenant filter reaches payment model',filters?.user_id===tenantUserId,{user_id:filters?.user_id??null},'HTTP; model filter captured');
   Tenant.findByUserId = originalFindTenant;
   Payment.findAll = originalFindPayments;
   const oldFind = User.findById;
@@ -83,7 +86,7 @@ async function main() {
   User.findById = oldFind;
   const neg = await request('/payments',adminToken,{tenant_id:ownerId,amount:-100,due_date:'2026-10-01'});
   check('Negative invoice rejected',neg.status===400||neg.status===422,{status:neg.status,amount:neg.body.data?.amount});
-  const appCreate = await request('/applications',tenantToken,{full_name:'QA applicant',business_name:'QA shop',stall_id:stallId});
+  const appCreate = await request('/applications',tenantToken,{full_name:'QA applicant',business_name:'QA shop',phone:'09111111111',stall_id:stallId});
   check('Fallback application creation works',appCreate.status===201,{status:appCreate.status});
   // Real controller with isolated models, reproducing occupied-stall ordering.
   const originals = [Application.findById,Application.updateStatus,Stall.findById];
@@ -99,8 +102,8 @@ async function main() {
   timings.sort((a,b)=>a-b);
   const performanceResult={scope:'30 sequential requests, local fallback, two invoices; not production load',p50ms:timings[15],p95ms:timings[28]};
   fs.writeFileSync(path.join(__dirname,'api-results.json'),JSON.stringify({results,performance:performanceResult},null,2));
-  fs.writeFileSync(path.join(__dirname,'browser-fixture.json'),JSON.stringify({base,token:adminToken,user:reg.body.data.user}));
+  fs.writeFileSync(path.join(__dirname,'browser-fixture.json'),JSON.stringify({base,token:adminToken,user:adminUser}));
   console.log('QA_FIXTURE_READY '+base);
-  if(!process.argv.includes('--serve')) server.close(()=>process.exit(0));
+  if(!process.argv.includes('--serve')) server.close(()=>process.exit(results.every(r=>r.passed) ? 0 : 1));
 }
 main().catch(e=>{console.error(e);process.exit(1);});

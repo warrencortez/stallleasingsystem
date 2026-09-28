@@ -18,10 +18,10 @@ const { authenticate, authorize, optionalAuth } = require('../../middleware/auth
 router.get('/stats', authenticate, authorize('admin', 'staff'), getApplicationStats);
 
 // Get all applications (Admin/Staff only)
-router.get('/', authenticate, authorize('admin', 'staff'), getAllApplications);
+router.get('/', authenticate, getAllApplications);
 
 // Get a single application (Admin/Staff only)
-router.get('/:id', authenticate, authorize('admin', 'staff'), getApplication);
+router.get('/:id', authenticate, getApplication);
 
 // Create a new application (Public or authenticated applicants)
 router.post('/', optionalAuth, createApplication);

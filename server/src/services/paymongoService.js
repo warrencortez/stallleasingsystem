@@ -37,6 +37,7 @@ class PayMongoService {
             tenantPhone
         } = data;
 
+        if (!this.secretKey) throw new Error('Online payments are not configured.');
         // PayMongo expects amount in centavos (e.g. 15000 PHP = 1500000 centavos)
         const amountInCentavos = Math.round(parseFloat(amount) * 100);
         const refNumber = `STALL-PAY-${paymentId.substring(0, 8).toUpperCase()}`;
@@ -44,6 +45,7 @@ class PayMongoService {
         const payload = {
             data: {
                 attributes: {
+                    metadata: { invoice_id: paymentId },
                     billing: {
                         name: tenantName || 'Stall Tenant',
                         email: tenantEmail || 'tenant@stalllease.com',
@@ -94,12 +96,11 @@ class PayMongoService {
                 };
             } else {
                 console.warn('PayMongo API response warning:', result.errors || result);
-                // Fallback to Sandbox / Simulated checkout URL if credentials are test or rate-limited
-                return this.generateSimulatedCheckout(paymentId, amount, refNumber, stallNumber);
+                throw new Error('Payment provider could not create checkout. Please try again.');
             }
         } catch (error) {
-            console.error('PayMongo API network exception, switching to safe sandbox simulator:', error.message);
-            return this.generateSimulatedCheckout(paymentId, amount, refNumber, stallNumber);
+            console.error('PayMongo checkout failed:', error.message);
+            throw new Error('Payment provider could not create checkout. Please try again.');
         }
     }
 
@@ -107,13 +108,7 @@ class PayMongoService {
      * Retrieve checkout session details
      */
     async retrieveCheckoutSession(checkoutId) {
-        if (!checkoutId || checkoutId.startsWith('cs_sim_')) {
-            return {
-                id: checkoutId,
-                status: 'paid',
-                payment_method: 'paymongo_gcash'
-            };
-        }
+        if (!this.secretKey || !checkoutId || checkoutId.startsWith('cs_sim_')) return null;
 
         try {
             const response = await fetch(`${this.baseUrl}/checkout_sessions/${checkoutId}`, {
@@ -123,30 +118,13 @@ class PayMongoService {
                 }
             });
             const result = await response.json();
-            return result.data?.attributes || null;
+            return response.ok ? result.data : null;
         } catch (error) {
             console.error('Error fetching PayMongo checkout session:', error.message);
             return null;
         }
     }
 
-    /**
-     * Fallback sandbox / simulated checkout for reliable local development & testing
-     */
-    generateSimulatedCheckout(paymentId, amount, refNumber, stallNumber) {
-        const simulatedCheckoutId = `cs_sim_${Date.now()}_${paymentId.substring(0, 6)}`;
-        const simulatedUrl = `http://localhost:5173/payments?payment_status=success&payment_id=${paymentId}&checkout_id=${simulatedCheckoutId}&ref=${refNumber}&amount=${amount}&simulated=true`;
-
-        return {
-            success: true,
-            checkoutId: simulatedCheckoutId,
-            checkoutUrl: simulatedUrl,
-            referenceNumber: refNumber,
-            status: 'active',
-            isSimulated: true,
-            message: 'PayMongo Checkout link ready (Test Simulator Mode enabled)'
-        };
-    }
 }
 
 module.exports = new PayMongoService();

@@ -6,6 +6,10 @@ const crypto = require('crypto');
 dotenv.config();
 
 let isLiveDBConnected = false;
+const { AsyncLocalStorage } = require('node:async_hooks');
+const transactionContext = new AsyncLocalStorage();
+const demoMode = process.env.DEMO_MODE === 'true' && process.env.NODE_ENV !== 'production';
+let transactionQueue = Promise.resolve();
 
 // Create pg connection pool
 const pool = new Pool({
@@ -21,7 +25,7 @@ const pool = new Pool({
 });
 
 // ==========================================================
-// RESILIENT IN-MEMORY STORE (ACTIVE IF SUPABASE IS OFFLINE/PAUSED)
+// EXPLICIT LOCAL DEMO STORE (NEVER USED AS LIVE DATABASE FAILOVER)
 // ==========================================================
 const adminHashedPassword = bcrypt.hashSync('admin123', 10);
 const createId = () => crypto.randomUUID();
@@ -51,16 +55,13 @@ const memoryDB = {
 
 // Resilient Query Dispatcher
 const dbQuery = async (text, params = []) => {
-    if (isLiveDBConnected) {
-        try {
-            return await pool.query(text, params);
-        } catch (err) {
-            console.warn('Live DB Query failed, executing fallback:', err.message);
-        }
-    }
+    const client = transactionContext.getStore();
+    if (client) return client.query(text, params);
+    if (isLiveDBConnected) return pool.query(text, params);
+    if (!demoMode) throw new Error('Database unavailable. Configure PostgreSQL or explicitly enable DEMO_MODE for local testing.');
 
     // ==========================================================
-    // IN-MEMORY EMULATOR FOR ZERO-DOWNTIME RELIABILITY
+    // IN-MEMORY EMULATOR FOR LOCAL DEMO MODE ONLY
     // ==========================================================
     const sql = text.trim().toLowerCase();
 
@@ -272,11 +273,9 @@ const dbQuery = async (text, params = []) => {
         const id = params[params.length - 1];
         const u = memoryDB.users.find(x => x.id === id);
         if (u) {
-            u.name = params[0] || u.name;
-            u.email = params[1] || u.email;
-            u.role = params[2] || u.role;
-            u.phone = params[3] !== undefined ? params[3] : u.phone;
-            u.is_active = params[4] !== undefined ? params[4] : u.is_active;
+            for (const match of sql.matchAll(/(\w+) = \$(\d+)/g)) {
+                if (match[1] !== 'id') u[match[1]] = params[Number(match[2]) - 1];
+            }
             return { rows: [u], rowCount: 1 };
         }
         return { rows: [], rowCount: 0 };
@@ -339,6 +338,13 @@ const dbQuery = async (text, params = []) => {
     // 5. TENANTS QUERIES & MUTATIONS
     // ----------------------------------------------------------
     if (sql.includes('from tenants')) {
+        if (sql.includes('t.id as tenant_id')) {
+            const rows = memoryDB.tenants.map(t => {
+                const stall = memoryDB.stalls.find(s => s.id === t.stall_id);
+                return { ...t, tenant_id: t.id, stall_number: stall?.stall_number, monthly_rent: stall?.monthly_rent };
+            });
+            return { rows, rowCount: rows.length };
+        }
         if (sql.includes('where t.id =') || sql.includes('where id =')) {
             const t = memoryDB.tenants.find(x => x.id === params[0]);
             return { rows: t ? [t] : [], rowCount: t ? 1 : 0 };
@@ -358,7 +364,8 @@ const dbQuery = async (text, params = []) => {
             const pending = memoryDB.tenants.filter(t => t.status === 'pending').length;
             return { rows: [{ total, active, inactive, pending }], rowCount: 1 };
         }
-        return { rows: memoryDB.tenants, rowCount: memoryDB.tenants.length };
+        const rows = memoryDB.tenants.map(t => { const stall = memoryDB.stalls.find(s => s.id === t.stall_id); return { ...t, stall_number: stall?.stall_number, monthly_rent: stall?.monthly_rent, location: stall?.location }; });
+        return { rows, rowCount: rows.length };
     }
 
     if (sql.startsWith('insert into tenants')) {
@@ -369,12 +376,12 @@ const dbQuery = async (text, params = []) => {
             name: params[2],
             email: params[3],
             phone: params[4],
-            business_name: params[5],
-            business_type: params[6],
-            lease_start: params[7],
-            lease_end: params[8],
-            monthly_rent: parseFloat(params[9] || 0),
-            status: 'active',
+            address: params[5],
+            business_name: params[6],
+            business_type: params[7],
+            contract_start: params[8],
+            contract_end: params[9],
+            status: params[10] || 'pending',
             created_at: new Date().toISOString()
         };
         memoryDB.tenants.unshift(newT);
@@ -402,7 +409,13 @@ const dbQuery = async (text, params = []) => {
             return { rows: p ? [p] : [], rowCount: p ? 1 : 0 };
         }
         if (sql.includes('where p.tenant_id =') || sql.includes('where tenant_id =')) {
-            const tPayments = memoryDB.payments.filter(x => x.tenant_id === params[0]);
+            let tPayments = memoryDB.payments.filter(x => x.tenant_id === params[0]);
+            if (sql.includes('extract(month')) {
+                tPayments = tPayments.filter(p => {
+                    const date = new Date(p.due_date);
+                    return date.getUTCMonth() + 1 === Number(params[1]) && date.getUTCFullYear() === Number(params[2]) && p.stall_id === params[3];
+                });
+            }
             return { rows: tPayments, rowCount: tPayments.length };
         }
         if (sql.includes('where p.stall_id =') || sql.includes('where stall_id =')) {
@@ -441,17 +454,32 @@ const dbQuery = async (text, params = []) => {
             };
         });
 
-        return { rows: enrichedPayments, rowCount: enrichedPayments.length };
+        const filteredPayments = enrichedPayments.filter(p => {
+            for (const match of sql.matchAll(/(?:p\.|t\.)(user_id|tenant_id|stall_id|status) = \$(\d+)/g)) {
+                const value = match[1] === 'user_id' ? memoryDB.tenants.find(t => t.id === p.tenant_id)?.user_id : p[match[1]];
+                if (value !== params[Number(match[2]) - 1]) return false;
+            }
+            for (const match of sql.matchAll(/extract\((month|year) from p.due_date\) = \$(\d+)/g)) {
+                const date = new Date(p.due_date);
+                if ((match[1] === 'month' ? date.getUTCMonth() + 1 : date.getUTCFullYear()) !== Number(params[Number(match[2]) - 1])) return false;
+            }
+            return true;
+        });
+        return { rows: filteredPayments, rowCount: filteredPayments.length };
     }
 
     if (sql.startsWith('update payments')) {
         const id = params[params.length - 1];
         const p = memoryDB.payments.find(x => x.id === id);
         if (p) {
+            if (sql.includes("status <> 'paid'") && p.status === 'paid') return { rows: [], rowCount: 0 };
+            if (sql.includes('paymongo_checkout_id = $1')) {
+                p.paymongo_checkout_id = params[0]; p.paymongo_checkout_url = params[1]; p.reference_number = params[2] || p.reference_number;
+            }
             // Check for recordPayment / mark as paid
             if (sql.includes("status = 'paid'") || sql.includes('status = $1') || sql.includes('payment_date = current_date')) {
                 p.status = params[0] || 'paid';
-                p.payment_date = new Date().toISOString().split('T')[0];
+                p.payment_date = p.status === 'paid' ? new Date().toISOString().split('T')[0] : null;
                 p.payment_method = params[1] || p.payment_method || 'paymongo_online';
                 p.reference_number = params[2] || p.reference_number || `REF-${Date.now()}`;
                 if (params[3]) p.proof_image = params[3];
@@ -473,8 +501,9 @@ const dbQuery = async (text, params = []) => {
             stall_id: params[1],
             amount: parseFloat(params[2]),
             due_date: params[3],
-            status: params[4] || 'unpaid',
-            description: params[5] || 'Stall Lease Payment',
+            status: sql.includes("'unpaid'") ? 'unpaid' : (params[5] || 'unpaid'),
+            payment_date: sql.includes("'unpaid'") ? null : params[4],
+            description: sql.includes("'unpaid'") ? params[4] : params[11],
             created_at: new Date().toISOString()
         };
         memoryDB.payments.unshift(newPayment);
@@ -492,32 +521,21 @@ const dbQuery = async (text, params = []) => {
         return { rows: memoryDB.applications, rowCount: memoryDB.applications.length };
     }
 
+    if (sql.startsWith('insert into applications')) {
+        const fields = ['user_id', 'stall_id', 'full_name', 'email', 'phone', 'business_name', 'business_type', 'notes', 'valid_id_url', 'business_permit_url'];
+        const app = { id: createId(), status: 'pending', created_at: new Date().toISOString() };
+        fields.forEach((field, i) => app[field] = params[i]);
+        memoryDB.applications.push(app);
+        return { rows: [{ id: app.id }], rowCount: 1 };
+    }
     if (sql.startsWith('update applications')) {
-        const id = params[params.length - 1];
-        const app = memoryDB.applications.find(a => a.id === id);
-        if (app) {
-            app.status = params[0] || app.status;
-            app.notes = params[1] !== undefined ? params[1] : app.notes;
-            app.reviewed_at = new Date().toISOString();
-
-            if (app.status === 'approved') {
-                // Find stall and mark occupied
-                const stall = memoryDB.stalls.find(s => s.id === app.stall_id || s.stall_number === app.stall_number);
-                if (stall) {
-                    stall.status = 'occupied';
-                    stall.tenant_name = app.applicant_name || app.full_name;
-                }
-                // Reject all other applications for this stall
-                memoryDB.applications.forEach(otherApp => {
-                    if (otherApp.id !== app.id && otherApp.stall_id === app.stall_id && otherApp.status === 'pending') {
-                        otherApp.status = 'rejected';
-                        otherApp.notes = 'Auto-rejected: Stall leased to another applicant.';
-                    }
-                });
-            }
-            return { rows: [app], rowCount: 1 };
+        const app = memoryDB.applications.find(a => a.id === params[params.length - 1]);
+        if (!app) return { rows: [], rowCount: 0 };
+        for (const match of sql.matchAll(/(\w+) = \$(\d+)/g)) {
+            if (match[1] !== 'id') app[match[1]] = params[Number(match[2]) - 1];
         }
-        return { rows: [], rowCount: 0 };
+        app.reviewed_at = new Date().toISOString();
+        return { rows: [app], rowCount: 1 };
     }
 
     // ----------------------------------------------------------
@@ -616,12 +634,33 @@ const dbQuery = async (text, params = []) => {
 // Safe Pool Wrapper
 const safePool = {
     query: dbQuery,
-    connect: async () => pool.connect()
+    connect: async () => pool.connect(),
+    withTransaction: async work => {
+        if (isLiveDBConnected) {
+            const client = await pool.connect();
+            try {
+                await client.query('BEGIN');
+                const result = await transactionContext.run(client, () => work(client));
+                await client.query('COMMIT');
+                return result;
+            } catch (error) { await client.query('ROLLBACK'); throw error; }
+            finally { client.release(); }
+        }
+        if (!demoMode) throw new Error('Database unavailable.');
+        const run = transactionQueue.then(async () => {
+            const snapshot = structuredClone(memoryDB);
+            try { return await work({ query: dbQuery }); }
+            catch (error) { Object.assign(memoryDB, snapshot); throw error; }
+        });
+        transactionQueue = run.catch(() => {});
+        return run;
+    }
 };
 
 // Test Connection Function
 const testConnection = async () => {
     try {
+        if (demoMode) { console.warn('Explicit DEMO_MODE: records are temporary and are lost on restart.'); return true; }
         const client = await pool.connect();
         console.log('✅ Connected to Supabase PostgreSQL database successfully!');
         isLiveDBConnected = true;
@@ -629,7 +668,6 @@ const testConnection = async () => {
         return true;
     } catch (error) {
         console.warn('⚠️ Supabase direct connection unavailable (Error:', error.message + ')');
-        console.log('🛡️ Auto-switched to High-Availability In-Memory Data Store (Zero-downtime development active)');
         console.log('💡 To point to live Supabase: Ensure your Supabase project is active & check DB_HOST in server/.env\n');
         isLiveDBConnected = false;
         return false;

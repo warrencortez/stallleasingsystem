@@ -105,7 +105,7 @@ const MaintenanceScreen = ({ navigation, route }) => {
             if (tenRes.status === 'fulfilled' && tenRes.value.data?.success) {
                 const list = tenRes.value.data.data || [];
                 const myTenancies = list.filter((t) =>
-                    (t.email?.toLowerCase() === user?.email?.toLowerCase() || (t.user_id && t.user_id === user?.id)) &&
+                    t.user_id === user?.id &&
                     t.status === 'active' &&
                     t.stall_id
                 );

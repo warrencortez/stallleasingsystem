@@ -1,3 +1,4 @@
+process.env.DEMO_MODE = 'true';
 const fs=require('node:fs');
 const path=require('node:path');
 require('../server/node_modules/dotenv').config=()=>({});
@@ -24,8 +25,10 @@ async function main(){
  result('Fallback partial profile update preserves name and changes phone',updated.name==='QA Person'&&updated.phone==='09111111111',{name:updated.name,phone:updated.phone});
  const sql=fs.readFileSync(path.join(__dirname,'../server/supabase_schema.sql'),'utf8');
  const allowed=sql.match(/type VARCHAR\(50\)[^\n]*CHECK \(type IN \(([^\n]+)\)\)/)[1];
- const emitted=['application_approved','application_rejected','payment_confirmed','maintenance_new','maintenance_completed','stall_added'];
+ const sources = ['controllers/applicationController.js','services/applicationReview.js','controllers/paymentController.js','controllers/maintenanceController.js','controllers/stallController.js'].map(file => fs.readFileSync(path.join(__dirname,'../server/src',file),'utf8')).join('\n');
+ const emitted = [...sources.matchAll(/type: '([^']+)'/g)].map(m => m[1]);
  result('Emitted notification types fit supplied schema',emitted.every(t=>allowed.includes(`'${t}'`)),{unsupported:emitted.filter(t=>!allowed.includes(`'${t}'`))});
  fs.writeFileSync(path.join(__dirname,'logic-results.json'),JSON.stringify(results,null,2));
+ process.exitCode = results.every(r=>r.passed) ? 0 : 1;
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});

@@ -1,39 +1,32 @@
 [
   {
     "name": "Old hardcoded admin password rejected after change",
-    "passed": false,
+    "passed": true,
     "actual": {
-      "status": 200,
-      "passwordReset": true
+      "status": 401,
+      "passwordReset": false
     }
   },
   {
     "name": "Application filter cannot be overridden by tenant",
-    "passed": false,
+    "passed": true,
     "actual": {
-      "filterUser": "other-user"
+      "filterUser": "qa-self"
     }
   },
   {
     "name": "Fallback partial profile update preserves name and changes phone",
-    "passed": false,
+    "passed": true,
     "actual": {
-      "name": "09111111111",
-      "phone": "09000000000"
+      "name": "QA Person",
+      "phone": "09111111111"
     }
   },
   {
     "name": "Emitted notification types fit supplied schema",
-    "passed": false,
+    "passed": true,
     "actual": {
-      "unsupported": [
-        "application_approved",
-        "application_rejected",
-        "payment_confirmed",
-        "maintenance_new",
-        "maintenance_completed",
-        "stall_added"
-      ]
+      "unsupported": []
     }
   }
 ]

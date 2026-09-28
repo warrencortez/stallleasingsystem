@@ -49,7 +49,7 @@ const register = async (req, res) => {
             name: name.trim(),
             email: email.trim().toLowerCase(),
             password,
-            role: role || 'tenant',
+            role: 'tenant',
             phone: cleanPhone,
             address: address || null
         });
@@ -101,19 +101,6 @@ const login = async (req, res) => {
 
         let user = await User.findByEmailOrPhone(email);
 
-        // Auto-bootstrap production admin account if database is freshly initialized
-        if (!user && email?.toLowerCase() === 'rentastall@gmail.com' && password === 'admin123') {
-            const newUserId = await User.create({
-                name: 'System Administrator',
-                email: 'rentastall@gmail.com',
-                password: 'admin123',
-                role: 'admin',
-                phone: '+63 900 000 0000',
-                address: 'Commercial Center Administration Office'
-            });
-            user = await User.findById(newUserId);
-        }
-
         if (!user) {
             return res.status(401).json({
                 success: false,
@@ -123,11 +110,6 @@ const login = async (req, res) => {
 
         // Verify password
         let isPasswordValid = await User.comparePassword(password, user.password);
-
-        if (!isPasswordValid && user.email?.toLowerCase() === 'rentastall@gmail.com' && password === 'admin123') {
-            isPasswordValid = true;
-            await User.updatePassword(user.id, password).catch(() => {});
-        }
 
         if (!isPasswordValid) {
             console.warn(`[AUTH] Invalid password attempt for: ${email}`);
@@ -145,7 +127,7 @@ const login = async (req, res) => {
         }
 
         const token = generateToken(user.id, user.role);
-        delete user.password;
+        user = User.toPublic(user);
 
         res.status(200).json({
             success: true,
@@ -270,8 +252,8 @@ const changePassword = async (req, res) => {
             });
         }
 
-        const user = await User.findById(userId);
-        const isPasswordValid = await User.comparePassword(currentPassword, user.password);
+        const user = await User.findForAuthentication(userId);
+        const isPasswordValid = await User.comparePassword(currentPassword, user?.password);
         if (!isPasswordValid) {
             return res.status(401).json({
                 success: false,

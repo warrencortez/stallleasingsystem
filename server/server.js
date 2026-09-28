@@ -46,7 +46,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // ================================================
 // DATABASE CONNECTION
 // ================================================
-testConnection();
+
 
 // ================================================
 // API ROUTES
@@ -107,6 +107,8 @@ app.use((err, req, res, next) => {
 // ================================================
 // START SERVER
 // ================================================
+testConnection().then(ready => {
+if (!ready) { process.exitCode = 1; return; }
 app.listen(PORT, () => {
     console.log(`\n======================================================`);
     console.log(`🏪 Dela Costa HOA Stall Leasing API Server`);
@@ -115,4 +117,5 @@ app.listen(PORT, () => {
     console.log(`💳 Payment:    PayMongo Gateway Integration Active`);
     console.log(`🗄️ Database:   Supabase PostgreSQL Pool Connected`);
     console.log(`======================================================\n`);
+});
 });

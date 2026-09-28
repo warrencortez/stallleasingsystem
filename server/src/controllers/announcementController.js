@@ -11,10 +11,12 @@ const getAllAnnouncements = async (req, res) => {
         const { category, target_audience } = req.query;
         const audience = req.userRole === 'admin' ? target_audience : (req.userRole === 'tenant' ? 'tenants' : 'staff');
 
-        const announcements = await Announcement.findAll({
+        let announcements = await Announcement.findAll({
             category,
             target_audience: audience
         });
+
+        if (req.userRole !== 'admin') announcements = announcements.filter(a => a.target_audience === 'all' || a.target_audience === audience);
 
         res.status(200).json({
             success: true,
@@ -45,6 +47,9 @@ const getAnnouncementById = async (req, res) => {
                 message: 'Announcement not found.'
             });
         }
+
+        const audience = req.userRole === 'tenant' ? 'tenants' : 'staff';
+        if (req.userRole !== 'admin' && !['all', audience].includes(announcement.target_audience)) return res.status(403).json({ success: false, message: 'This announcement is not available to your account.' });
 
         res.status(200).json({
             success: true,

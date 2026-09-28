@@ -11,22 +11,15 @@ const getAllRequests = async (req, res) => {
     try {
         const { status, category, priority, tenant_id, stall_id } = req.query;
 
-        // If user is tenant, only return their requests
-        let filterTenantId = tenant_id;
+        let requests;
         if (req.userRole === 'tenant') {
-            const tenant = await Tenant.findByUserId(req.userId);
-            if (tenant) {
-                filterTenantId = tenant.id;
-            }
+            const leases = (await Tenant.findAll()).filter(t => t.user_id === req.userId);
+            const ids = new Set(leases.map(t => t.id));
+            if (!ids.size) return res.json({ success: true, data: [], count: 0 });
+            requests = (await Maintenance.findAll({ status, category, priority, stall_id })).filter(r => ids.has(r.tenant_id));
+        } else {
+            requests = await Maintenance.findAll({ status, category, priority, tenant_id, stall_id });
         }
-
-        const requests = await Maintenance.findAll({
-            status,
-            category,
-            priority,
-            tenant_id: filterTenantId,
-            stall_id
-        });
 
         res.status(200).json({
             success: true,
@@ -56,6 +49,11 @@ const getRequestById = async (req, res) => {
                 success: false,
                 message: 'Maintenance request not found.'
             });
+        }
+
+        if (req.userRole === 'tenant') {
+            const tenant = await Tenant.findById(request.tenant_id);
+            if (!tenant || tenant.user_id !== req.userId) return res.status(403).json({ success: false, message: 'You can only view your own maintenance requests.' });
         }
 
         res.status(200).json({
@@ -91,20 +89,11 @@ const createRequest = async (req, res) => {
         let stallId = stall_id;
 
         if (req.userRole === 'tenant') {
-            let tenant = await Tenant.findByUserId(req.userId);
-            if (!tenant && req.userId) {
-                const userRes = await pool.query("SELECT email, name FROM users WHERE id = $1", [req.userId]);
-                if (userRes.rows[0]?.email) {
-                    tenant = await Tenant.findByEmail(userRes.rows[0].email);
-                    if (tenant && !tenant.user_id) {
-                        await Tenant.update(tenant.id, { user_id: req.userId });
-                    }
-                }
-            }
-            if (tenant) {
-                tenantId = tenant.id;
-                stallId = stallId || tenant.stall_id;
-            }
+            const leases = (await Tenant.findAll()).filter(t => t.user_id === req.userId && t.status === 'active' && t.stall_id);
+            const tenant = leases.find(t => !stallId || t.stall_id === stallId);
+            if (!tenant) return res.status(403).json({ success: false, message: 'An active lease for this stall is required.' });
+            tenantId = tenant.id;
+            stallId = tenant.stall_id;
         }
 
         let photoUrl = req.body.photo_url || null;
@@ -150,7 +139,7 @@ const createRequest = async (req, res) => {
                     user_id: admin.id,
                     title: notifTitle,
                     message: notifMessage,
-                    type: 'maintenance_new',
+                    type: 'maintenance_update',
                     link: '/maintenance'
                 });
             }
@@ -234,7 +223,7 @@ const updateStatus = async (req, res) => {
                     user_id: targetUserId,
                     title: notifTitle,
                     message: notifMessage.trim(),
-                    type: isCompleted ? 'maintenance_completed' : 'maintenance_update',
+                    type: 'maintenance_update',
                     link: '/maintenance'
                 });
             }

@@ -1,6 +1,10 @@
 const Stall = require('../models/Stall');
 const Notification = require('../models/Notification');
 const { pool } = require('../config/database');
+const publicStall = s => {
+    const { id, stall_number, location, size, monthly_rent, status, description, image_url, created_at, updated_at } = s;
+    return { id, stall_number, location, size, monthly_rent, status, description, image_url, created_at, updated_at };
+};
 
 /**
  * Get all stalls
@@ -10,10 +14,10 @@ const getAllStalls = async (req, res) => {
     try {
         const { status, search } = req.query;
         const stalls = await Stall.findAll({ status, search });
-        
+
         res.status(200).json({
             success: true,
-            data: stalls,
+            data: req.userRole === 'tenant' ? stalls.map(publicStall) : stalls,
             count: stalls.length
         });
     } catch (error) {
@@ -33,7 +37,7 @@ const getStall = async (req, res) => {
     try {
         const { id } = req.params;
         const stall = await Stall.findById(id);
-        
+
         if (!stall) {
             return res.status(404).json({
                 success: false,
@@ -43,7 +47,7 @@ const getStall = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            data: stall
+            data: req.userRole === 'tenant' ? publicStall(stall) : stall
         });
     } catch (error) {
         console.error('Get stall error:', error);
@@ -62,7 +66,7 @@ const getStallDetails = async (req, res) => {
     try {
         const { id } = req.params;
         const details = await Stall.getDetails(id);
-        
+
         if (!details) {
             return res.status(404).json({
                 success: false,
@@ -90,7 +94,7 @@ const getStallDetails = async (req, res) => {
 const createStall = async (req, res) => {
     try {
         const stallData = req.body;
-        
+
         // Validate required fields
         if (!stallData.stall_number || !stallData.monthly_rent) {
             return res.status(400).json({
@@ -114,7 +118,7 @@ const createStall = async (req, res) => {
                     user_id: u.id,
                     title: 'New Stall Added! 🏪',
                     message: `Stall ${stall?.stall_number || stallData.stall_number}${sizeStr}${locationStr} is now open for lease at ₱${rentFormatted}/month!`,
-                    type: 'stall_added',
+                    type: 'general',
                     link: '/stalls'
                 });
             }
@@ -126,11 +130,11 @@ const createStall = async (req, res) => {
         res.status(201).json({
             success: true,
             message: 'Stall created successfully! ✅',
-            data: stall
+            data: req.userRole === 'tenant' ? publicStall(stall) : stall
         });
     } catch (error) {
         console.error('Create stall error:', error);
-        
+
         // Check for duplicate stall number
         if (error.code === '23505') {
             return res.status(409).json({
@@ -138,7 +142,7 @@ const createStall = async (req, res) => {
                 message: 'Stall number already exists. Please use a different number.'
             });
         }
-        
+
         res.status(500).json({
             success: false,
             message: 'Failed to create stall.'
@@ -154,7 +158,7 @@ const updateStall = async (req, res) => {
     try {
         const { id } = req.params;
         const updateData = req.body;
-        
+
         // Check if stall exists
         const stall = await Stall.findById(id);
         if (!stall) {
@@ -183,7 +187,7 @@ const updateStall = async (req, res) => {
                         user_id: u.id,
                         title: 'Stall Available for Lease! 🏪',
                         message: `Stall ${stall.stall_number} is now vacant and ready for new lease applications!`,
-                        type: 'stall_available',
+                        type: 'general',
                         link: '/stalls'
                     });
                 }
@@ -250,7 +254,7 @@ const updateStallStatus = async (req, res) => {
                         user_id: u.id,
                         title: 'Stall Available for Lease! 🏪',
                         message: `Stall ${stall.stall_number} is now available for lease applications!`,
-                        type: 'stall_available',
+                        type: 'general',
                         link: '/stalls'
                     });
                 }
@@ -282,7 +286,7 @@ const updateStallStatus = async (req, res) => {
 const deleteStall = async (req, res) => {
     try {
         const { id } = req.params;
-        
+
         // Check if stall exists
         const stall = await Stall.findById(id);
         if (!stall) {
@@ -320,7 +324,7 @@ const deleteStall = async (req, res) => {
 const getStallStats = async (req, res) => {
     try {
         const stats = await Stall.getStats();
-        
+
         res.status(200).json({
             success: true,
             data: stats
@@ -356,7 +360,7 @@ const getStallQRCode = async (req, res) => {
             location: stall.location,
             monthlyRent: stall.monthly_rent,
             status: stall.status,
-            tenantName: stall.tenant_name || null,
+            tenantName: req.userRole === 'tenant' ? undefined : stall.tenant_name || null,
             quickActionUrl: `${process.env.CLIENT_URL || 'http://localhost:5173'}/stalls/${stall.id}`
         };
 
@@ -364,7 +368,7 @@ const getStallQRCode = async (req, res) => {
             success: true,
             data: {
                 qrCodePayload: JSON.stringify(qrData),
-                stall
+                stall: req.userRole === 'tenant' ? publicStall(stall) : stall
             }
         });
     } catch (error) {
@@ -386,4 +390,4 @@ module.exports = {
     deleteStall,
     getStallStats,
     getStallQRCode
-};
+};

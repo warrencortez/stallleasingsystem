@@ -11,7 +11,7 @@ const payMongoService = require('../services/paymongoService');
 const getAllPayments = async (req, res) => {
     try {
         const { status, tenant_id, stall_id, month, year } = req.query;
-        const payments = await Payment.findAll({ status, tenant_id, stall_id, month, year });
+        const payments = await Payment.findAll({ status, tenant_id, stall_id, month, year, user_id: req.userRole === 'tenant' ? req.userId : undefined });
 
         res.status(200).json({
             success: true,
@@ -85,7 +85,7 @@ const getTenantPayments = async (req, res) => {
  */
 const createPayment = async (req, res) => {
     try {
-        const paymentData = req.body;
+        const paymentData = { ...req.body };
 
         if (!paymentData.tenant_id || !paymentData.amount || !paymentData.due_date) {
             return res.status(400).json({
@@ -93,6 +93,18 @@ const createPayment = async (req, res) => {
                 message: 'Tenant ID, amount, and due date are required.'
             });
         }
+
+        const amount = Number(paymentData.amount);
+        const due = paymentData.due_date;
+        if (!Number.isFinite(amount) || amount <= 0 || Math.abs(amount * 100 - Math.round(amount * 100)) > 0.000001 ||
+            typeof due !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(due) ||
+            !Number.isFinite(Date.parse(due)) || new Date(due).toISOString().slice(0, 10) !== due) {
+            return res.status(400).json({ success: false, message: 'Enter a positive amount with at most two decimals and a valid due date.' });
+        }
+        paymentData.amount = amount;
+        paymentData.status = 'unpaid';
+        paymentData.late_fee = 0;
+        delete paymentData.payment_date;
 
         const tenant = await Tenant.findById(paymentData.tenant_id);
         if (!tenant) {
@@ -102,9 +114,11 @@ const createPayment = async (req, res) => {
             });
         }
 
-        if (!paymentData.stall_id && tenant.stall_id) {
-            paymentData.stall_id = tenant.stall_id;
+        if (tenant.status !== 'active' || !tenant.stall_id ||
+            (paymentData.stall_id && paymentData.stall_id !== tenant.stall_id)) {
+            return res.status(400).json({ success: false, message: 'Billing requires an active lease for the specified stall.' });
         }
+        paymentData.stall_id = tenant.stall_id;
 
         const paymentId = await Payment.create(paymentData);
         const payment = await Payment.findById(paymentId);
@@ -151,6 +165,18 @@ const updatePayment = async (req, res) => {
             });
         }
 
+        const fields = ['amount', 'late_fee', 'due_date', 'description', 'status', 'payment_method', 'reference_number', 'proof_image'];
+        if (Object.keys(updateData).some(key => !fields.includes(key)) ||
+            ['amount', 'late_fee'].some(key => updateData[key] !== undefined &&
+                (!Number.isFinite(Number(updateData[key])) || Number(updateData[key]) < (key === 'amount' ? 0.01 : 0) ||
+                 Math.abs(Number(updateData[key]) * 100 - Math.round(Number(updateData[key]) * 100)) > 0.000001)) ||
+            (updateData.status && !['unpaid', 'paid', 'overdue', 'partial', 'pending_verification'].includes(updateData.status)) ||
+            (updateData.due_date !== undefined && (typeof updateData.due_date !== 'string' ||
+                !/^\d{4}-\d{2}-\d{2}$/.test(updateData.due_date) || !Number.isFinite(Date.parse(updateData.due_date)) ||
+                new Date(updateData.due_date).toISOString().slice(0, 10) !== updateData.due_date))) {
+            return res.status(400).json({ success: false, message: 'Invalid invoice fields, amount, status or due date.' });
+        }
+
         const updated = await Payment.update(id, updateData);
         if (!updated) {
             return res.status(400).json({
@@ -181,15 +207,6 @@ const createPaymongoCheckout = async (req, res) => {
     try {
         const { id } = req.params;
         let payment = await Payment.findById(id);
-
-        // Smart fallback: If ID not found or placeholder, fetch the latest unpaid invoice
-        if (!payment) {
-            const unpaidList = await Payment.findAll({ status: 'unpaid' });
-            if (unpaidList && unpaidList.length > 0) {
-                payment = unpaidList[0];
-                console.log(`[PAYMONGO] Auto-resolved latest unpaid invoice: ${payment.id} for stall ${payment.stall_number}`);
-            }
-        }
 
         if (!payment) {
             return res.status(404).json({
@@ -269,14 +286,26 @@ const verifyPaymongoPayment = async (req, res) => {
             });
         }
 
-        // Verify with PayMongo service
-        const sessionDetails = await payMongoService.retrieveCheckoutSession(checkout_id || payment.paymongo_checkout_id);
+        const sessionId = payment.paymongo_checkout_id;
+        if (!sessionId || (checkout_id && checkout_id !== sessionId)) {
+            return res.status(400).json({ success: false, message: 'Checkout session does not match this invoice.' });
+        }
+        const session = await payMongoService.retrieveCheckoutSession(sessionId);
+        const expectedAmount = Math.round((Number(payment.amount) + Number(payment.late_fee || 0)) * 100);
+        const attrs = session?.attributes;
+        const settled = attrs?.payments?.find(p => p.attributes?.status === 'paid' &&
+            p.attributes.amount === expectedAmount && p.attributes.currency === 'PHP');
+        if (session?.id !== sessionId || !settled ||
+            (attrs.metadata?.invoice_id && attrs.metadata.invoice_id !== payment.id) ||
+            (process.env.NODE_ENV === 'production' && attrs.livemode !== true)) {
+            return res.status(409).json({ success: false, message: 'Payment is not confirmed. Your bill remains outstanding.' });
+        }
 
         // Update payment record
         const updatedPayment = await Payment.recordPayment(id, {
             payment_method: 'paymongo_online',
-            reference_number: reference_number || payment.reference_number || `PM-${Date.now()}`,
-            paymongo_payment_id: checkout_id,
+            reference_number: payment.reference_number || settled.id,
+            paymongo_checkout_id: sessionId,
             status: 'paid'
         });
 
@@ -287,7 +316,7 @@ const verifyPaymongoPayment = async (req, res) => {
                 user_id: tenant.user_id,
                 title: 'Payment Confirmation Received! ✅',
                 message: `Your payment of ₱${Number(payment.amount).toLocaleString()} for ${payment.stall_number} was successfully processed via PayMongo.`,
-                type: 'payment_confirmed',
+                type: 'payment_success',
                 link: '/payments'
             });
         }
@@ -328,6 +357,8 @@ const recordPayment = async (req, res) => {
             });
         }
 
+        if (payment.status === 'paid') return res.status(409).json({ success: false, message: 'This invoice is already paid.' });
+
         // Handle uploaded file if present via multer
         let finalProofImage = proof_image;
         if (req.file) {
@@ -335,7 +366,8 @@ const recordPayment = async (req, res) => {
         }
 
         // If tenant uploaded proof, mark as pending verification unless admin verified
-        const status = is_manual_verify || req.userRole === 'admin' ? 'paid' : 'pending_verification';
+        const canVerify = req.userRole === 'admin' || req.userRole === 'staff';
+        const status = canVerify && (is_manual_verify || req.userRole === 'admin') ? 'paid' : 'pending_verification';
 
         const updated = await Payment.recordPayment(id, {
             payment_method: payment_method || 'bank_transfer',
@@ -366,7 +398,8 @@ const generateBills = async (req, res) => {
     try {
         const { month, year } = req.body;
 
-        if (!month || !year) {
+        if (!Number.isInteger(Number(month)) || Number(month) < 1 || Number(month) > 12 ||
+            !Number.isInteger(Number(year)) || Number(year) < 1900 || Number(year) > 9999) {
             return res.status(400).json({
                 success: false,
                 message: 'Month and year are required.'

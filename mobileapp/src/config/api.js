@@ -4,7 +4,7 @@ import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 
 // Fallback IP for development machine
-const FALLBACK_IP = '192.168.1.187';
+const FALLBACK_IP = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
 
 // Dynamically extract the host IP address Expo Go is connected to
 const getExpoHost = () => {
@@ -26,10 +26,12 @@ const getExpoHost = () => {
 };
 
 const serverHost = getExpoHost();
+const configuredUrl = process.env.EXPO_PUBLIC_API_URL;
+const apiUrl = configuredUrl || (__DEV__ ? `http://${serverHost}:5000/api/v1` : '');
 console.log(`[API Config] Connecting to backend at: http://${serverHost}:5000/api/v1`);
 
 const api = axios.create({
-    baseURL: `http://${serverHost}:5000/api/v1`,
+    baseURL: apiUrl,
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json'
@@ -38,10 +40,11 @@ const api = axios.create({
 
 api.interceptors.request.use(
     async (config) => {
+        if (!apiUrl || (!__DEV__ && !apiUrl.startsWith('https://'))) throw new Error('A secure API URL must be configured for this build.');
         try {
             // Check for custom server IP override if set
             const customIP = await AsyncStorage.getItem('custom_server_ip');
-            if (customIP && !config.baseURL.includes(customIP)) {
+            if (__DEV__ && !configuredUrl && customIP && !config.baseURL.includes(customIP)) {
                 config.baseURL = `http://${customIP}:5000/api/v1`;
             }
 
@@ -60,7 +63,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
-        if (error.response?.status === 401) {
+        if (error.response?.status === 401 && !['/auth/login', '/auth/change-password'].includes(error.config?.url)) {
             console.warn('[API Auth] 401 Unauthorized - token expired or invalid. Clearing session.');
             try {
                 await AsyncStorage.removeItem('user_token');

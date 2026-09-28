@@ -1,3 +1,4 @@
+process.env.DEMO_MODE = 'true';
 // Disposable fixture server: environment loading disabled, no live DB/provider.
 const fs = require('node:fs');
 const path = require('node:path');

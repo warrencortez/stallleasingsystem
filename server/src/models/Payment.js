@@ -65,6 +65,12 @@ class Payment {
         const values = [];
         let paramCount = 1;
 
+        if (filters.user_id !== undefined) {
+            query += ` AND t.user_id = $${paramCount}`;
+            values.push(filters.user_id);
+            paramCount++;
+        }
+
         if (filters.status) {
             query += ` AND p.status = $${paramCount}`;
             values.push(filters.status);
@@ -177,13 +183,13 @@ class Payment {
         const result = await pool.query(
             `UPDATE payments 
              SET status = $1, 
-                 payment_date = CURRENT_DATE,
+                 payment_date = CASE WHEN $1 = 'paid' THEN CURRENT_DATE ELSE NULL END,
                  payment_method = COALESCE($2, payment_method, 'cash'),
                  reference_number = COALESCE($3, reference_number, 'SETTLED-' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDD-HH24MI')),
                  proof_image = COALESCE($4, proof_image),
                  paymongo_checkout_id = COALESCE($5, paymongo_checkout_id),
                  updated_at = CURRENT_TIMESTAMP
-             WHERE id = $6
+             WHERE id = $6 AND status <> 'paid'
              RETURNING *`,
             [
                 status,
@@ -195,7 +201,7 @@ class Payment {
             ]
         );
 
-        return result.rows[0];
+        return result.rows[0] || await Payment.findById(id);
     }
 
     /**
@@ -227,18 +233,36 @@ class Payment {
      * Generate monthly bills for all active tenants
      */
     static async generateMonthlyBills(month, year) {
+        return pool.withTransaction(async client => {
+            await client.query('SELECT pg_advisory_xact_lock(739105)');
+            return Payment.generateMonthlyBillsInTransaction(month, year);
+        });
+    }
+
+    static async generateMonthlyBillsInTransaction(month, year) {
+        month = Number(month);
+        year = Number(year);
+        if (!Number.isInteger(month) || month < 1 || month > 12 || !Number.isInteger(year) || year < 1900 || year > 9999) {
+            throw new RangeError('Invalid billing month or year.');
+        }
+        const periodStart = `${year}-${String(month).padStart(2, '0')}-01`;
+        const periodEnd = `${year}-${String(month).padStart(2, '0')}-${new Date(year, month, 0).getDate()}`;
+        const dateOnly = value => value instanceof Date ? `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}-${String(value.getDate()).padStart(2, '0')}` : String(value).slice(0, 10);
         // 1. Get all active tenants with their stall monthly rents
         const activeTenantsResult = await pool.query(`
             SELECT t.id as tenant_id, t.stall_id, t.name as tenant_name, 
-                   s.stall_number, s.monthly_rent
+                   s.stall_number, s.monthly_rent, t.status, t.contract_start, t.contract_end
             FROM tenants t
             INNER JOIN stalls s ON t.stall_id = s.id
             WHERE t.status = 'active'
         `);
 
-        const tenants = activeTenantsResult.rows;
+        const tenants = activeTenantsResult.rows.filter(t =>
+            t.status === 'active' && t.stall_id && t.stall_number &&
+            (!t.contract_start || dateOnly(t.contract_start) <= periodEnd) &&
+            (!t.contract_end || dateOnly(t.contract_end) >= periodStart));
         const insertedBills = [];
-        const dueDate = new Date(year, month - 1, 28); // Due on 28th of the specified month
+        const dueDate = `${year}-${String(month).padStart(2, '0')}-28`; // Due on 28th of the specified month
 
         for (const tenant of tenants) {
             // Check if bill already exists for this tenant and month/year
@@ -247,7 +271,8 @@ class Payment {
                 WHERE tenant_id = $1 
                 AND EXTRACT(MONTH FROM due_date) = $2 
                 AND EXTRACT(YEAR FROM due_date) = $3
-            `, [tenant.tenant_id, month, year]);
+                AND stall_id = $4
+            `, [tenant.tenant_id, month, year, tenant.stall_id]);
 
             if (checkResult.rows.length === 0) {
                 const insertResult = await pool.query(`
@@ -509,7 +534,7 @@ class Payment {
                 s.location as stall_location,
                 s.size as stall_size,
                 s.monthly_rent,
-                s.rent_type,
+                CASE WHEN s.description LIKE '[Billing: DAILY]%' THEN 'daily' ELSE 'monthly' END as rent_type,
                 s.status as stall_status,
                 t.id as tenant_id,
                 t.name as tenant_name,

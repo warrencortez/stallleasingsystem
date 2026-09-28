@@ -1,3 +1,7 @@
+**September 29 repair update:** The tenant mobile app and server received a prioritized repair and regression pass. See [current repair results, configuration changes and remaining risks](REPAIR_REPORT_2026-09-29.md). The assessment below describes the September 25 baseline; API and logic JSON artifacts now contain the rerun results.
+
+---
+
 **QA verdict: not ready for production or real payment processing.**
 
 Assessment date: September 25, 2026. Reviewed the Express API, PostgreSQL schema and fallback store, React administrative portal, and Expo tenant application. Existing user changes were preserved; application code was not fixed or changed during this assessment.
@@ -98,4 +102,4 @@ For browser checks, first build the web app, start `node qa/api-audit.cjs --serv
 
 Not executed: real PostgreSQL integration/migrations, real or provider-hosted sandbox payments, native app interaction on physical Android/iOS devices, Safari/Firefox, macOS/Linux clean installation, real network outages, load/concurrency tests, a current dependency-vulnerability audit, exhaustive CRUD/form validation, or a complete accessibility audit. Offline Expo dependency output is not a security audit. Browser tests did not validate real deployment CORS because traffic was intercepted.
 
-Recommended repair order: QA-01 through QA-05 first; then persistent storage, authentication, approval transactions and payment integrity; then schema/deployment compatibility; then responsive/accessibility fixes and performance work. Require regression tests for every release-blocking finding and a complete disposable-database payment/application journey before approving production use.
+Recommended repair order: QA-01 through QA-05 first; then persistent storage, authentication, approval transactions and payment integrity; then schema/deployment compatibility; then responsive/accessibility fixes and performance work. Require regression tests for every release-blocking finding and a complete disposable-database payment/application journey before approving production use.+

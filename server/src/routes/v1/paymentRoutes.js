@@ -24,13 +24,25 @@ const upload = require('../../middleware/upload');
 const Tenant = require('../../models/Tenant');
 const Payment = require('../../models/Payment');
 
+// Check the invoice's lease owner before reads, checkout, or receipt uploads.
+const requirePaymentOwner = async (req, res, next) => {
+    if (req.userRole !== 'tenant') return next();
+    const payment = await Payment.findById(req.params.id);
+    if (!payment) return res.status(404).json({ success: false, message: 'Payment record not found.' });
+    const tenant = await Tenant.findById(payment.tenant_id);
+    if (!tenant || tenant.user_id !== req.userId) {
+        return res.status(403).json({ success: false, message: 'You can only access your own payments.' });
+    }
+    next();
+};
+
 // ==================================================
 // ALL ROUTES REQUIRE AUTHENTICATION
 // ==================================================
 router.use(authenticate);
 
 // Get comprehensive analytics report (Daily, Weekly, Monthly, Yearly)
-router.get('/analytics', getAnalytics);
+router.get('/analytics', authorize('admin', 'staff'), getAnalytics);
 
 // Get master stalls dues and billing summary (Admin/Staff only)
 router.get('/stalls-overview', authorize('admin', 'staff'), getStallsBillingOverview);
@@ -51,28 +63,20 @@ router.post('/generate-bills', authorize('admin'), generateBills);
 router.post('/apply-late-fees', authorize('admin'), applyLateFees);
 
 // Get all payments (Admin/Staff or Filtered)
-router.get('/', async (req, res, next) => {
-    if (req.userRole === 'tenant') {
-        const tenant = await Tenant.findByUserId(req.userId);
-        if (tenant) {
-            req.query.tenant_id = tenant.id;
-        }
-    }
-    next();
-}, getAllPayments);
+router.get('/', getAllPayments);
 
 // PayMongo Checkout Session generation
-router.post('/:id/paymongo-checkout', createPaymongoCheckout);
+router.post('/:id/paymongo-checkout', requirePaymentOwner, createPaymongoCheckout);
 
 // PayMongo Payment verification
-router.post('/:id/verify-paymongo', verifyPaymongoPayment);
+router.post('/:id/verify-paymongo', requirePaymentOwner, verifyPaymongoPayment);
 
 // Get payments by tenant
 router.get('/tenant/:tenantId', async (req, res, next) => {
     const { tenantId } = req.params;
     const tenant = await Tenant.findById(tenantId);
     
-    if (req.userRole === 'tenant' && tenant && tenant.user_id !== req.userId) {
+    if (req.userRole === 'tenant' && (!tenant || tenant.user_id !== req.userId)) {
         return res.status(403).json({
             success: false,
             message: 'You can only view your own payments.'
@@ -86,7 +90,7 @@ router.get('/tenant/:tenantId/summary', async (req, res, next) => {
     const { tenantId } = req.params;
     const tenant = await Tenant.findById(tenantId);
     
-    if (req.userRole === 'tenant' && tenant && tenant.user_id !== req.userId) {
+    if (req.userRole === 'tenant' && (!tenant || tenant.user_id !== req.userId)) {
         return res.status(403).json({
             success: false,
             message: 'You can only view your own payment summary.'
@@ -96,7 +100,7 @@ router.get('/tenant/:tenantId/summary', async (req, res, next) => {
 }, getTenantSummary);
 
 // Get a single payment
-router.get('/:id', getPayment);
+router.get('/:id', requirePaymentOwner, getPayment);
 
 // Create a new payment (Admin/Staff only)
 router.post('/', authorize('admin', 'staff'), createPayment);
@@ -105,21 +109,7 @@ router.post('/', authorize('admin', 'staff'), createPayment);
 router.put('/:id', authorize('admin', 'staff'), updatePayment);
 
 // Record payment or submit proof upload
-router.patch('/:id/record', upload.single('proof_image'), async (req, res, next) => {
-    const { id } = req.params;
-    const payment = await Payment.findById(id);
-    
-    if (payment && req.userRole === 'tenant') {
-        const tenant = await Tenant.findByUserId(req.userId);
-        if (tenant && payment.tenant_id !== tenant.id) {
-            return res.status(403).json({
-                success: false,
-                message: 'You can only record payments for your own stall.'
-            });
-        }
-    }
-    next();
-}, recordPayment);
+router.patch('/:id/record', requirePaymentOwner, upload.single('proof_image'), recordPayment);
 
 // Delete a payment (Admin only)
 router.delete('/:id', authorize('admin'), deletePayment);

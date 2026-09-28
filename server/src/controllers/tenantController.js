@@ -8,7 +8,8 @@ const Stall = require('../models/Stall');
 const getAllTenants = async (req, res) => {
     try {
         const { status, stall_id, search } = req.query;
-        const tenants = await Tenant.findAll({ status, stall_id, search });
+        const rows = await Tenant.findAll({ status, stall_id, search });
+        const tenants = req.userRole === 'tenant' ? rows.filter(t => t.user_id === req.userId) : rows;
         
         res.status(200).json({
             success: true,
@@ -38,6 +39,10 @@ const getTenant = async (req, res) => {
                 success: false,
                 message: 'Tenant not found.'
             });
+        }
+
+        if (req.userRole === 'tenant' && tenant.user_id !== req.userId) {
+            return res.status(403).json({ success: false, message: 'You can only view your own lease.' });
         }
 
         res.status(200).json({

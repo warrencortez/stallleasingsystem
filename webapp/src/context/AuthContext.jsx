@@ -14,8 +14,13 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         // Check if user is logged in on mount
         const storedUser = localStorage.getItem('user');
-        if (storedUser && token) {
-            setUser(JSON.parse(storedUser));
+        try {
+            const parsed = storedUser && token ? JSON.parse(storedUser) : null;
+            if (parsed && (!parsed.id || !['admin', 'staff', 'tenant'].includes(parsed.role))) throw new Error('Invalid session');
+            setUser(parsed);
+        } catch {
+            localStorage.removeItem('user'); localStorage.removeItem('token');
+            setUser(null); setToken(null);
         }
         setLoading(false);
     }, [token]);

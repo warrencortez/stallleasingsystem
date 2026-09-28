@@ -29,6 +29,7 @@ const PAYMENT_CHANNELS = [
 
 const BillingScreen = () => {
     const { user } = useAuth();
+    const [loadError, setLoadError] = useState('');
     const [payments, setPayments] = useState([]);
     const [tenantProfile, setTenantProfile] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -62,27 +63,23 @@ const BillingScreen = () => {
                 api.get('/payments')
             ]);
 
+            if (payRes.status === 'rejected') throw payRes.reason;
+            setLoadError('');
             let myTenant = null;
             if (tenRes.status === 'fulfilled' && tenRes.value.data?.success) {
                 const list = tenRes.value.data.data || [];
-                myTenant = list.find((t) => t.email?.toLowerCase() === user?.email?.toLowerCase());
-                if (myTenant) {
-                    setTenantProfile(myTenant);
-                }
+                myTenant = list.find((t) => t.user_id === user?.id && t.status === 'active');
+                setTenantProfile(myTenant || null);
             }
 
             if (payRes.status === 'fulfilled' && payRes.value.data?.success) {
-                const all = payRes.value.data.data || [];
-                if (myTenant) {
-                    setPayments(all.filter((p) => p.tenant_id === myTenant.id || p.tenant_name?.toLowerCase() === user?.name?.toLowerCase()));
-                } else {
-                    setPayments(all);
-                }
+                // The API scopes invoices to the authenticated account, including lease history.
+                setPayments(payRes.value.data.data || []);
             }
         } catch (error) {
-            console.error('Billing load error:', error);
+            setLoadError('Unable to load your bills. Please retry.');
         } finally {
-            if (isInitial) setLoading(false);
+            setLoading(false);
         }
     };
 
@@ -90,7 +87,7 @@ const BillingScreen = () => {
     const handleOpenPayModal = (payment) => {
         setSelectedPayment(payment);
         setSelectedChannel('gcash');
-        setCustomRefNumber(`REF-${Math.floor(10000000 + Math.random() * 90000000)}`);
+        setCustomRefNumber('');
         setShowPayModal(true);
     };
 
@@ -99,25 +96,18 @@ const BillingScreen = () => {
         if (!selectedPayment) return;
         try {
             setProcessingPayment(true);
-            const refNo = customRefNumber.trim() || `REF-${Date.now()}`;
+            const refNo = customRefNumber.trim();
+            if (!refNo) { Alert.alert('Reference required', 'Enter the reference from your actual payment.'); return; }
             
             // Record payment to backend
             const res = await api.patch(`/payments/${selectedPayment.id}/record`, {
                 payment_method: selectedChannel,
-                reference_number: refNo,
-                is_manual_verify: true
+                reference_number: refNo
             });
 
             if (res.data?.success) {
                 setShowPayModal(false);
-                setSelectedReceipt({
-                    ...selectedPayment,
-                    status: 'paid',
-                    payment_method: selectedChannel,
-                    reference_number: refNo,
-                    payment_date: new Date().toISOString().split('T')[0]
-                });
-                setShowReceiptModal(true);
+                Alert.alert('Submitted for review', 'Your payment is pending staff verification. A receipt will be available once it is approved.');
                 loadBilling(false);
             } else {
                 Alert.alert('Payment Error', res.data?.message || 'Failed to complete transaction.');
@@ -136,21 +126,18 @@ const BillingScreen = () => {
             setProcessingPayment(true);
             const res = await api.post(`/payments/${selectedPayment.id}/paymongo-checkout`);
             if (res.data?.success) {
-                const { checkoutUrl } = res.data.data;
+                const { checkoutUrl, checkoutId } = res.data.data;
                 setShowPayModal(false);
                 await WebBrowser.openBrowserAsync(checkoutUrl);
-                // After browser returns, settle the payment
-                await api.patch(`/payments/${selectedPayment.id}/record`, {
-                    payment_method: 'paymongo_online',
-                    reference_number: `PM-${Date.now()}`,
-                    is_manual_verify: true
-                });
+                const verification = await api.post(`/payments/${selectedPayment.id}/verify-paymongo`, { checkout_id: checkoutId });
+                if (verification.data?.data?.status === 'paid') Alert.alert('Payment confirmed', 'Your payment has been verified.');
                 loadBilling(false);
             } else {
                 Alert.alert('PayMongo Error', 'Unable to initiate PayMongo gateway session.');
             }
         } catch (error) {
-            Alert.alert('Error', 'Failed to connect to PayMongo gateway.');
+            Alert.alert('Payment not confirmed', error.response?.data?.message || 'Unable to verify payment. Refresh billing before trying again.');
+            loadBilling(false);
         } finally {
             setProcessingPayment(false);
         }
@@ -176,7 +163,7 @@ const BillingScreen = () => {
             <View style={styles.amountBox}>
                 <View>
                     <Text style={styles.amountLabel}>Total Amount Due</Text>
-                    <Text style={styles.amountVal}>₱{Number(item.amount).toLocaleString()}</Text>
+                    <Text style={styles.amountVal}>₱{(Number(item.amount) + Number(item.late_fee || 0)).toLocaleString()}</Text>
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
                     <Text style={styles.amountLabel}>Due Date</Text>
@@ -214,7 +201,7 @@ const BillingScreen = () => {
 
                 <View style={styles.historyMid}>
                     <Text style={styles.historyPaidLabel}>Settled Amount:</Text>
-                    <Text style={styles.historyPaidVal}>₱{Number(item.amount).toLocaleString()}</Text>
+                    <Text style={styles.historyPaidVal}>₱{(Number(item.amount) + Number(item.late_fee || 0)).toLocaleString()}</Text>
                 </View>
 
                 <View style={styles.historyBottom}>
@@ -270,6 +257,8 @@ const BillingScreen = () => {
                 <View style={styles.centerLoader}>
                     <ActivityIndicator size="large" color={theme.colors.primary} />
                 </View>
+            ) : loadError ? (
+                <View style={styles.emptyCard}><Text>{loadError}</Text><TouchableOpacity onPress={() => loadBilling(true)}><Text>Retry</Text></TouchableOpacity></View>
             ) : activeTab === 'unpaid' ? (
                 <FlatList
                     data={unpaidInvoices}
@@ -318,7 +307,7 @@ const BillingScreen = () => {
                                 </View>
                                 <View style={styles.leaseRow}>
                                     <Text style={styles.leaseLabel}>Lease Period:</Text>
-                                    <Text style={styles.leaseVal}>{tenantProfile.lease_start ? `${new Date(tenantProfile.lease_start).toLocaleDateString()} - ${new Date(tenantProfile.lease_end).toLocaleDateString()}` : 'Standard Active Lease'}</Text>
+                                    <Text style={styles.leaseVal}>{`${tenantProfile.contract_start ? new Date(tenantProfile.contract_start).toLocaleDateString() : 'Start not set'} - ${tenantProfile.contract_end ? new Date(tenantProfile.contract_end).toLocaleDateString() : 'Ongoing'}`}</Text>
                                 </View>
                                 <View style={styles.leaseRow}>
                                     <Text style={styles.leaseLabel}>Account Status:</Text>
@@ -348,7 +337,7 @@ const BillingScreen = () => {
                         <View style={styles.payModalHeader}>
                             <Text style={styles.payModalTitle}>Select Payment Method</Text>
                             <Text style={styles.payModalSub}>
-                                Settling rent for <Text style={{ fontWeight: 'bold', color: theme.colors.primary }}>{selectedPayment?.stall_number}</Text> (₱{Number(selectedPayment?.amount || 0).toLocaleString()})
+                                Settling rent for <Text style={{ fontWeight: 'bold', color: theme.colors.primary }}>{selectedPayment?.stall_number}</Text> (₱{(Number(selectedPayment?.amount || 0) + Number(selectedPayment?.late_fee || 0)).toLocaleString()})
                             </Text>
                         </View>
 
@@ -398,7 +387,7 @@ const BillingScreen = () => {
                                 ) : (
                                     <>
                                         <Ionicons name="checkmark-done" size={18} color="#fff" />
-                                        <Text style={styles.confirmPayBtnText}>Submit & Settle Dues</Text>
+                                        <Text style={styles.confirmPayBtnText}>Submit for Verification</Text>
                                     </>
                                 )}
                             </TouchableOpacity>
@@ -466,7 +455,7 @@ const BillingScreen = () => {
                             </View>
                             <View style={[styles.receiptRow, styles.receiptTotalRow]}>
                                 <Text style={styles.receiptTotalLabel}>Amount Paid:</Text>
-                                <Text style={styles.receiptTotalVal}>₱{Number(selectedReceipt?.amount || 0).toLocaleString()}</Text>
+                                <Text style={styles.receiptTotalVal}>₱{(Number(selectedReceipt?.amount || 0) + Number(selectedReceipt?.late_fee || 0)).toLocaleString()}</Text>
                             </View>
                         </View>
 

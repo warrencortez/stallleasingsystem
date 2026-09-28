@@ -13,6 +13,7 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         onUnauthorized = logout;
+        return () => { onUnauthorized = null; };
     }, []);
 
     useEffect(() => {
@@ -26,16 +27,21 @@ export const AuthProvider = ({ children }) => {
             const savedUser = await AsyncStorage.getItem('user_data');
             const savedIP = await AsyncStorage.getItem('custom_server_ip');
 
-            if (savedIP) {
+            if (__DEV__ && savedIP && !process.env.EXPO_PUBLIC_API_URL) {
                 api.defaults.baseURL = `http://${savedIP}:5000/api/v1`;
             }
 
             if (savedToken && savedUser) {
+                const parsed = JSON.parse(savedUser);
+                if (!parsed?.id || parsed.role !== 'tenant') throw new Error('Invalid saved session');
                 setToken(savedToken);
-                setUser(JSON.parse(savedUser));
+                setUser(parsed);
+            } else {
+                await AsyncStorage.multiRemove(['user_token', 'user_data']);
             }
         } catch (error) {
-            console.error('Failed to load session:', error);
+            await AsyncStorage.multiRemove(['user_token', 'user_data']);
+            setToken(null); setUser(null);
         } finally {
             setLoading(false);
         }
@@ -46,11 +52,10 @@ export const AuthProvider = ({ children }) => {
             const res = await api.post('/auth/login', { email, password });
             if (res.data?.success) {
                 const { token: jwtToken, user: userData } = res.data.data;
+                if (userData.role !== 'tenant') return { success: false, message: 'Use the administrator portal for this account.' };
+                await AsyncStorage.multiSet([['user_token', jwtToken], ['user_data', JSON.stringify(userData)]]);
                 setToken(jwtToken);
                 setUser(userData);
-
-                await AsyncStorage.setItem('user_token', jwtToken);
-                await AsyncStorage.setItem('user_data', JSON.stringify(userData));
                 return { success: true, user: userData };
             }
             return { success: false, message: res.data?.message || 'Login failed' };
@@ -70,11 +75,10 @@ export const AuthProvider = ({ children }) => {
             });
             if (res.data?.success) {
                 const { token: jwtToken, user: userData } = res.data.data;
+                if (userData.role !== 'tenant') return { success: false, message: 'Use the administrator portal for this account.' };
+                await AsyncStorage.multiSet([['user_token', jwtToken], ['user_data', JSON.stringify(userData)]]);
                 setToken(jwtToken);
                 setUser(userData);
-
-                await AsyncStorage.setItem('user_token', jwtToken);
-                await AsyncStorage.setItem('user_data', JSON.stringify(userData));
                 return { success: true, user: userData };
             }
             return { success: false, message: res.data?.message || 'Registration failed' };
@@ -94,6 +98,9 @@ export const AuthProvider = ({ children }) => {
             setUser(null);
         } catch (error) {
             console.error('Logout error:', error);
+        } finally {
+            setToken(null);
+            setUser(null);
         }
     };
 
@@ -102,7 +109,7 @@ export const AuthProvider = ({ children }) => {
             value={{
                 user,
                 token,
-                isAuthenticated: !!token,
+                isAuthenticated: !!token && !!user,
                 loading,
                 login,
                 register,

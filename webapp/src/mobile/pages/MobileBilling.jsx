@@ -49,19 +49,14 @@ const MobileBilling = () => {
             }
 
             if (payRes.status === 'fulfilled' && payRes.value.data?.success) {
-                const all = payRes.value.data.data || [];
-                // Filter payments for this tenant if tenant profile found
-                if (myTenant) {
-                    setPayments(all.filter((p) => p.tenant_id === myTenant.id || p.tenant_name?.toLowerCase() === user?.name?.toLowerCase()));
-                } else {
-                    setPayments(all);
-                }
+                // The API scopes invoices to the authenticated account, including lease history.
+                setPayments(payRes.value.data.data || []);
             }
         } catch (error) {
             console.error('Error loading billing:', error);
             toast.error('Failed to load billing invoices');
         } finally {
-            if (isInitial) setLoading(false);
+            setLoading(false);
         }
     };
 

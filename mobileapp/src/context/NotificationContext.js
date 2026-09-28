@@ -100,7 +100,7 @@ export const NotificationProvider = ({ children }) => {
         setCurrentToast(null);
 
         // Deep-link to the exact section
-        if (notif.type === 'application_approved') {
+        if ((notif.type === 'application_approved' || notif.type === 'application_status')) {
             let stallId = null;
             if (notif.link && notif.link.includes('stall_id=')) {
                 stallId = notif.link.split('stall_id=')[1];
@@ -116,7 +116,7 @@ export const NotificationProvider = ({ children }) => {
             });
         } else if (notif.type?.includes('stall')) {
             navigate('Main', { screen: 'Stalls' });
-        } else if (notif.type?.includes('payment') || notif.type?.includes('bill')) {
+        } else if (notif.type?.includes('payment') || notif.type?.includes('bill') || notif.type === 'rent_due') {
             navigate('Main', { screen: 'Billing' });
         } else {
             navigate('Notifications');

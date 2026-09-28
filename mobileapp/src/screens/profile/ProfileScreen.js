@@ -25,10 +25,8 @@ const ProfileScreen = () => {
             const res = await api.get('/tenants');
             if (res.data?.success) {
                 const list = res.data.data || [];
-                const current = list.find((t) => t.email?.toLowerCase() === user?.email?.toLowerCase());
-                if (current) {
-                    setTenantProfile(current);
-                }
+                const current = list.find((t) => t.user_id === user?.id && t.status === 'active');
+                setTenantProfile(current || null);
             }
         } catch (error) {
             console.error('Profile error:', error);

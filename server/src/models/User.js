@@ -67,7 +67,7 @@ class User {
              FROM users WHERE id = $1`,
             [id]
         );
-        return result.rows[0];
+        return User.toPublic(result.rows[0]);
     }
 
     /**
@@ -77,30 +77,20 @@ class User {
      * @returns {boolean} - True if passwords match
      */
     static async comparePassword(password, hashedPassword) {
-        if (!password || !hashedPassword) return false;
-        
-        // 1. Direct match (plain text fallback / seed)
-        if (password === hashedPassword) return true;
+        if (typeof password !== 'string' || typeof hashedPassword !== 'string') return false;
+        try { return await bcrypt.compare(password, hashedPassword); }
+        catch { return false; }
+    }
 
-        // 2. Default demo password shortcuts
-        if (password === 'admin123' && hashedPassword.includes('admin')) return true;
-        if (password === 'staff123' && hashedPassword.includes('staff')) return true;
-        if (password === 'tenant123' && hashedPassword.includes('tenant')) return true;
+    static toPublic(user) {
+        if (!user) return user;
+        const { id, name, email, role, phone, address, profile_image, is_active, created_at, updated_at } = user;
+        return { id, name, email, role, phone, address, profile_image, is_active, created_at, updated_at };
+    }
 
-        // 3. Standard Bcrypt compare
-        try {
-            const matches = await bcrypt.compare(password, hashedPassword);
-            if (matches) return true;
-        } catch (err) {
-            // If hash is malformed, fall back
-        }
-
-        // 4. Fallback for demo logins
-        if ((password === 'admin123' || password === 'staff123' || password === 'tenant123') && hashedPassword.startsWith('$2a$')) {
-            return true;
-        }
-
-        return false;
+    static async findForAuthentication(id) {
+        const result = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
+        return result.rows[0];
     }
 
     /**
@@ -186,7 +176,7 @@ class User {
         query += ' ORDER BY created_at DESC';
         
         const result = await pool.query(query, values);
-        return result.rows;
+        return result.rows.map(User.toPublic);
     }
 
     /**

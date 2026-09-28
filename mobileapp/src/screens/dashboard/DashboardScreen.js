@@ -58,10 +58,8 @@ const DashboardScreen = ({ navigation }) => {
 
             if (tenRes.status === 'fulfilled' && tenRes.value.data?.success) {
                 const list = tenRes.value.data.data || [];
-                const current = list.find((t) => t.email?.toLowerCase() === user?.email?.toLowerCase());
-                if (current) {
-                    setTenantProfile(current);
-                }
+                const current = list.find((t) => t.user_id === user?.id && t.status === 'active');
+                setTenantProfile(current || null);
             }
 
             if (mainRes.status === 'fulfilled' && mainRes.value.data?.success) {
@@ -152,7 +150,7 @@ const DashboardScreen = ({ navigation }) => {
                     <View>
                         <Text style={styles.heroRentLabel}>Monthly Lease Rent</Text>
                         <Text style={styles.heroRentAmount}>
-                            ₱{Number(tenantProfile?.monthly_rent || 15000).toLocaleString()}
+                            ₱{Number(tenantProfile?.monthly_rent || 0).toLocaleString()}
                         </Text>
                     </View>
                     <TouchableOpacity

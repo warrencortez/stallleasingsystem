@@ -1,3 +1,4 @@
+process.env.DEMO_MODE = 'true';
 const fs = require('node:fs');
 const path = require('node:path');
 const assert = require('node:assert/strict');

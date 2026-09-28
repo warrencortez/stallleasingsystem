@@ -24,7 +24,7 @@ router.get('/stats', authenticate, authorize('admin', 'staff'), getStallStats);
 router.get('/:id/qrcode', authenticate, getStallQRCode);
 
 // Get comprehensive stall details and history
-router.get('/:id/details', authenticate, getStallDetails);
+router.get('/:id/details', authenticate, authorize('admin', 'staff'), getStallDetails);
 
 // Get all stalls
 router.get('/', authenticate, getAllStalls);

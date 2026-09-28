@@ -1,7 +1,9 @@
 const jwt = require('jsonwebtoken');
 
 // Get secret from environment variables
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-key-change-this';
+const demoMode = process.env.DEMO_MODE === 'true' && process.env.NODE_ENV !== 'production';
+const JWT_SECRET = process.env.JWT_SECRET || (demoMode ? require('node:crypto').randomBytes(32).toString('hex') : null);
+if (!JWT_SECRET || JWT_SECRET === 'your-super-secret-key-change-this') throw new Error('Configure a private JWT_SECRET before starting the server.');
 const JWT_EXPIRY = process.env.JWT_EXPIRY || '7d';
 
 /**

@@ -81,7 +81,7 @@ const NotificationsScreen = ({ navigation }) => {
                     screen: 'Fix Hub',
                     params: { highlightTicketId: notif.reference_id || null }
                 });
-            } else if (notif.type === 'application_approved') {
+            } else if ((notif.type === 'application_approved' || notif.type === 'application_status')) {
                 let stallId = null;
                 if (notif.link && notif.link.includes('stall_id=')) {
                     stallId = notif.link.split('stall_id=')[1];
@@ -92,7 +92,7 @@ const NotificationsScreen = ({ navigation }) => {
                 });
             } else if (notif.type?.includes('stall')) {
                 navigation.navigate('Main', { screen: 'Stalls' });
-            } else if (notif.type?.includes('payment') || notif.type?.includes('rent') || notif.type?.includes('bill')) {
+            } else if (notif.type?.includes('payment') || notif.type?.includes('rent') || notif.type?.includes('bill') || notif.type === 'rent_due') {
                 navigation.navigate('Main', { screen: 'Billing' });
             } else if (notif.type?.includes('application')) {
                 navigation.navigate('Main', { screen: 'Stalls' });
