@@ -83,8 +83,8 @@ const ProfileScreen = () => {
                 </View>
 
                 <View style={[styles.infoRow, { borderBottomWidth: 0 }]}>
-                    <Text style={styles.infoLabel}>Monthly Lease:</Text>
-                    <Text style={styles.infoValRate}>₱{Number(tenantProfile?.monthly_rent || 0).toLocaleString()}</Text>
+                    <Text style={styles.infoLabel}>{tenantProfile?.rent_type === 'daily' ? 'Daily Lease:' : 'Monthly Lease:'}</Text>
+                    <Text style={styles.infoValRate}>₱{Number((tenantProfile?.rent_type === 'daily' ? tenantProfile?.daily_rent : tenantProfile?.monthly_rent) || 0).toLocaleString()}</Text>
                 </View>
             </View>
 

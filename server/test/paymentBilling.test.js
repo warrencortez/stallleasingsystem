@@ -24,7 +24,8 @@ let tenant, other, stall, invoice;
 const response = () => ({ statusCode: 200, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; } });
 const controller = load('controllers/paymentController.js', {
     '../models/Payment': Payment, '../models/Tenant': Tenant, '../models/Stall': Stall,
-    '../models/Notification': { create: async () => {} }, '../services/paymongoService': {}
+    '../models/Notification': { create: async () => {} }, '../services/paymongoService': {},
+    '../services/uploadStorage': { signRecords: async records => records }
 });
 test.before(async () => {
     stall = await Stall.create({ stall_number: 'A-1', monthly_rent: 1000 });
@@ -71,7 +72,8 @@ test('missing checkout invoice never selects a different bill', async () => {
 test('tenants cannot mark receipts paid using manual verification flag', async () => {
     const res = response();
     await controller.recordPayment({ params: { id: invoice }, userRole: 'tenant', body: { is_manual_verify: true } }, res);
-    assert.equal(res.body.data.status, 'pending_verification');
+    assert.equal(res.statusCode,400);
+    assert.equal((await Payment.findById(invoice)).status,'unpaid');
 });
 test('manual invoice requires an active assigned matching stall', async () => {
     const unassigned = await Tenant.create({ user_id: 'new', status: 'active' });

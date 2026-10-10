@@ -67,6 +67,20 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const loginWithGoogle = async (accessToken, existingPassword, existingIdentifier) => {
+        try {
+            const res = await api.post('/auth/google', { accessToken, existingPassword, existingIdentifier, audience: 'tenant' });
+            const { token: jwtToken, user: userData } = res.data.data;
+            if (userData.role !== 'tenant') return { success: false, message: 'Use the administrator portal for this account.' };
+            await AsyncStorage.multiSet([['user_token', jwtToken], ['user_data', JSON.stringify(userData)]]);
+            setToken(jwtToken);
+            setUser(userData);
+            return { success: true };
+        } catch (error) {
+            return { success: false, code: error.response?.data?.code, message: error.response?.data?.message || 'Unable to sign in with Google.' };
+        }
+    };
+
     const register = async (registerData) => {
         try {
             const res = await api.post('/auth/register', {
@@ -74,11 +88,9 @@ export const AuthProvider = ({ children }) => {
                 role: 'tenant'
             });
             if (res.data?.success) {
-                const { token: jwtToken, user: userData } = res.data.data;
+                const { user: userData } = res.data.data;
                 if (userData.role !== 'tenant') return { success: false, message: 'Use the administrator portal for this account.' };
-                await AsyncStorage.multiSet([['user_token', jwtToken], ['user_data', JSON.stringify(userData)]]);
-                setToken(jwtToken);
-                setUser(userData);
+                // Creating an account does not start a session; the tenant must log in.
                 return { success: true, user: userData };
             }
             return { success: false, message: res.data?.message || 'Registration failed' };
@@ -112,6 +124,7 @@ export const AuthProvider = ({ children }) => {
                 isAuthenticated: !!token && !!user,
                 loading,
                 login,
+                loginWithGoogle,
                 register,
                 logout,
                 isTenant: user?.role === 'tenant'

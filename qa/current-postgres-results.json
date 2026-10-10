@@ -1,0 +1,38 @@
+[
+  {
+    "name": "PostgreSQL monthly/daily generation, lease dates and repeat protection",
+    "passed": true
+  },
+  {
+    "name": "PostgreSQL daily stall editing and structured rate persistence",
+    "passed": true
+  },
+  {
+    "name": "PostgreSQL office payment balance, cashier audit, duplicate receipt and resubmission",
+    "passed": true
+  },
+  {
+    "name": "PostgreSQL billing overview with daily and monthly stalls",
+    "passed": true
+  },
+  {
+    "name": "PostgreSQL application approval, lease creation and notification schema",
+    "passed": true
+  },
+  {
+    "name": "PostgreSQL tenant maintenance submission, validation, completion, notification and ownership",
+    "passed": true
+  },
+  {
+    "name": "PostgreSQL announcement create/read/update/delete and protected author",
+    "passed": true
+  },
+  {
+    "name": "Staff assignment and self-removal of admin access rejected",
+    "passed": true
+  },
+  {
+    "name": "All QA data and schema rolled back; production rows preserved",
+    "passed": true
+  }
+]

@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { FaStore, FaLock, FaEnvelope, FaShieldAlt } from 'react-icons/fa';
 import toast from 'react-hot-toast';
+import { startGoogleLogin } from '../../api/supabase';
 
 const Login = () => {
     const [formData, setFormData] = useState({
-        email: 'rentastall@gmail.com',
-        password: 'admin123',
+        email: '',
+        password: '',
     });
     const [loading, setLoading] = useState(false);
     const { login, logout } = useAuth();
@@ -20,7 +21,7 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        const result = await login(formData.email, formData.password);
+        const result = await login(formData.email.trim(), formData.password);
         setLoading(false);
         if (result.success) {
             if (result.user?.role !== 'admin') {
@@ -52,7 +53,7 @@ const Login = () => {
 
                     <form onSubmit={handleSubmit}>
                         <div className="mb-3">
-                            <label className="form-label small fw-semibold text-dark">Administrator Email</label>
+                            <label htmlFor="admin-email" className="form-label small fw-semibold text-dark">Administrator Email</label>
                             <div className="input-group">
                                 <span className="input-group-text bg-light border-end-0">
                                     <FaEnvelope className="text-muted" />
@@ -61,7 +62,9 @@ const Login = () => {
                                     type="email"
                                     name="email"
                                     className="form-control border-start-0 bg-light"
-                                    placeholder="rentastall@gmail.com"
+                                    placeholder="Enter your administrator email"
+                                    autoComplete="username"
+                                    id="admin-email"
                                     value={formData.email}
                                     onChange={handleChange}
                                     required
@@ -70,7 +73,7 @@ const Login = () => {
                         </div>
 
                         <div className="mb-4">
-                            <label className="form-label small fw-semibold text-dark">Password</label>
+                            <label htmlFor="admin-password" className="form-label small fw-semibold text-dark">Password</label>
                             <div className="input-group">
                                 <span className="input-group-text bg-light border-end-0">
                                     <FaLock className="text-muted" />
@@ -78,6 +81,8 @@ const Login = () => {
                                 <input
                                     type="password"
                                     name="password"
+                                    autoComplete="current-password"
+                                    id="admin-password"
                                     className="form-control border-start-0 bg-light"
                                     placeholder="••••••••"
                                     value={formData.password}
@@ -102,6 +107,13 @@ const Login = () => {
                             )}
                         </button>
                     </form>
+
+                    <button type="button" className="btn btn-outline-secondary w-100 mb-3" disabled={loading}
+                        onClick={async () => {
+                            setLoading(true);
+                            try { await startGoogleLogin(); }
+                            catch (error) { toast.error(error.message); setLoading(false); }
+                        }}>Continue with Google</button>
 
                     <div className="p-3 bg-light rounded-3 border text-center text-muted small">
                         <div className="d-flex align-items-center justify-content-center gap-1 mb-1 text-primary fw-semibold">

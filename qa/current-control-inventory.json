@@ -1,0 +1,1477 @@
+[
+  {
+    "file": "webapp/src/App.jsx",
+    "line": 49,
+    "code": "<Route path=\"/login\" element={<Login />} />"
+  },
+  {
+    "file": "webapp/src/App.jsx",
+    "line": 50,
+    "code": "<Route path=\"*\" element={<Navigate to=\"/login\" replace />} />"
+  },
+  {
+    "file": "webapp/src/App.jsx",
+    "line": 64,
+    "code": "<Route path=\"/dashboard\" element={<Dashboard />} />"
+  },
+  {
+    "file": "webapp/src/App.jsx",
+    "line": 65,
+    "code": "<Route path=\"/stalls\" element={<StallList />} />"
+  },
+  {
+    "file": "webapp/src/App.jsx",
+    "line": 66,
+    "code": "<Route path=\"/stalls/new\" element={<StallForm />} />"
+  },
+  {
+    "file": "webapp/src/App.jsx",
+    "line": 67,
+    "code": "<Route path=\"/stalls/edit/:id\" element={<StallForm />} />"
+  },
+  {
+    "file": "webapp/src/App.jsx",
+    "line": 68,
+    "code": "<Route path=\"/tenants\" element={<TenantList />} />"
+  },
+  {
+    "file": "webapp/src/App.jsx",
+    "line": 69,
+    "code": "<Route path=\"/tenants/new\" element={<Navigate to=\"/tenants\" replace />} />"
+  },
+  {
+    "file": "webapp/src/App.jsx",
+    "line": 70,
+    "code": "<Route path=\"/tenants/edit/:id\" element={<TenantForm />} />"
+  },
+  {
+    "file": "webapp/src/App.jsx",
+    "line": 71,
+    "code": "<Route path=\"/tenants/:id\" element={<TenantProfileView />} />"
+  },
+  {
+    "file": "webapp/src/App.jsx",
+    "line": 72,
+    "code": "<Route path=\"/applications\" element={<ApplicationList />} />"
+  },
+  {
+    "file": "webapp/src/App.jsx",
+    "line": 73,
+    "code": "<Route path=\"/applications/review/:id\" element={<ApplicationReview />} />"
+  },
+  {
+    "file": "webapp/src/App.jsx",
+    "line": 74,
+    "code": "<Route path=\"/payments\" element={<PaymentList />} />"
+  },
+  {
+    "file": "webapp/src/App.jsx",
+    "line": 75,
+    "code": "<Route path=\"/payments/stats\" element={<PaymentStats />} />"
+  },
+  {
+    "file": "webapp/src/App.jsx",
+    "line": 76,
+    "code": "<Route path=\"/maintenance\" element={<MaintenanceList />} />"
+  },
+  {
+    "file": "webapp/src/App.jsx",
+    "line": 77,
+    "code": "<Route path=\"/announcements\" element={<AnnouncementList />} />"
+  },
+  {
+    "file": "webapp/src/App.jsx",
+    "line": 78,
+    "code": "<Route path=\"/reports\" element={<Reports />} />"
+  },
+  {
+    "file": "webapp/src/App.jsx",
+    "line": 79,
+    "code": "<Route path=\"/users\" element={<UserList />} />"
+  },
+  {
+    "file": "webapp/src/App.jsx",
+    "line": 80,
+    "code": "<Route path=\"/conversations\" element={<SupportInbox />} />"
+  },
+  {
+    "file": "webapp/src/App.jsx",
+    "line": 83,
+    "code": "<Route path=\"/\" element={<Navigate to=\"/dashboard\" replace />} />"
+  },
+  {
+    "file": "webapp/src/App.jsx",
+    "line": 84,
+    "code": "<Route path=\"*\" element={<Navigate to=\"/dashboard\" replace />} />"
+  },
+  {
+    "file": "webapp/src/App1.jsx",
+    "line": 27,
+    "code": "onClick={() => setCount((count) => count + 1)}"
+  },
+  {
+    "file": "webapp/src/context/SupportProvider.jsx",
+    "line": 26,
+    "code": "toast(t => <button className=\"support-toast\" onClick={() => { toast.dismiss(t.id); navigate(`/conversations?tenant=${encodeURIComponent(item.tenant_id)}`); }}><strong>{item.tenant_name} requested a live agent</strong><span>Open conversation \u2192</span></button>, { id: `support-${key}`, duration: 8000, icon: '\ud83d\udcac' });"
+  },
+  {
+    "file": "webapp/src/components/announcements/AnnouncementList.jsx",
+    "line": 110,
+    "code": "<button className=\"btn btn-primary d-flex align-items-center gap-2\" onClick={() => setShowCreateModal(true)}>"
+  },
+  {
+    "file": "webapp/src/components/announcements/AnnouncementList.jsx",
+    "line": 120,
+    "code": "onClick={() => setCategoryFilter('')}"
+  },
+  {
+    "file": "webapp/src/components/announcements/AnnouncementList.jsx",
+    "line": 126,
+    "code": "onClick={() => setCategoryFilter('event')}"
+  },
+  {
+    "file": "webapp/src/components/announcements/AnnouncementList.jsx",
+    "line": 132,
+    "code": "onClick={() => setCategoryFilter('market_advisory')}"
+  },
+  {
+    "file": "webapp/src/components/announcements/AnnouncementList.jsx",
+    "line": 138,
+    "code": "onClick={() => setCategoryFilter('billing_reminder')}"
+  },
+  {
+    "file": "webapp/src/components/announcements/AnnouncementList.jsx",
+    "line": 144,
+    "code": "onClick={() => setCategoryFilter('maintenance_notice')}"
+  },
+  {
+    "file": "webapp/src/components/announcements/AnnouncementList.jsx",
+    "line": 193,
+    "code": "onClick={() => handleDeleteClick(item)}"
+  },
+  {
+    "file": "webapp/src/components/announcements/AnnouncementList.jsx",
+    "line": 213,
+    "code": "<button type=\"button\" className=\"btn-close btn-close-white\" onClick={() => setShowCreateModal(false)}></button>"
+  },
+  {
+    "file": "webapp/src/components/announcements/AnnouncementList.jsx",
+    "line": 215,
+    "code": "<form onSubmit={handleCreateSubmit}>"
+  },
+  {
+    "file": "webapp/src/components/announcements/AnnouncementList.jsx",
+    "line": 281,
+    "code": "<button type=\"button\" className=\"btn btn-outline-secondary\" onClick={() => setShowCreateModal(false)}>Cancel</button>"
+  },
+  {
+    "file": "webapp/src/components/applications/ApplicationList.jsx",
+    "line": 118,
+    "code": "<form onSubmit={handleSearch} className=\"input-group\">"
+  },
+  {
+    "file": "webapp/src/components/applications/ApplicationList.jsx",
+    "line": 225,
+    "code": "onClick={() => navigate(`/applications/review/${app.id}`)}"
+  },
+  {
+    "file": "webapp/src/components/applications/ApplicationList.jsx",
+    "line": 233,
+    "code": "onClick={() => navigate(`/applications/review/${app.id}?action=approve`)}"
+  },
+  {
+    "file": "webapp/src/components/applications/ApplicationList.jsx",
+    "line": 240,
+    "code": "onClick={() => navigate(`/applications/review/${app.id}?action=reject`)}"
+  },
+  {
+    "file": "webapp/src/components/applications/ApplicationList.jsx",
+    "line": 249,
+    "code": "onClick={() => handleDeleteClick(app)}"
+  },
+  {
+    "file": "webapp/src/components/applications/ApplicationReview.jsx",
+    "line": 49,
+    "code": "navigate('/applications');"
+  },
+  {
+    "file": "webapp/src/components/applications/ApplicationReview.jsx",
+    "line": 62,
+    "code": "navigate('/applications');"
+  },
+  {
+    "file": "webapp/src/components/applications/ApplicationReview.jsx",
+    "line": 107,
+    "code": "onClick={() => navigate('/applications')}"
+  },
+  {
+    "file": "webapp/src/components/applications/ApplicationReview.jsx",
+    "line": 207,
+    "code": "onClick={() => setConfirmAction('approved')}"
+  },
+  {
+    "file": "webapp/src/components/applications/ApplicationReview.jsx",
+    "line": 215,
+    "code": "onClick={() => setConfirmAction('rejected')}"
+  },
+  {
+    "file": "webapp/src/components/auth/Login.jsx",
+    "line": 31,
+    "code": "navigate('/dashboard');"
+  },
+  {
+    "file": "webapp/src/components/auth/Login.jsx",
+    "line": 53,
+    "code": "<form onSubmit={handleSubmit}>"
+  },
+  {
+    "file": "webapp/src/components/auth/Register.jsx",
+    "line": 45,
+    "code": "navigate('/tenant/dashboard');"
+  },
+  {
+    "file": "webapp/src/components/auth/Register.jsx",
+    "line": 47,
+    "code": "navigate('/dashboard');"
+  },
+  {
+    "file": "webapp/src/components/auth/Register.jsx",
+    "line": 70,
+    "code": "<form onSubmit={handleSubmit}>"
+  },
+  {
+    "file": "webapp/src/components/chat/ChatBox.jsx",
+    "line": 135,
+    "code": "onClick={() => setActiveContact(c)}"
+  },
+  {
+    "file": "webapp/src/components/chat/ChatBox.jsx",
+    "line": 207,
+    "code": "<form onSubmit={handleSendMessage} className=\"p-3 border-top bg-light d-flex gap-2\">"
+  },
+  {
+    "file": "webapp/src/components/chat/SupportInbox.jsx",
+    "line": 75,
+    "code": "{inboxError && <div className=\"support-error\" role=\"alert\">{inboxError} <button onClick={refresh}>Retry</button></div>}"
+  },
+  {
+    "file": "webapp/src/components/chat/SupportInbox.jsx",
+    "line": 78,
+    "code": "<div className=\"support-search\"><input aria-label=\"Search tenant conversations\" placeholder=\"Search tenants\u2026\" value={search} onChange={e => setSearch(e.target.value)} /><div className=\"support-filters\"><button className={filter === 'all' ? 'active' : ''} onClick={() => setFilter('all')}>All tenants</button><button className={filter === 'waiting' ? 'active' : ''} onClick={() => setFilter('waiting')}>Waiting ({waitingCount})</button></div></div>"
+  },
+  {
+    "file": "webapp/src/components/chat/SupportInbox.jsx",
+    "line": 82,
+    "code": "{items.map(c => <button key={c.tenant_id} className={`support-contact ${selected === c.tenant_id ? 'selected' : ''}`} onClick={() => choose(c.tenant_id)}>"
+  },
+  {
+    "file": "webapp/src/components/chat/SupportInbox.jsx",
+    "line": 91,
+    "code": "<header className=\"support-thread-header\"><button className=\"support-back\" onClick={() => choose('')} aria-label=\"Back to tenant list\"><FaArrowLeft /></button><div><strong>{activeThread?.tenant_name || conversations.find(c => c.tenant_id === selected)?.tenant_name || 'Loading\u2026'}</strong><small>{activeThread ? statusName[activeThread.status] : 'Loading conversation\u2026'}{activeThread?.assigned_name ? ` \u00b7 ${activeThread.assigned_name}` : ''}</small></div>{compact && <Link to={`/conversations?tenant=${encodeURIComponent(selected)}`} aria-label=\"Open full inbox\"><FaExpandAlt /></Link>}</header>"
+  },
+  {
+    "file": "webapp/src/components/chat/SupportInbox.jsx",
+    "line": 92,
+    "code": "{activeThread && <div className=\"support-actions\">{owned ? <><span>You are replying as {user.name}</span><button disabled={busy} onClick={() => action('resume')}>Return to assistant</button></> : activeThread.status === 'live' ? <span>{activeThread.assigned_name} is handling this chat.</span> : <><span>{activeThread.status === 'waiting' ? 'This tenant is waiting for an administrator.' : 'Take over to send a personal message.'}</span><button disabled={busy} onClick={() => action('claim')}>{activeThread.status === 'waiting' ? 'Accept request' : 'Take over chat'}</button></>}</div>}"
+  },
+  {
+    "file": "webapp/src/components/chat/SupportInbox.jsx",
+    "line": 99,
+    "code": "<form className=\"support-compose\" onSubmit={send}><label className=\"visually-hidden\" htmlFor={compact ? 'support-compact-message' : 'support-message'}>Message this tenant</label><textarea id={compact ? 'support-compact-message' : 'support-message'} value={draft} onChange={e => setDraft(e.target.value)} maxLength={1000} rows={2} disabled={!owned || busy} placeholder={owned ? 'Write a message to this tenant\u2026' : 'Take over the chat to reply'} /><button type=\"submit\" disabled={!owned || busy || !draft.trim()} aria-label=\"Send message to tenant\"><FaPaperPlane /></button></form>"
+  },
+  {
+    "file": "webapp/src/components/chat/SystemAssistant.jsx",
+    "line": 17,
+    "code": "<button className=\"hoa-chat-close\" type=\"button\" aria-label=\"Close tenant messages\" onClick={close}><FaTimes /></button>"
+  },
+  {
+    "file": "webapp/src/components/chat/SystemAssistant.jsx",
+    "line": 21,
+    "code": "<button ref={head} className=\"hoa-chat-head\" type=\"button\" aria-label={open ? 'Close tenant messages' : 'Open tenant messages'} aria-expanded={open} onClick={() => open ? close() : setOpen(true)}>{open ? <FaTimes /> : <FaCommentDots />}{waitingCount + unreadCount > 0 && <span className=\"hoa-chat-badge\">{Math.min(waitingCount || unreadCount, 99)}</span>}</button>"
+  },
+  {
+    "file": "webapp/src/components/common/ConfirmModal.jsx",
+    "line": 79,
+    "code": "onClick={onClose}"
+  },
+  {
+    "file": "webapp/src/components/common/ConfirmModal.jsx",
+    "line": 110,
+    "code": "onClick={onClose}"
+  },
+  {
+    "file": "webapp/src/components/common/ConfirmModal.jsx",
+    "line": 118,
+    "code": "onClick={onConfirm}"
+  },
+  {
+    "file": "webapp/src/components/common/ErrorBoundary.jsx",
+    "line": 65,
+    "code": "<button className=\"btn btn-primary d-flex align-items-center gap-2\" onClick={this.handleReset}>"
+  },
+  {
+    "file": "webapp/src/components/common/ErrorBoundary.jsx",
+    "line": 68,
+    "code": "<button className=\"btn btn-outline-secondary d-flex align-items-center gap-2\" onClick={this.handleCopyReport}>"
+  },
+  {
+    "file": "webapp/src/components/common/Navbar.jsx",
+    "line": 54,
+    "code": "onClick={() => {"
+  },
+  {
+    "file": "webapp/src/components/common/Navbar.jsx",
+    "line": 56,
+    "code": "if (latest.link) navigate(latest.link);"
+  },
+  {
+    "file": "webapp/src/components/common/Navbar.jsx",
+    "line": 91,
+    "code": "navigate(n.link);"
+  },
+  {
+    "file": "webapp/src/components/common/Navbar.jsx",
+    "line": 130,
+    "code": "onClick={onToggleSidebar}"
+  },
+  {
+    "file": "webapp/src/components/common/Navbar.jsx",
+    "line": 155,
+    "code": "onClick={() => setShowNotifications(!showNotifications)}"
+  },
+  {
+    "file": "webapp/src/components/common/Navbar.jsx",
+    "line": 179,
+    "code": "onClick={handleMarkAllRead}"
+  },
+  {
+    "file": "webapp/src/components/common/Navbar.jsx",
+    "line": 197,
+    "code": "onClick={() => handleNotificationClick(n)}"
+  },
+  {
+    "file": "webapp/src/components/common/Navbar.jsx",
+    "line": 226,
+    "code": "onClick={logout}"
+  },
+  {
+    "file": "webapp/src/components/common/QRCodeModal.jsx",
+    "line": 32,
+    "code": "<button type=\"button\" className=\"btn-close btn-close-white\" onClick={onClose} aria-label=\"Close\"></button>"
+  },
+  {
+    "file": "webapp/src/components/common/QRCodeModal.jsx",
+    "line": 85,
+    "code": "<button type=\"button\" className=\"btn btn-outline-secondary\" onClick={onClose}>"
+  },
+  {
+    "file": "webapp/src/components/common/QRCodeModal.jsx",
+    "line": 88,
+    "code": "<button type=\"button\" className=\"btn btn-primary d-flex align-items-center gap-2\" onClick={handlePrint}>"
+  },
+  {
+    "file": "webapp/src/components/common/Sidebar.jsx",
+    "line": 78,
+    "code": "onClick={onClose}"
+  },
+  {
+    "file": "webapp/src/components/common/Sidebar.jsx",
+    "line": 101,
+    "code": "onClick={logout}"
+  },
+  {
+    "file": "webapp/src/components/dashboard/Dashboard.jsx",
+    "line": 226,
+    "code": "onClick={() => navigate('/payments')}"
+  },
+  {
+    "file": "webapp/src/components/dashboard/Dashboard.jsx",
+    "line": 295,
+    "code": "<button className=\"btn btn-primary btn-sm d-flex align-items-center gap-2 px-3 py-2 fw-semibold shadow-sm\" onClick={() => navigate('/stalls')}>"
+  },
+  {
+    "file": "webapp/src/components/dashboard/Dashboard.jsx",
+    "line": 298,
+    "code": "<button className=\"btn btn-warning btn-sm d-flex align-items-center gap-2 px-3 py-2 fw-semibold shadow-sm text-dark\" onClick={() => navigate('/applications')}>"
+  },
+  {
+    "file": "webapp/src/components/dashboard/Dashboard.jsx",
+    "line": 301,
+    "code": "<button className=\"btn btn-info btn-sm d-flex align-items-center gap-2 px-3 py-2 fw-semibold shadow-sm text-white\" onClick={() => navigate('/payments')}>"
+  },
+  {
+    "file": "webapp/src/components/maintenance/MaintenanceList.jsx",
+    "line": 126,
+    "code": "<button className=\"btn btn-primary d-flex align-items-center gap-2 px-3 py-2 fw-semibold shadow-sm\" onClick={() => setShowCreateModal(true)}>"
+  },
+  {
+    "file": "webapp/src/components/maintenance/MaintenanceList.jsx",
+    "line": 301,
+    "code": "onClick={() => {"
+  },
+  {
+    "file": "webapp/src/components/maintenance/MaintenanceList.jsx",
+    "line": 312,
+    "code": "onClick={() => {"
+  },
+  {
+    "file": "webapp/src/components/maintenance/MaintenanceList.jsx",
+    "line": 340,
+    "code": "<button type=\"button\" className=\"btn-close btn-close-white\" onClick={() => setShowUpdateModal(false)} />"
+  },
+  {
+    "file": "webapp/src/components/maintenance/MaintenanceList.jsx",
+    "line": 342,
+    "code": "<form onSubmit={handleUpdateSubmit}>"
+  },
+  {
+    "file": "webapp/src/components/maintenance/MaintenanceList.jsx",
+    "line": 379,
+    "code": "<button type=\"button\" className=\"btn btn-outline-secondary btn-sm\" onClick={() => setShowUpdateModal(false)}>Cancel</button>"
+  },
+  {
+    "file": "webapp/src/components/maintenance/MaintenanceList.jsx",
+    "line": 395,
+    "code": "<button type=\"button\" className=\"btn-close btn-close-white\" onClick={() => setShowCreateModal(false)} />"
+  },
+  {
+    "file": "webapp/src/components/maintenance/MaintenanceList.jsx",
+    "line": 397,
+    "code": "<form onSubmit={handleCreateSubmit}>"
+  },
+  {
+    "file": "webapp/src/components/maintenance/MaintenanceList.jsx",
+    "line": 453,
+    "code": "<button type=\"button\" className=\"btn btn-outline-secondary btn-sm\" onClick={() => setShowCreateModal(false)}>Cancel</button>"
+  },
+  {
+    "file": "webapp/src/components/maintenance/MaintenanceList.jsx",
+    "line": 469,
+    "code": "<button type=\"button\" className=\"btn-close btn-close-white\" onClick={() => setShowPhotoModal(false)} />"
+  },
+  {
+    "file": "webapp/src/components/maintenance/MaintenanceList.jsx",
+    "line": 480,
+    "code": "<button type=\"button\" className=\"btn btn-secondary btn-sm px-4\" onClick={() => setShowPhotoModal(false)}>Close</button>"
+  },
+  {
+    "file": "webapp/src/components/payments/PaymentList.jsx",
+    "line": 294,
+    "code": "<button className=\"btn btn-success btn-sm\" onClick={openOfficePayment}><FaCoins /> Record Walk-in Payment</button>"
+  },
+  {
+    "file": "webapp/src/components/payments/PaymentList.jsx",
+    "line": 297,
+    "code": "onClick={handleApplyLateFeesPrompt}"
+  },
+  {
+    "file": "webapp/src/components/payments/PaymentList.jsx",
+    "line": 303,
+    "code": "onClick={() => setShowGenerateModal(true)}"
+  },
+  {
+    "file": "webapp/src/components/payments/PaymentList.jsx",
+    "line": 309,
+    "code": "onClick={() => setShowCreateModal(true)}"
+  },
+  {
+    "file": "webapp/src/components/payments/PaymentList.jsx",
+    "line": 318,
+    "code": "{loadError && <div className=\"alert alert-warning\" role=\"alert\">{loadError} <button className=\"btn btn-sm btn-outline-dark\" onClick={() => loadData(true)}>Retry</button></div>}"
+  },
+  {
+    "file": "webapp/src/components/payments/PaymentList.jsx",
+    "line": 320,
+    "code": "<div className=\"modal-dialog modal-dialog-centered\"><form className=\"modal-content\" onSubmit={submitOfficePayment}>"
+  },
+  {
+    "file": "webapp/src/components/payments/PaymentList.jsx",
+    "line": 321,
+    "code": "<div className=\"modal-header\"><h5 className=\"modal-title\">Walk-in cash payment</h5><button type=\"button\" className=\"btn-close\" aria-label=\"Close walk-in payment\" disabled={savingOffice} onClick={() => setShowOfficeModal(false)} /></div>"
+  },
+  {
+    "file": "webapp/src/components/payments/PaymentList.jsx",
+    "line": 334,
+    "code": "<div className=\"modal-footer\"><button type=\"button\" className=\"btn btn-secondary\" disabled={savingOffice} onClick={() => setShowOfficeModal(false)}>Cancel</button><button className=\"btn btn-success\" disabled={savingOffice || !officeInvoices.length}>{savingOffice ? 'Recording...' : 'Confirm Cash Received'}</button></div>"
+  },
+  {
+    "file": "webapp/src/components/payments/PaymentList.jsx",
+    "line": 409,
+    "code": "onClick={() => setViewMode('stalls_dues')}"
+  },
+  {
+    "file": "webapp/src/components/payments/PaymentList.jsx",
+    "line": 417,
+    "code": "onClick={() => setViewMode('payment_history')}"
+  },
+  {
+    "file": "webapp/src/components/payments/PaymentList.jsx",
+    "line": 613,
+    "code": "onClick={() => handleViewStallHistory(s)}"
+  },
+  {
+    "file": "webapp/src/components/payments/PaymentList.jsx",
+    "line": 745,
+    "code": "onClick={() => handleInspectReceipt(p)}"
+  },
+  {
+    "file": "webapp/src/components/payments/PaymentList.jsx",
+    "line": 784,
+    "code": "onClick={() => setShowStallHistoryModal(false)}"
+  },
+  {
+    "file": "webapp/src/components/payments/PaymentList.jsx",
+    "line": 877,
+    "code": "onClick={() => handleInspectReceipt(shp)}"
+  },
+  {
+    "file": "webapp/src/components/payments/PaymentList.jsx",
+    "line": 896,
+    "code": "onClick={() => setShowStallHistoryModal(false)}"
+  },
+  {
+    "file": "webapp/src/components/payments/PaymentList.jsx",
+    "line": 925,
+    "code": "onClick={() => setShowReceiptModal(false)}"
+  },
+  {
+    "file": "webapp/src/components/payments/PaymentList.jsx",
+    "line": 1022,
+    "code": "onClick={() => setShowReceiptModal(false)}"
+  },
+  {
+    "file": "webapp/src/components/payments/PaymentList.jsx",
+    "line": 1029,
+    "code": "onClick={() => window.print()}"
+  },
+  {
+    "file": "webapp/src/components/payments/PaymentList.jsx",
+    "line": 1055,
+    "code": "onClick={() => setShowGenerateModal(false)}"
+  },
+  {
+    "file": "webapp/src/components/payments/PaymentList.jsx",
+    "line": 1058,
+    "code": "<form onSubmit={handleGenerateMonthlyInvoices}>"
+  },
+  {
+    "file": "webapp/src/components/payments/PaymentList.jsx",
+    "line": 1098,
+    "code": "onClick={() => setShowGenerateModal(false)}"
+  },
+  {
+    "file": "webapp/src/components/payments/PaymentList.jsx",
+    "line": 1128,
+    "code": "onClick={() => setShowCreateModal(false)}"
+  },
+  {
+    "file": "webapp/src/components/payments/PaymentList.jsx",
+    "line": 1131,
+    "code": "<form onSubmit={handleCreateBillSubmit}>"
+  },
+  {
+    "file": "webapp/src/components/payments/PaymentList.jsx",
+    "line": 1189,
+    "code": "onClick={() => setShowCreateModal(false)}"
+  },
+  {
+    "file": "webapp/src/components/reports/Reports.jsx",
+    "line": 131,
+    "code": "<button className=\"btn btn-outline-secondary btn-sm d-flex align-items-center gap-1\" onClick={handlePrintReport}>"
+  },
+  {
+    "file": "webapp/src/components/reports/Reports.jsx",
+    "line": 239,
+    "code": "onClick={() => setTimeframe('daily')}"
+  },
+  {
+    "file": "webapp/src/components/reports/Reports.jsx",
+    "line": 246,
+    "code": "onClick={() => setTimeframe('weekly')}"
+  },
+  {
+    "file": "webapp/src/components/reports/Reports.jsx",
+    "line": 253,
+    "code": "onClick={() => setTimeframe('monthly')}"
+  },
+  {
+    "file": "webapp/src/components/reports/Reports.jsx",
+    "line": 260,
+    "code": "onClick={() => setTimeframe('yearly')}"
+  },
+  {
+    "file": "webapp/src/components/reports/Reports.jsx",
+    "line": 270,
+    "code": "onClick={() => setChartType('area')}"
+  },
+  {
+    "file": "webapp/src/components/reports/Reports.jsx",
+    "line": 278,
+    "code": "onClick={() => setChartType('bar')}"
+  },
+  {
+    "file": "webapp/src/components/stalls/StallDetailsModal.jsx",
+    "line": 65,
+    "code": "<button type=\"button\" className=\"btn btn-sm btn-outline-light rounded-circle p-2\" onClick={onClose}>"
+  },
+  {
+    "file": "webapp/src/components/stalls/StallDetailsModal.jsx",
+    "line": 107,
+    "code": "onClick={() => {"
+  },
+  {
+    "file": "webapp/src/components/stalls/StallDetailsModal.jsx",
+    "line": 187,
+    "code": "onClick={() => setActiveTab('overview')}"
+  },
+  {
+    "file": "webapp/src/components/stalls/StallDetailsModal.jsx",
+    "line": 195,
+    "code": "onClick={() => setActiveTab('leases')}"
+  },
+  {
+    "file": "webapp/src/components/stalls/StallDetailsModal.jsx",
+    "line": 203,
+    "code": "onClick={() => setActiveTab('payments')}"
+  },
+  {
+    "file": "webapp/src/components/stalls/StallDetailsModal.jsx",
+    "line": 211,
+    "code": "onClick={() => setActiveTab('maintenance')}"
+  },
+  {
+    "file": "webapp/src/components/stalls/StallDetailsModal.jsx",
+    "line": 219,
+    "code": "onClick={() => setActiveTab('applications')}"
+  },
+  {
+    "file": "webapp/src/components/stalls/StallDetailsModal.jsx",
+    "line": 412,
+    "code": "<button className=\"btn btn-outline-secondary btn-sm px-4\" onClick={onClose}>"
+  },
+  {
+    "file": "webapp/src/components/stalls/StallForm.jsx",
+    "line": 53,
+    "code": "navigate('/stalls');"
+  },
+  {
+    "file": "webapp/src/components/stalls/StallForm.jsx",
+    "line": 104,
+    "code": "navigate('/stalls');"
+  },
+  {
+    "file": "webapp/src/components/stalls/StallForm.jsx",
+    "line": 146,
+    "code": "onClick={() => navigate('/stalls')}"
+  },
+  {
+    "file": "webapp/src/components/stalls/StallForm.jsx",
+    "line": 153,
+    "code": "<form onSubmit={handleSubmit}>"
+  },
+  {
+    "file": "webapp/src/components/stalls/StallForm.jsx",
+    "line": 292,
+    "code": "onClick={() => navigate('/stalls')}"
+  },
+  {
+    "file": "webapp/src/components/stalls/StallList.jsx",
+    "line": 98,
+    "code": "onClick={() => navigate('/stalls/new')}"
+  },
+  {
+    "file": "webapp/src/components/stalls/StallList.jsx",
+    "line": 108,
+    "code": "<form onSubmit={handleSearch} className=\"input-group\">"
+  },
+  {
+    "file": "webapp/src/components/stalls/StallList.jsx",
+    "line": 193,
+    "code": "onClick={() => setSelectedDetailsStallId(stall.id)}"
+  },
+  {
+    "file": "webapp/src/components/stalls/StallList.jsx",
+    "line": 236,
+    "code": "onClick={() => setSelectedQRStall(stall)}"
+  },
+  {
+    "file": "webapp/src/components/stalls/StallList.jsx",
+    "line": 243,
+    "code": "onClick={() => navigate(`/stalls/edit/${stall.id}`)}"
+  },
+  {
+    "file": "webapp/src/components/stalls/StallList.jsx",
+    "line": 250,
+    "code": "onClick={() => handleDeleteClick(stall)}"
+  },
+  {
+    "file": "webapp/src/components/stalls/StallList1.jsx",
+    "line": 59,
+    "code": "onClick={() => navigate('/stalls/new')}"
+  },
+  {
+    "file": "webapp/src/components/stalls/StallList1.jsx",
+    "line": 102,
+    "code": "onClick={() => navigate(`/stalls/edit/${stall.id}`)}"
+  },
+  {
+    "file": "webapp/src/components/stalls/StallList1.jsx",
+    "line": 108,
+    "code": "onClick={() => handleDelete(stall.id)}"
+  },
+  {
+    "file": "webapp/src/components/tenant-portal/TenantBills.jsx",
+    "line": 150,
+    "code": "onClick={() => handlePaymongoCheckout(p)}"
+  },
+  {
+    "file": "webapp/src/components/tenant-portal/TenantBills.jsx",
+    "line": 156,
+    "code": "onClick={() => {"
+  },
+  {
+    "file": "webapp/src/components/tenant-portal/TenantBills.jsx",
+    "line": 186,
+    "code": "<button type=\"button\" className=\"btn-close btn-close-white\" onClick={() => setShowUploadModal(false)} />"
+  },
+  {
+    "file": "webapp/src/components/tenant-portal/TenantBills.jsx",
+    "line": 188,
+    "code": "<form onSubmit={handleProofSubmit}>"
+  },
+  {
+    "file": "webapp/src/components/tenant-portal/TenantBills.jsx",
+    "line": 228,
+    "code": "<button type=\"button\" className=\"btn btn-outline-secondary btn-sm\" onClick={() => setShowUploadModal(false)}>Cancel</button>"
+  },
+  {
+    "file": "webapp/src/components/tenant-portal/TenantDashboard.jsx",
+    "line": 111,
+    "code": "onClick={() => setShowQRModal(true)}"
+  },
+  {
+    "file": "webapp/src/components/tenant-portal/TenantDashboard.jsx",
+    "line": 118,
+    "code": "onClick={() => navigate('/tenant/bills')}"
+  },
+  {
+    "file": "webapp/src/components/tenant-portal/TenantDashboard.jsx",
+    "line": 211,
+    "code": "onClick={() => handleQuickPay(unpaidPayment)}"
+  },
+  {
+    "file": "webapp/src/components/tenant-portal/TenantDashboard.jsx",
+    "line": 217,
+    "code": "onClick={() => navigate('/tenant/bills')}"
+  },
+  {
+    "file": "webapp/src/components/tenant-portal/TenantProfile.jsx",
+    "line": 169,
+    "code": "<form onSubmit={handleProfileSubmit}>"
+  },
+  {
+    "file": "webapp/src/components/tenant-portal/TenantProfile.jsx",
+    "line": 237,
+    "code": "<form onSubmit={handlePasswordSubmit}>"
+  },
+  {
+    "file": "webapp/src/components/tenants/TenantForm.jsx",
+    "line": 62,
+    "code": "navigate('/tenants');"
+  },
+  {
+    "file": "webapp/src/components/tenants/TenantForm.jsx",
+    "line": 90,
+    "code": "navigate('/tenants');"
+  },
+  {
+    "file": "webapp/src/components/tenants/TenantForm.jsx",
+    "line": 132,
+    "code": "onClick={() => navigate('/tenants')}"
+  },
+  {
+    "file": "webapp/src/components/tenants/TenantForm.jsx",
+    "line": 139,
+    "code": "<form onSubmit={handleSubmit}>"
+  },
+  {
+    "file": "webapp/src/components/tenants/TenantForm.jsx",
+    "line": 284,
+    "code": "onClick={() => navigate('/tenants')}"
+  },
+  {
+    "file": "webapp/src/components/tenants/TenantList.jsx",
+    "line": 113,
+    "code": "<form onSubmit={handleSearch} className=\"input-group\">"
+  },
+  {
+    "file": "webapp/src/components/tenants/TenantList.jsx",
+    "line": 184,
+    "code": "onClick={() => navigate(`/tenants/${tenant.id}`)}"
+  },
+  {
+    "file": "webapp/src/components/tenants/TenantList.jsx",
+    "line": 211,
+    "code": "onClick={() => navigate(`/tenants/${tenant.id}`)}"
+  },
+  {
+    "file": "webapp/src/components/tenants/TenantList.jsx",
+    "line": 218,
+    "code": "onClick={() => navigate(`/tenants/edit/${tenant.id}`)}"
+  },
+  {
+    "file": "webapp/src/components/tenants/TenantList.jsx",
+    "line": 226,
+    "code": "onClick={() => handleStatusChange(tenant.id, 'inactive')}"
+  },
+  {
+    "file": "webapp/src/components/tenants/TenantList.jsx",
+    "line": 234,
+    "code": "onClick={() => handleStatusChange(tenant.id, 'active')}"
+  },
+  {
+    "file": "webapp/src/components/tenants/TenantList.jsx",
+    "line": 242,
+    "code": "onClick={() => handleDeleteClick(tenant)}"
+  },
+  {
+    "file": "webapp/src/components/tenants/TenantProfile.jsx",
+    "line": 70,
+    "code": "onClick={() => navigate('/tenants')}"
+  },
+  {
+    "file": "webapp/src/components/tenants/TenantProfile.jsx",
+    "line": 86,
+    "code": "onClick={() => navigate('/tenants')}"
+  },
+  {
+    "file": "webapp/src/components/tenants/TenantProfile.jsx",
+    "line": 92,
+    "code": "onClick={() => navigate(`/tenants/edit/${tenant.id}`)}"
+  },
+  {
+    "file": "webapp/src/components/users/UserList.jsx",
+    "line": 206,
+    "code": "onClick={() => handleEditClick(u)}"
+  },
+  {
+    "file": "webapp/src/components/users/UserList.jsx",
+    "line": 213,
+    "code": "onClick={() => handleDeleteClick(u)}"
+  },
+  {
+    "file": "webapp/src/components/users/UserList.jsx",
+    "line": 235,
+    "code": "<button type=\"button\" className=\"btn-close btn-close-white\" onClick={() => setShowEditModal(false)}></button>"
+  },
+  {
+    "file": "webapp/src/components/users/UserList.jsx",
+    "line": 237,
+    "code": "<form onSubmit={handleEditSubmit}>"
+  },
+  {
+    "file": "webapp/src/components/users/UserList.jsx",
+    "line": 295,
+    "code": "<button type=\"button\" className=\"btn btn-outline-secondary\" onClick={() => setShowEditModal(false)}>Cancel</button>"
+  },
+  {
+    "file": "webapp/src/mobile/components/MobileHeader.jsx",
+    "line": 21,
+    "code": "onClick={() => navigate(-1)}"
+  },
+  {
+    "file": "webapp/src/mobile/components/MobileHeader.jsx",
+    "line": 42,
+    "code": "onClick={() => navigate('/mobile/profile')}"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileBilling.jsx",
+    "line": 100,
+    "code": "onClick={() => setActiveTab('unpaid')}"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileBilling.jsx",
+    "line": 108,
+    "code": "onClick={() => setActiveTab('history')}"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileBilling.jsx",
+    "line": 116,
+    "code": "onClick={() => setActiveTab('stalls_history')}"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileBilling.jsx",
+    "line": 169,
+    "code": "onClick={() => handlePaymongoCheckout(inv)}"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileBilling.jsx",
+    "line": 210,
+    "code": "onClick={() => handleViewReceipt(inv)}"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileBilling.jsx",
+    "line": 272,
+    "code": "<div className=\"mobile-modal-overlay\" onClick={() => setShowReceiptModal(false)}>"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileBilling.jsx",
+    "line": 273,
+    "code": "<div className=\"mobile-bottom-sheet\" onClick={(e) => e.stopPropagation()}>"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileBilling.jsx",
+    "line": 312,
+    "code": "onClick={() => setShowReceiptModal(false)}"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileDashboard.jsx",
+    "line": 100,
+    "code": "onClick={() => navigate('/mobile/billing')}"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileDashboard.jsx",
+    "line": 110,
+    "code": "<button onClick={() => navigate('/mobile/stalls')} className=\"mobile-action-btn border-0\">"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileDashboard.jsx",
+    "line": 117,
+    "code": "<button onClick={() => navigate('/mobile/billing')} className=\"mobile-action-btn border-0\">"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileDashboard.jsx",
+    "line": 124,
+    "code": "<button onClick={() => navigate('/mobile/maintenance')} className=\"mobile-action-btn border-0\">"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileDashboard.jsx",
+    "line": 131,
+    "code": "<button onClick={() => navigate('/mobile/billing')} className=\"mobile-action-btn border-0\">"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileDashboard.jsx",
+    "line": 181,
+    "code": "onClick={() => navigate('/mobile/maintenance')}"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileLogin.jsx",
+    "line": 24,
+    "code": "navigate('/mobile/dashboard');"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileLogin.jsx",
+    "line": 59,
+    "code": "<form onSubmit={handleSubmit} className=\"mb-4\">"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileLogin.jsx",
+    "line": 115,
+    "code": "onClick={handleFillDemoTenant}"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileMaintenance.jsx",
+    "line": 124,
+    "code": "onClick={() => setShowModal(true)}"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileMaintenance.jsx",
+    "line": 199,
+    "code": "<div className=\"mobile-modal-overlay\" onClick={() => setShowModal(false)}>"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileMaintenance.jsx",
+    "line": 200,
+    "code": "<div className=\"mobile-bottom-sheet\" onClick={(e) => e.stopPropagation()}>"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileMaintenance.jsx",
+    "line": 206,
+    "code": "onClick={() => setShowModal(false)}"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileMaintenance.jsx",
+    "line": 213,
+    "code": "<form onSubmit={handleCreateTicket}>"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileProfile.jsx",
+    "line": 46,
+    "code": "navigate('/mobile/login');"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileProfile.jsx",
+    "line": 107,
+    "code": "onClick={() => navigate('/dashboard')}"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileProfile.jsx",
+    "line": 114,
+    "code": "onClick={handleSignOut}"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileRegister.jsx",
+    "line": 58,
+    "code": "navigate('/mobile/dashboard');"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileRegister.jsx",
+    "line": 83,
+    "code": "<form onSubmit={handleSubmit} className=\"mb-4\">"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileStalls.jsx",
+    "line": 161,
+    "code": "onClick={() => setFilter('all')}"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileStalls.jsx",
+    "line": 167,
+    "code": "onClick={() => setFilter('available')}"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileStalls.jsx",
+    "line": 174,
+    "code": "onClick={() => setFilter('my_lease')}"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileStalls.jsx",
+    "line": 181,
+    "code": "onClick={() => setFilter('occupied')}"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileStalls.jsx",
+    "line": 263,
+    "code": "onClick={() => handleApplyClick(stall)}"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileStalls.jsx",
+    "line": 303,
+    "code": "onClick={() => setShowApplyModal(false)}"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileStalls.jsx",
+    "line": 307,
+    "code": "<form onSubmit={handleApplicationSubmit}>"
+  },
+  {
+    "file": "webapp/src/mobile/pages/MobileStalls.jsx",
+    "line": 386,
+    "code": "onClick={() => setShowApplyModal(false)}"
+  },
+  {
+    "file": "mobileapp/src/context/NotificationContext.js",
+    "line": 108,
+    "code": "navigate('Main', {"
+  },
+  {
+    "file": "mobileapp/src/context/NotificationContext.js",
+    "line": 113,
+    "code": "navigate('Main', {"
+  },
+  {
+    "file": "mobileapp/src/context/NotificationContext.js",
+    "line": 118,
+    "code": "navigate('Main', { screen: 'Stalls' });"
+  },
+  {
+    "file": "mobileapp/src/context/NotificationContext.js",
+    "line": 120,
+    "code": "navigate('Main', { screen: 'Billing' });"
+  },
+  {
+    "file": "mobileapp/src/context/NotificationContext.js",
+    "line": 122,
+    "code": "navigate('Notifications');"
+  },
+  {
+    "file": "mobileapp/src/context/NotificationContext.js",
+    "line": 146,
+    "code": "onPress={handleToastPress}"
+  },
+  {
+    "file": "mobileapp/src/navigation/AppNavigator.js",
+    "line": 29,
+    "code": "<Stack.Screen name=\"Login\" component={LoginScreen} />"
+  },
+  {
+    "file": "mobileapp/src/navigation/AppNavigator.js",
+    "line": 30,
+    "code": "<Stack.Screen name=\"Register\" component={RegisterScreen} />"
+  },
+  {
+    "file": "mobileapp/src/navigation/AppNavigator.js",
+    "line": 34,
+    "code": "<Stack.Screen name=\"Main\" component={BottomTabNavigator} />"
+  },
+  {
+    "file": "mobileapp/src/navigation/AppNavigator.js",
+    "line": 35,
+    "code": "<Stack.Screen"
+  },
+  {
+    "file": "mobileapp/src/navigation/BottomTabNavigator.js",
+    "line": 60,
+    "code": "<Tab.Screen name=\"Home\" component={DashboardScreen} options={{ title: 'Tenant Home' }} />"
+  },
+  {
+    "file": "mobileapp/src/navigation/BottomTabNavigator.js",
+    "line": 61,
+    "code": "<Tab.Screen name=\"Stalls\" component={StallsScreen} options={{ title: 'Commercial Stalls' }} />"
+  },
+  {
+    "file": "mobileapp/src/navigation/BottomTabNavigator.js",
+    "line": 62,
+    "code": "<Tab.Screen name=\"Fix Hub\" component={MaintenanceScreen} options={{ title: 'Maintenance Hub' }} />"
+  },
+  {
+    "file": "mobileapp/src/navigation/BottomTabNavigator.js",
+    "line": 63,
+    "code": "<Tab.Screen name=\"Billing\" component={BillingScreen} options={{ title: 'Billings & PayMongo' }} />"
+  },
+  {
+    "file": "mobileapp/src/navigation/BottomTabNavigator.js",
+    "line": 64,
+    "code": "<Tab.Screen name=\"Profile\" component={ProfileScreen} options={{ title: 'My Lease & Profile' }} />"
+  },
+  {
+    "file": "mobileapp/src/navigation/navigationRef.js",
+    "line": 5,
+    "code": "export function navigate(name, params) {"
+  },
+  {
+    "file": "mobileapp/src/navigation/navigationRef.js",
+    "line": 7,
+    "code": "navigationRef.navigate(name, params);"
+  },
+  {
+    "file": "mobileapp/src/components/common/InAppNotificationBanner.js",
+    "line": 119,
+    "code": "onPress={() => {"
+  },
+  {
+    "file": "mobileapp/src/components/common/InAppNotificationBanner.js",
+    "line": 136,
+    "code": "onPress={handleHide}"
+  },
+  {
+    "file": "mobileapp/src/components/common/SystemAssistant.js",
+    "line": 98,
+    "code": "<TouchableOpacity style={[styles.head, { bottom: 78 + insets.bottom }]} accessibilityRole=\"button\" accessibilityLabel={`Open stall leasing chat${thread?.unread ? `, ${thread.unread} unread messages` : ''}`} onPress={() => setOpen(true)}>"
+  },
+  {
+    "file": "mobileapp/src/components/common/SystemAssistant.js",
+    "line": 104,
+    "code": "<TouchableOpacity style={StyleSheet.absoluteFill} accessibilityLabel=\"Close chat\" accessibilityRole=\"button\" onPress={() => setOpen(false)} />"
+  },
+  {
+    "file": "mobileapp/src/components/common/SystemAssistant.js",
+    "line": 109,
+    "code": "<TouchableOpacity style={styles.close} accessibilityRole=\"button\" accessibilityLabel=\"Close chat\" onPress={() => setOpen(false)}><Ionicons name=\"close\" size={24} color=\"#fff\" /></TouchableOpacity>"
+  },
+  {
+    "file": "mobileapp/src/components/common/SystemAssistant.js",
+    "line": 113,
+    "code": "<TouchableOpacity style={styles.agentButton} disabled={!!busy || !thread} accessibilityRole=\"button\" onPress={() => handoff(mode === 'bot' ? 'request-agent' : 'resume')}>"
+  },
+  {
+    "file": "mobileapp/src/components/common/SystemAssistant.js",
+    "line": 128,
+    "code": "{mode === 'bot' && <View><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.suggestions} keyboardShouldPersistTaps=\"handled\">{suggestions.map(text => <TouchableOpacity key={text} style={styles.suggestion} disabled={!!busy || !thread} accessibilityRole=\"button\" onPress={() => send(text)}><Text style={styles.suggestionText}>{text}</Text></TouchableOpacity>)}</ScrollView></View>}"
+  },
+  {
+    "file": "mobileapp/src/components/common/SystemAssistant.js",
+    "line": 132,
+    "code": "<TouchableOpacity style={[styles.send, (busy || !thread || !draft.trim()) && { opacity: 0.45 }]} disabled={!!busy || !thread || !draft.trim()} accessibilityRole=\"button\" accessibilityLabel=\"Send message\" onPress={() => send()}><Ionicons name=\"send\" size={20} color=\"#fff\" /></TouchableOpacity>"
+  },
+  {
+    "file": "mobileapp/src/screens/auth/LoginScreen.js",
+    "line": 112,
+    "code": "onPress={handleLogin}"
+  },
+  {
+    "file": "mobileapp/src/screens/auth/LoginScreen.js",
+    "line": 124,
+    "code": "onPress={() => setShowIpConfig(!showIpConfig)}"
+  },
+  {
+    "file": "mobileapp/src/screens/auth/LoginScreen.js",
+    "line": 141,
+    "code": "<TouchableOpacity style={styles.ipSaveBtn} onPress={handleSaveServerIP}>"
+  },
+  {
+    "file": "mobileapp/src/screens/auth/LoginScreen.js",
+    "line": 151,
+    "code": "<TouchableOpacity onPress={() => navigation.navigate('Register')}>"
+  },
+  {
+    "file": "mobileapp/src/screens/auth/RegisterScreen.js",
+    "line": 105,
+    "code": "<TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>"
+  },
+  {
+    "file": "mobileapp/src/screens/auth/RegisterScreen.js",
+    "line": 184,
+    "code": "onPress={handleRegister}"
+  },
+  {
+    "file": "mobileapp/src/screens/auth/RegisterScreen.js",
+    "line": 197,
+    "code": "<TouchableOpacity onPress={() => navigation.navigate('Login')}>"
+  },
+  {
+    "file": "mobileapp/src/screens/billing/BillingScreen.js",
+    "line": 176,
+    "code": "onPress={() => handleOpenPayModal(item)}"
+  },
+  {
+    "file": "mobileapp/src/screens/billing/BillingScreen.js",
+    "line": 211,
+    "code": "onPress={() => {"
+  },
+  {
+    "file": "mobileapp/src/screens/billing/BillingScreen.js",
+    "line": 230,
+    "code": "onPress={() => setActiveTab('unpaid')}"
+  },
+  {
+    "file": "mobileapp/src/screens/billing/BillingScreen.js",
+    "line": 239,
+    "code": "onPress={() => setActiveTab('history')}"
+  },
+  {
+    "file": "mobileapp/src/screens/billing/BillingScreen.js",
+    "line": 248,
+    "code": "onPress={() => setActiveTab('stalls_history')}"
+  },
+  {
+    "file": "mobileapp/src/screens/billing/BillingScreen.js",
+    "line": 261,
+    "code": "<View style={styles.emptyCard}><Text>{loadError}</Text><TouchableOpacity onPress={() => loadBilling(true)}><Text>Retry</Text></TouchableOpacity></View>"
+  },
+  {
+    "file": "mobileapp/src/screens/billing/BillingScreen.js",
+    "line": 351,
+    "code": "onPress={() => setSelectedChannel(ch.id)}"
+  },
+  {
+    "file": "mobileapp/src/screens/billing/BillingScreen.js",
+    "line": 382,
+    "code": "onPress={handleConfirmPayment}"
+  },
+  {
+    "file": "mobileapp/src/screens/billing/BillingScreen.js",
+    "line": 397,
+    "code": "onPress={handlePaymongoGatewayCheckout}"
+  },
+  {
+    "file": "mobileapp/src/screens/billing/BillingScreen.js",
+    "line": 407,
+    "code": "onPress={() => setShowPayModal(false)}"
+  },
+  {
+    "file": "mobileapp/src/screens/billing/BillingScreen.js",
+    "line": 464,
+    "code": "onPress={() => setShowReceiptModal(false)}"
+  },
+  {
+    "file": "mobileapp/src/screens/dashboard/DashboardScreen.js",
+    "line": 101,
+    "code": "onPress={() => navigation.navigate('Notifications')}"
+  },
+  {
+    "file": "mobileapp/src/screens/dashboard/DashboardScreen.js",
+    "line": 119,
+    "code": "onPress={() => navigation.navigate('Profile')}"
+  },
+  {
+    "file": "mobileapp/src/screens/dashboard/DashboardScreen.js",
+    "line": 158,
+    "code": "onPress={() => navigation.navigate('Billing')}"
+  },
+  {
+    "file": "mobileapp/src/screens/dashboard/DashboardScreen.js",
+    "line": 170,
+    "code": "onPress={() => navigation.navigate('Stalls')}"
+  },
+  {
+    "file": "mobileapp/src/screens/dashboard/DashboardScreen.js",
+    "line": 180,
+    "code": "onPress={() => navigation.navigate('Billing')}"
+  },
+  {
+    "file": "mobileapp/src/screens/dashboard/DashboardScreen.js",
+    "line": 190,
+    "code": "onPress={() => navigation.navigate('Fix Hub')}"
+  },
+  {
+    "file": "mobileapp/src/screens/dashboard/DashboardScreen.js",
+    "line": 200,
+    "code": "onPress={() => navigation.navigate('Billing')}"
+  },
+  {
+    "file": "mobileapp/src/screens/dashboard/DashboardScreen.js",
+    "line": 263,
+    "code": "onPress={() => navigation.navigate('Fix Hub', { highlightTicketId: t.id })}"
+  },
+  {
+    "file": "mobileapp/src/screens/maintenance/MaintenanceScreen.js",
+    "line": 221,
+    "code": "onPress={() => handleOpenDetails(item)}"
+  },
+  {
+    "file": "mobileapp/src/screens/maintenance/MaintenanceScreen.js",
+    "line": 301,
+    "code": "onPress={() => setShowModal(true)}"
+  },
+  {
+    "file": "mobileapp/src/screens/maintenance/MaintenanceScreen.js",
+    "line": 309,
+    "code": "onPress={() => navigation.navigate('Stalls')}"
+  },
+  {
+    "file": "mobileapp/src/screens/maintenance/MaintenanceScreen.js",
+    "line": 318,
+    "code": "<View style={styles.noActiveRentCard}><Text>{loadError}</Text><TouchableOpacity onPress={() => loadData()} style={styles.applyNowBtn}><Text style={styles.applyNowBtnText}>Retry</Text></TouchableOpacity></View>"
+  },
+  {
+    "file": "mobileapp/src/screens/maintenance/MaintenanceScreen.js",
+    "line": 336,
+    "code": "onPress={() => navigation.navigate('Stalls')}"
+  },
+  {
+    "file": "mobileapp/src/screens/maintenance/MaintenanceScreen.js",
+    "line": 379,
+    "code": "<TouchableOpacity onPress={handleCloseDetails} style={styles.closeCircleBtn}>"
+  },
+  {
+    "file": "mobileapp/src/screens/maintenance/MaintenanceScreen.js",
+    "line": 476,
+    "code": "onPress={handleCloseDetails}"
+  },
+  {
+    "file": "mobileapp/src/screens/maintenance/MaintenanceScreen.js",
+    "line": 502,
+    "code": "<TouchableOpacity onPress={() => setShowModal(false)}>"
+  },
+  {
+    "file": "mobileapp/src/screens/maintenance/MaintenanceScreen.js",
+    "line": 521,
+    "code": "onPress={() => setSelectedStallToReport(s)}"
+  },
+  {
+    "file": "mobileapp/src/screens/maintenance/MaintenanceScreen.js",
+    "line": 562,
+    "code": "onPress={() => setCategory(c)}"
+  },
+  {
+    "file": "mobileapp/src/screens/maintenance/MaintenanceScreen.js",
+    "line": 577,
+    "code": "onPress={() => setPriority(p)}"
+  },
+  {
+    "file": "mobileapp/src/screens/maintenance/MaintenanceScreen.js",
+    "line": 598,
+    "code": "onPress={handleCreateTicket}"
+  },
+  {
+    "file": "mobileapp/src/screens/notifications/NotificationsScreen.js",
+    "line": 80,
+    "code": "navigation.navigate('Main', {"
+  },
+  {
+    "file": "mobileapp/src/screens/notifications/NotificationsScreen.js",
+    "line": 89,
+    "code": "navigation.navigate('Main', {"
+  },
+  {
+    "file": "mobileapp/src/screens/notifications/NotificationsScreen.js",
+    "line": 94,
+    "code": "navigation.navigate('Main', { screen: 'Stalls' });"
+  },
+  {
+    "file": "mobileapp/src/screens/notifications/NotificationsScreen.js",
+    "line": 96,
+    "code": "navigation.navigate('Main', { screen: 'Billing' });"
+  },
+  {
+    "file": "mobileapp/src/screens/notifications/NotificationsScreen.js",
+    "line": 98,
+    "code": "navigation.navigate('Main', { screen: 'Stalls' });"
+  },
+  {
+    "file": "mobileapp/src/screens/notifications/NotificationsScreen.js",
+    "line": 173,
+    "code": "onPress={() => markAsRead(item)}"
+  },
+  {
+    "file": "mobileapp/src/screens/notifications/NotificationsScreen.js",
+    "line": 214,
+    "code": "<TouchableOpacity style={styles.markAllBtn} onPress={markAllAsRead}>"
+  },
+  {
+    "file": "mobileapp/src/screens/notifications/NotificationsScreen.js",
+    "line": 235,
+    "code": "onPress={() => setFilter(chip.id)}"
+  },
+  {
+    "file": "mobileapp/src/screens/profile/ProfileScreen.js",
+    "line": 98,
+    "code": "<TouchableOpacity style={styles.signOutBtn} onPress={handleSignOut}>"
+  },
+  {
+    "file": "mobileapp/src/screens/stalls/StallsScreen.js",
+    "line": 256,
+    "code": "onPress={() => handleOpenDetails(item)}"
+  },
+  {
+    "file": "mobileapp/src/screens/stalls/StallsScreen.js",
+    "line": 315,
+    "code": "onPress={() => handleOpenApply(item)}"
+  },
+  {
+    "file": "mobileapp/src/screens/stalls/StallsScreen.js",
+    "line": 348,
+    "code": "onPress={() => setFilter('all')}"
+  },
+  {
+    "file": "mobileapp/src/screens/stalls/StallsScreen.js",
+    "line": 356,
+    "code": "onPress={() => setFilter('available')}"
+  },
+  {
+    "file": "mobileapp/src/screens/stalls/StallsScreen.js",
+    "line": 365,
+    "code": "onPress={() => setFilter('my_lease')}"
+  },
+  {
+    "file": "mobileapp/src/screens/stalls/StallsScreen.js",
+    "line": 374,
+    "code": "onPress={() => setFilter('occupied')}"
+  },
+  {
+    "file": "mobileapp/src/screens/stalls/StallsScreen.js",
+    "line": 426,
+    "code": "<TouchableOpacity onPress={handleCloseDetails} style={styles.closeCircleBtn}>"
+  },
+  {
+    "file": "mobileapp/src/screens/stalls/StallsScreen.js",
+    "line": 482,
+    "code": "onPress={() => {"
+  },
+  {
+    "file": "mobileapp/src/screens/stalls/StallsScreen.js",
+    "line": 509,
+    "code": "onPress={handleCloseDetails}"
+  },
+  {
+    "file": "mobileapp/src/screens/stalls/StallsScreen.js",
+    "line": 536,
+    "code": "<TouchableOpacity onPress={() => setShowApplyModal(false)}>"
+  },
+  {
+    "file": "mobileapp/src/screens/stalls/StallsScreen.js",
+    "line": 594,
+    "code": "onPress={handleSubmitApplication}"
+  }
+]

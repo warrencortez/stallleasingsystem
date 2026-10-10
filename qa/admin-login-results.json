@@ -1,0 +1,10 @@
+{
+  "checks": [
+    "Login fields are empty; no embedded administrator credentials",
+    "Database administrator signs in through the actual website form",
+    "Reload restores real database identity rather than forged cached profile",
+    "Old default password rejected; authenticated profile succeeds; password hash never returned",
+    "No uncaught browser exceptions"
+  ],
+  "errors": []
+}

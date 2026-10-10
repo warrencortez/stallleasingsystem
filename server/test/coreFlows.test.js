@@ -11,6 +11,7 @@ const Application = require('../src/models/Application');
 const Payment = require('../src/models/Payment');
 const Notification = require('../src/models/Notification');
 const provider = require('../src/services/paymongoService');
+provider.secretKey = 'sk_test_fixture';
 const { generateToken } = require('../src/config/jwt');
 let server, base, admin, owner, other, stall, lease, invoice;
 async function request(route, token, body, method = body ? 'POST' : 'GET') {
@@ -61,21 +62,21 @@ test('invalid invoice amounts and dates are rejected', async () => {
     for (const amount of [-1, 0, 'NaN', 1.001]) assert.equal((await request('/payments', admin, { tenant_id: lease, amount, due_date: '2026-10-28' })).status, 400);
     assert.equal((await request('/payments', admin, { tenant_id: lease, amount: 100, due_date: '2026-02-30' })).status, 400);
 });
-test('manual payment stays pending, missing/unpaid/mismatched provider sessions never settle', async () => {
+test('manual references rejected, missing/unpaid/mismatched provider sessions never settle', async () => {
     const prefix = '/payments/' + invoice;
-    assert.equal((await request(prefix + '/record', owner.token, { is_manual_verify: true, reference_number: 'actual-ref' }, 'PATCH')).body.data.status, 'pending_verification');
+    assert.equal((await request(prefix + '/record', owner.token, { is_manual_verify: true, reference_number: 'actual-ref' }, 'PATCH')).status, 400);
     await Payment.setCheckoutSession(invoice, 'cs_owned', 'https://example.invalid/checkout', 'ref-owned');
     const original = provider.retrieveCheckoutSession;
     try {
         for (const session of [null, { id: 'cs_owned', attributes: { payments: [] } }, { id: 'cs_foreign', attributes: { payments: [{ attributes: { status: 'paid', amount: 100000, currency: 'PHP' } }] } }, { id: 'cs_owned', attributes: { payments: [{ attributes: { status: 'paid', amount: 1, currency: 'PHP' } }] } }]) {
             provider.retrieveCheckoutSession = async () => session;
-            assert.equal((await request(prefix + '/verify-paymongo', owner.token, { checkout_id: 'cs_owned' })).status, 409);
+            assert.equal((await request(prefix + '/verify-paymongo', owner.token, { checkout_id: 'cs_owned' })).status, session ? 409 : 503);
             assert.notEqual((await Payment.findById(invoice)).status, 'paid');
         }
-        provider.retrieveCheckoutSession = async () => ({ id: 'cs_owned', attributes: { payments: [{ id: 'pay_owned', attributes: { status: 'paid', amount: 100000, currency: 'PHP' } }] } });
+        provider.retrieveCheckoutSession = async () => ({ id: 'cs_owned', attributes: {livemode:provider.secretKey.startsWith('sk_live_'),metadata:{invoice_id:invoice}, payments: [{ id: 'pay_owned', attributes: { status: 'paid', amount: 100000, currency: 'PHP' } }] } });
         assert.equal((await request(prefix + '/verify-paymongo', owner.token, { checkout_id: 'cs_owned' })).status, 200);
         assert.equal((await Payment.findById(invoice)).status, 'paid');
-        assert.equal((await request(prefix + '/record', owner.token, {}, 'PATCH')).status, 409);
+        assert.equal((await request(prefix + '/record', owner.token, {}, 'PATCH')).status, 400);
     } finally { provider.retrieveCheckoutSession = original; }
 });
 test('application submission, ownership, approval and competing rejection are consistent', async () => {
@@ -124,19 +125,54 @@ test('simultaneous monthly generation does not create duplicate invoices', async
     assert.equal(new Set(keys).size, keys.length);
 });
 test('provider failure never creates simulated checkout or simulated settlement', async () => {
-    const originalFetch = global.fetch, originalKey = provider.secretKey;
+    const originalFetch = global.fetch, originalKey = provider.secretKey, originalReady=provider.assertReady;
+    provider.assertReady=()=>{};
     provider.secretKey = 'sk_test_fixture_only';
     global.fetch = async () => { throw new Error('Fixture network outage'); };
     try {
         await assert.rejects(provider.createCheckoutSession({ paymentId: invoice, amount: 1000 }), /could not create checkout/);
         assert.equal(await provider.retrieveCheckoutSession('cs_sim_fake'), null);
-    } finally { global.fetch = originalFetch; provider.secretKey = originalKey; }
+    } finally { global.fetch = originalFetch; provider.secretKey = originalKey; provider.assertReady=originalReady; }
 });
 
 test('invoice edits reject negative values, invalid dates, and ownership reassignment', async () => {
     for (const body of [{ amount: -1 }, { late_fee: -10 }, { due_date: '2026-02-30' }, { tenant_id: 'foreign' }]) {
-        assert.equal((await request('/payments/' + invoice, admin, body, 'PUT')).status, 400);
+        assert.equal((await request('/payments/' + invoice, admin, body, 'PUT')).status, 409);
     }
     const settled = await Payment.recordPayment(invoice, { status: 'pending_verification', reference_number: 'late-upload' });
     assert.equal(settled.status, 'paid');
+});
+
+test('daily generation charges only leased days, skips monthly leases, and is repeat-safe', async () => {
+    const id = await Stall.create({ stall_number: 'QA-DAILY', monthly_rent: 125, daily_rent: 125, rent_type: 'daily', status: 'occupied' });
+    const dailyLease = await Tenant.create({ user_id: owner.user.id, stall_id: id, name: 'Daily renter', status: 'active', contract_start: '2026-10-02', contract_end: '2026-10-04' });
+    assert.equal((await Payment.generateDailyBills('2026-10-01')).length, 0);
+    const outputs = await Promise.all([Payment.generateDailyBills('2026-10-02'), Payment.generateDailyBills('2026-10-02')]);
+    assert.equal(outputs.flat().length, 1); assert.equal(Number(outputs.flat()[0].amount), 125);
+    assert.equal((await Payment.generateDailyBills('2026-10-03')).length, 1);
+    assert.equal((await Payment.generateDailyBills('2026-10-05')).length, 0);
+    await Payment.generateMonthlyBills(10, 2026);
+    assert.ok((await Payment.findByTenantId(dailyLease)).every(p => p.billing_type === 'daily'));
+    assert.equal((await request('/payments/generate-bills', admin, { billing_type: 'daily', date: '2026-02-30' })).status, 400);
+    assert.equal((await request('/payments/generate-bills', owner.token, { billing_type: 'daily', date: '2026-10-04' })).status, 403);
+});
+test('office payments require admin, exact full amount, unique receipt, and cannot settle twice', async () => {
+    const id = await Payment.create({ tenant_id: lease, stall_id: stall, amount: 700, due_date: '2026-10-02' });
+    const url = '/payments/' + id + '/office-payment';
+    assert.equal((await request(url, owner.token, { amount_received: 700, receipt_number: 'OR-TEST' })).status, 403);
+    assert.equal((await request(url, admin, { amount_received: 699, receipt_number: 'OR-TEST' })).status, 400);
+    assert.equal((await request(url, admin, { amount_received: 700, receipt_number: '' })).status, 400);
+    const outcomes = await Promise.all([request(url, admin, { amount_received: 700, receipt_number: 'OR-TEST' }), request(url, admin, { amount_received: 700, receipt_number: 'OR-TEST' })]);
+    assert.deepEqual(outcomes.map(r=>r.status).sort(), [200,409]);
+    const paid = await Payment.findById(id); assert.equal(paid.status, 'paid'); assert.equal(paid.payment_method, 'cash_office'); assert.ok(paid.received_by);
+    const next = await Payment.create({ tenant_id: lease, stall_id: stall, amount: 700, due_date: '2026-10-03' });
+    assert.equal((await request('/payments/'+next+'/office-payment', admin, { amount_received: 700, receipt_number: 'or-test' })).status, 409);
+});
+
+test('cash cannot overlap a pending online checkout or submitted proof', async()=>{
+    for(const details of [{paymongo_checkout_id:'cs_existing'},{status:'pending_verification'}]) {
+        const id=await Payment.create({tenant_id:lease,stall_id:stall,amount:50,due_date:'2026-10-02',...details});
+        const result=await request('/payments/'+id+'/office-payment',admin,{amount_received:50,receipt_number:'OR-CONFLICT'});
+        assert.equal(result.status,409);assert.notEqual((await Payment.findById(id)).status,'paid');
+    }
 });

@@ -7,7 +7,7 @@ class Stall {
     static async create(stallData) {
         const { 
             stall_number, location, size, monthly_rent, 
-            status, description, image_url, rent_type
+            status, description, image_url, rent_type = 'monthly', daily_rent
         } = stallData;
         
         // Append rent_type to description or store if column exists
@@ -18,10 +18,10 @@ class Stall {
 
         const result = await pool.query(
             `INSERT INTO stalls 
-             (stall_number, location, size, monthly_rent, status, description, image_url) 
-             VALUES ($1, $2, $3, $4, $5, $6, $7) 
+             (stall_number, location, size, monthly_rent, status, description, image_url, rent_type, daily_rent)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
              RETURNING id`,
-            [stall_number, location, size, monthly_rent, status || 'available', formattedDesc, image_url]
+            [stall_number, location, size, monthly_rent, status || 'available', formattedDesc, image_url, rent_type, rent_type === 'daily' ? (daily_rent || monthly_rent) : null]
         );
         
         return result.rows[0].id;
@@ -180,7 +180,8 @@ class Stall {
         const values = [];
         let paramCount = 1;
         
-        Object.entries(updateData).forEach(([key, value]) => {
+        const allowed = new Set(['stall_number','location','size','monthly_rent','daily_rent','rent_type','status','description','image_url']);
+        Object.entries(updateData).filter(([key]) => allowed.has(key)).forEach(([key, value]) => {
             if (value !== undefined && value !== null) {
                 fields.push(`${key} = $${paramCount}`);
                 values.push(value);

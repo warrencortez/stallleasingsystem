@@ -27,3 +27,11 @@ Thumbs.db
 .vscode/*
 !.vscode/settings.json
 !.vscode/extensions.json
+
+# Keep the mobile SDK upgrade reproducible.
+!mobileapp/package-lock.json
+!server/package-lock.json
+!webapp/package-lock.json
+!**/.env.example
+.vercel/
+node_modules-move-remainder/

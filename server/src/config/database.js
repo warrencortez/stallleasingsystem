@@ -19,7 +19,8 @@ const pool = new Pool({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
-    max: 10,
+    max: process.env.VERCEL ? 3 : 10,
+    allowExitOnIdle: !!process.env.VERCEL,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 3000,
 });
@@ -173,7 +174,7 @@ const dbQuery = async (text, params = []) => {
             const unpaid_invoices_count = unpaidList.length;
 
             const paidList = stallPayments.filter(p => p.status === 'paid');
-            const total_paid_amount = paidList.reduce((acc, p) => acc + Number(p.amount), 0);
+            const total_paid_amount = paidList.reduce((acc, p) => acc + Number(p.amount) + Number(p.late_fee || 0), 0);
             const paid_invoices_count = paidList.length;
 
             const latest_paid = paidList.length > 0 ? paidList[0] : null;
@@ -184,6 +185,7 @@ const dbQuery = async (text, params = []) => {
                 location: s.location,
                 size: s.size,
                 monthly_rent: s.monthly_rent,
+                rent_type: s.rent_type, daily_rent: s.daily_rent, stall_id: s.id, stall_status: s.status, stall_location: s.location,
                 status: s.status,
                 description: s.description,
                 tenant_id: tenant ? tenant.id : null,
@@ -308,6 +310,8 @@ const dbQuery = async (text, params = []) => {
             size: params[2],
             monthly_rent: parseFloat(params[3]),
             status: params[4] || 'available',
+            rent_type: params[7] || 'monthly',
+            daily_rent: params[8] == null ? null : Number(params[8]),
             description: params[5] || '',
             created_at: new Date().toISOString()
         };
@@ -319,16 +323,7 @@ const dbQuery = async (text, params = []) => {
         const id = params[params.length - 1];
         const s = memoryDB.stalls.find(x => x.id === id);
         if (s) {
-            if (sql.includes('status = $1')) {
-                s.status = params[0] || s.status;
-            } else {
-                s.stall_number = params[0] || s.stall_number;
-                s.location = params[1] || s.location;
-                s.size = params[2] || s.size;
-                s.monthly_rent = parseFloat(params[3]) || s.monthly_rent;
-                s.status = params[4] || s.status;
-                s.description = params[5] !== undefined ? params[5] : s.description;
-            }
+            for (const m of sql.matchAll(/(\w+) = \$(\d+)/g)) if (m[1] !== 'id') s[m[1]] = params[Number(m[2])-1];
             return { rows: [s], rowCount: 1 };
         }
         return { rows: [], rowCount: 0 };
@@ -341,7 +336,7 @@ const dbQuery = async (text, params = []) => {
         if (sql.includes('t.id as tenant_id')) {
             const rows = memoryDB.tenants.map(t => {
                 const stall = memoryDB.stalls.find(s => s.id === t.stall_id);
-                return { ...t, tenant_id: t.id, stall_number: stall?.stall_number, monthly_rent: stall?.monthly_rent };
+                return { ...t, tenant_id: t.id, stall_number: stall?.stall_number, monthly_rent: stall?.monthly_rent, rent_type: stall?.rent_type, daily_rent: stall?.daily_rent };
             });
             return { rows, rowCount: rows.length };
         }
@@ -364,7 +359,7 @@ const dbQuery = async (text, params = []) => {
             const pending = memoryDB.tenants.filter(t => t.status === 'pending').length;
             return { rows: [{ total, active, inactive, pending }], rowCount: 1 };
         }
-        const rows = memoryDB.tenants.map(t => { const stall = memoryDB.stalls.find(s => s.id === t.stall_id); return { ...t, stall_number: stall?.stall_number, monthly_rent: stall?.monthly_rent, location: stall?.location }; });
+        const rows = memoryDB.tenants.map(t => { const stall = memoryDB.stalls.find(s => s.id === t.stall_id); return { ...t, stall_number: stall?.stall_number, monthly_rent: stall?.monthly_rent, rent_type: stall?.rent_type, daily_rent: stall?.daily_rent, location: stall?.location }; });
         return { rows, rowCount: rows.length };
     }
 
@@ -404,6 +399,12 @@ const dbQuery = async (text, params = []) => {
     // 6. PAYMENTS QUERIES & MUTATIONS
     // ----------------------------------------------------------
     if (sql.includes('from payments')) {
+        if (sql.includes('group by payment_method')) {
+            const groups=new Map();
+            for(const p of memoryDB.payments.filter(p=>p.status==='paid')) {const method=p.payment_method || 'Unknown';const row=groups.get(method)||{method,count:0,total_amount:0};row.count++;row.total_amount+=Number(p.amount)+Number(p.late_fee||0);groups.set(method,row);}
+            const rows=[...groups.values()];return {rows,rowCount:rows.length};
+        }
+
         if (sql.includes('where p.id =') || sql.includes('where id =')) {
             const p = memoryDB.payments.find(x => x.id === params[0]);
             return { rows: p ? [p] : [], rowCount: p ? 1 : 0 };
@@ -423,8 +424,8 @@ const dbQuery = async (text, params = []) => {
             return { rows: sPayments, rowCount: sPayments.length };
         }
         if (sql.includes('count(*) as total') || sql.includes('sum(case when status')) {
-            const total_collected = memoryDB.payments.filter(p => p.status === 'paid').reduce((a, b) => a + Number(b.amount), 0);
-            const total_outstanding = memoryDB.payments.filter(p => p.status !== 'paid').reduce((a, b) => a + Number(b.amount), 0);
+            const total_collected = memoryDB.payments.filter(p => p.status === 'paid').reduce((a, b) => a + Number(b.amount) + Number(b.late_fee || 0), 0);
+            const total_outstanding = memoryDB.payments.filter(p => p.status !== 'paid').reduce((a, b) => a + Number(b.amount) + Number(b.late_fee || 0), 0);
             return {
                 rows: [{
                     total: memoryDB.payments.length,
@@ -472,6 +473,15 @@ const dbQuery = async (text, params = []) => {
         const id = params[params.length - 1];
         const p = memoryDB.payments.find(x => x.id === id);
         if (p) {
+            if (sql.includes("paymongo_payment_id=$1")) {
+                Object.assign(p,{status:'paid',payment_method:'paymongo_online',reference_number:params[0],paymongo_payment_id:params[0],payment_date:new Date().toISOString().slice(0,10)});
+                return {rows:[p],rowCount:1};
+            }
+            if (sql.includes("payment_method = 'cash_office'")) {
+                Object.assign(p, { status: 'paid', payment_method: 'cash_office', reference_number: params[0], received_by: params[1], payment_date: new Date().toISOString().slice(0,10) });
+                return { rows: [p], rowCount: 1 };
+            }
+
             if (sql.includes("status <> 'paid'") && p.status === 'paid') return { rows: [], rowCount: 0 };
             if (sql.includes('paymongo_checkout_id = $1')) {
                 p.paymongo_checkout_id = params[0]; p.paymongo_checkout_url = params[1]; p.reference_number = params[2] || p.reference_number;
@@ -497,6 +507,8 @@ const dbQuery = async (text, params = []) => {
     if (sql.startsWith('insert into payments')) {
         const newPayment = {
             id: createId(),
+            billing_type: sql.includes("'daily'") ? 'daily' : sql.includes("'monthly'") ? 'monthly' : null,
+            billing_period: sql.includes('billing_period') ? params[5] : null,
             tenant_id: params[0],
             stall_id: params[1],
             amount: parseFloat(params[2]),
@@ -504,6 +516,11 @@ const dbQuery = async (text, params = []) => {
             status: sql.includes("'unpaid'") ? 'unpaid' : (params[5] || 'unpaid'),
             payment_date: sql.includes("'unpaid'") ? null : params[4],
             description: sql.includes("'unpaid'") ? params[4] : params[11],
+            late_fee: sql.includes('billing_period') ? 0 : Number(params[12] || 0),
+            paymongo_checkout_id: sql.includes('billing_period') ? null : params[9],
+            paymongo_checkout_url: sql.includes('billing_period') ? null : params[10],
+            payment_method: sql.includes('billing_period') ? null : params[6],
+            reference_number: sql.includes('billing_period') ? null : params[7],
             created_at: new Date().toISOString()
         };
         memoryDB.payments.unshift(newPayment);
@@ -636,6 +653,13 @@ const safePool = {
     query: dbQuery,
     connect: async () => pool.connect(),
     withTransaction: async work => {
+        const existing = transactionContext.getStore();
+        if (existing) {
+            const savepoint = 'nested_' + crypto.randomUUID().replace(/-/g, '');
+            await existing.query(`SAVEPOINT ${savepoint}`);
+            try { const result = await work(existing); await existing.query(`RELEASE SAVEPOINT ${savepoint}`); return result; }
+            catch (error) { await existing.query(`ROLLBACK TO SAVEPOINT ${savepoint}`); throw error; }
+        }
         if (isLiveDBConnected) {
             const client = await pool.connect();
             try {

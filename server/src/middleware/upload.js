@@ -8,7 +8,8 @@ const paymentProofsDir = path.join(uploadDir, 'payments');
 const maintenancePhotosDir = path.join(uploadDir, 'maintenance');
 const avatarsDir = path.join(uploadDir, 'avatars');
 
-[uploadDir, paymentProofsDir, maintenancePhotosDir, avatarsDir].forEach((dir) => {
+const cloudStorage = !!process.env.VERCEL || process.env.UPLOAD_STORAGE === 'supabase';
+if (!cloudStorage) [uploadDir, paymentProofsDir, maintenancePhotosDir, avatarsDir].forEach((dir) => {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
     }
@@ -34,7 +35,7 @@ const storage = multer.diskStorage({
 
 // File filter (images and pdfs)
 const fileFilter = (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|webp|pdf|gif/;
+    const allowedTypes = /^(?:\.?(?:jpeg|jpg|png|webp|pdf|gif)|image\/(?:jpeg|png|webp|gif)|application\/pdf)$/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = allowedTypes.test(file.mimetype);
 
@@ -45,8 +46,8 @@ const fileFilter = (req, file, cb) => {
 };
 
 const upload = multer({
-    storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    storage: cloudStorage ? multer.memoryStorage() : storage,
+    limits: { fileSize: 3 * 1024 * 1024 }, // Below Vercel's 4.5MB request limit, with room for multipart fields.
     fileFilter
 });
 

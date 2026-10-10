@@ -2,13 +2,16 @@ const express = require('express');
 const path = require('node:path');
 const { authenticate } = require('../../middleware/auth');
 const { SupportStore } = require('../../services/supportStore');
+const { PostgresSupportStore } = require('../../services/postgresSupportStore');
 const { createSupportService } = require('../../services/supportService');
 const { createSystemAssistant } = require('../../services/systemAssistant');
 const User = require('../../models/User');
 const Notification = require('../../models/Notification');
 const models = Object.fromEntries(['Stall', 'Tenant', 'Payment', 'Maintenance', 'Application', 'Announcement'].map(name => [name, require(`../../models/${name}`)]));
 const service = createSupportService({
-    store: new SupportStore(process.env.SUPPORT_CHAT_FILE || path.join(__dirname, '../../../data/support-chat.json')),
+    store: process.env.VERCEL || process.env.SUPPORT_STORE === 'postgres'
+        ? new PostgresSupportStore()
+        : new SupportStore(process.env.SUPPORT_CHAT_FILE || path.join(__dirname, '../../../data/support-chat.json')),
     User, notify: data => Notification.create(data), answer: createSystemAssistant(models),
 });
 const router = express.Router();

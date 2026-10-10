@@ -161,7 +161,7 @@ class Payment {
         values.push(id);
         const result = await pool.query(
             `UPDATE payments SET ${fields.join(', ')}, updated_at = CURRENT_TIMESTAMP 
-             WHERE id = $${paramCount} RETURNING *`,
+             WHERE id = $${paramCount} AND status <> 'paid' AND paymongo_checkout_id IS NULL RETURNING *`,
             values
         );
 
@@ -225,7 +225,7 @@ class Payment {
      * Delete payment
      */
     static async delete(id) {
-        const result = await pool.query('DELETE FROM payments WHERE id = $1', [id]);
+        const result = await pool.query("DELETE FROM payments WHERE id = $1 AND status <> 'paid' AND paymongo_checkout_id IS NULL", [id]);
         return result.rowCount > 0;
     }
 
@@ -251,43 +251,40 @@ class Payment {
         // 1. Get all active tenants with their stall monthly rents
         const activeTenantsResult = await pool.query(`
             SELECT t.id as tenant_id, t.stall_id, t.name as tenant_name, 
-                   s.stall_number, s.monthly_rent, t.status, t.contract_start, t.contract_end
+                   s.stall_number, s.monthly_rent, s.rent_type, s.daily_rent, t.status, t.contract_start, t.contract_end
             FROM tenants t
             INNER JOIN stalls s ON t.stall_id = s.id
             WHERE t.status = 'active'
         `);
 
         const tenants = activeTenantsResult.rows.filter(t =>
-            t.status === 'active' && t.stall_id && t.stall_number &&
+            t.status === 'active' && t.rent_type !== 'daily' && t.stall_id && t.stall_number &&
             (!t.contract_start || dateOnly(t.contract_start) <= periodEnd) &&
             (!t.contract_end || dateOnly(t.contract_end) >= periodStart));
         const insertedBills = [];
         const dueDate = `${year}-${String(month).padStart(2, '0')}-28`; // Due on 28th of the specified month
 
         for (const tenant of tenants) {
-            // Check if bill already exists for this tenant and month/year
-            const checkResult = await pool.query(`
-                SELECT id FROM payments 
-                WHERE tenant_id = $1 
-                AND EXTRACT(MONTH FROM due_date) = $2 
-                AND EXTRACT(YEAR FROM due_date) = $3
-                AND stall_id = $4
-            `, [tenant.tenant_id, month, year, tenant.stall_id]);
-
+            const existing = await Payment.findByTenantId(tenant.tenant_id);
+            const checkResult = { rows: existing.filter(p => p.stall_id === tenant.stall_id &&
+                ((p.billing_type === 'monthly' && dateOnly(p.billing_period) === periodStart) ||
+                 (!p.billing_type && p.description?.startsWith('Monthly Lease Rent for ') && dateOnly(p.due_date).slice(0, 7) === periodStart.slice(0, 7)))) };
             if (checkResult.rows.length === 0) {
                 const insertResult = await pool.query(`
                     INSERT INTO payments 
-                    (tenant_id, stall_id, amount, due_date, status, description)
-                    VALUES ($1, $2, $3, $4, 'unpaid', $5)
+                    (tenant_id, stall_id, amount, due_date, status, description, billing_type, billing_period)
+                    VALUES ($1, $2, $3, $4, 'unpaid', $5, 'monthly', $6)
+                    ON CONFLICT DO NOTHING
                     RETURNING id
                 `, [
                     tenant.tenant_id,
                     tenant.stall_id,
                     tenant.monthly_rent,
                     dueDate,
-                    `Monthly Lease Rent for ${tenant.stall_number} (${month}/${year})`
+                    `Monthly Lease Rent for ${tenant.stall_number} (${month}/${year})`, periodStart
                 ]);
 
+                if (!insertResult.rows.length) continue;
                 insertedBills.push({
                     id: insertResult.rows[0].id,
                     stall: tenant.stall_number,
@@ -297,6 +294,52 @@ class Payment {
         }
 
         return insertedBills;
+    }
+
+    static async generateDailyBills(date) {
+        if (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isFinite(Date.parse(date)) || new Date(date).toISOString().slice(0, 10) !== date) throw new RangeError('A valid billing date is required.');
+        return pool.withTransaction(async client => {
+            await client.query('SELECT pg_advisory_xact_lock(739105)');
+            const result = await pool.query(`SELECT t.id as tenant_id, t.stall_id, t.status, t.contract_start, t.contract_end,
+                s.stall_number, s.rent_type, s.daily_rent FROM tenants t INNER JOIN stalls s ON t.stall_id = s.id WHERE t.status = 'active'`);
+            const day = v => v instanceof Date ? `${v.getFullYear()}-${String(v.getMonth()+1).padStart(2,'0')}-${String(v.getDate()).padStart(2,'0')}` : String(v).slice(0,10);
+            const bills = [];
+            for (const t of result.rows) {
+                if (t.status !== 'active' || t.rent_type !== 'daily' || !t.stall_id || !t.stall_number ||
+                    (t.contract_start && day(t.contract_start) > date) || (t.contract_end && day(t.contract_end) < date)) continue;
+                if (!Number.isFinite(Number(t.daily_rent)) || Number(t.daily_rent) <= 0) throw new Error('Daily lease has no valid daily rate.');
+                const existing = await Payment.findByTenantId(t.tenant_id);
+                if (existing.some(p => p.stall_id === t.stall_id && p.billing_type === 'daily' && day(p.billing_period) === date)) continue;
+                const inserted = await pool.query(`INSERT INTO payments
+                    (tenant_id, stall_id, amount, due_date, status, description, billing_type, billing_period)
+                    VALUES ($1,$2,$3,$4,'unpaid',$5,'daily',$6) ON CONFLICT DO NOTHING RETURNING id`,
+                    [t.tenant_id,t.stall_id,t.daily_rent,date,`Daily Lease Rent for ${t.stall_number} (${date})`,date]);
+                if (inserted.rows.length) bills.push({ id: inserted.rows[0].id, stall: t.stall_number, amount: t.daily_rent });
+            }
+            return bills;
+        });
+    }
+
+    static async recordOfficePayment(id, amount, receipt, adminId) {
+        return pool.withTransaction(async client => {
+            await client.query('SELECT id FROM payments WHERE id = $1 FOR UPDATE', [id]);
+            const payment = await Payment.findById(id);
+            const fail = (status, message) => { throw Object.assign(new Error(message), { status }); };
+            if (!payment) fail(404, 'Invoice not found.');
+            if (payment.status === 'paid') fail(409, 'This invoice is already paid.');
+            if (payment.status === 'pending_verification' || payment.paymongo_checkout_id) fail(409, 'Resolve the existing online checkout or submitted payment proof before accepting cash for this invoice.');
+            if (!['unpaid','overdue'].includes(payment.status)) fail(409, 'This invoice is not eligible for a full cash settlement.');
+            const total = Math.round((Number(payment.amount) + Number(payment.late_fee || 0)) * 100);
+            if (!Number.isFinite(Number(amount)) || Number(amount) <= 0 || Math.abs(Number(amount)*100 - total) > 0.000001) fail(400, 'Amount received must match the full invoice balance, including late fees.');
+            if (typeof receipt !== 'string' || !receipt.trim() || receipt.trim().length > 100) fail(400, 'Enter the office receipt number (up to 100 characters).');
+            receipt = receipt.trim();
+            const records = await Payment.findAll();
+            if (records.some(p => p.payment_method === 'cash_office' && p.status === 'paid' && p.reference_number?.toLowerCase() === receipt.toLowerCase())) fail(409, 'That office receipt number is already recorded.');
+            await pool.query(`UPDATE payments SET status = 'paid', payment_date = CURRENT_DATE,
+                payment_method = 'cash_office', reference_number = $1, received_by = $2, updated_at = CURRENT_TIMESTAMP
+                WHERE id = $3 RETURNING *`, [receipt, adminId, id]);
+            return Payment.findById(id);
+        });
     }
 
     /**
@@ -310,7 +353,7 @@ class Payment {
                 COALESCE(SUM(CASE WHEN status = 'unpaid' THEN 1 ELSE 0 END), 0) as unpaid,
                 COALESCE(SUM(CASE WHEN status = 'overdue' THEN 1 ELSE 0 END), 0) as overdue,
                 COALESCE(SUM(CASE WHEN status = 'pending_verification' THEN 1 ELSE 0 END), 0) as pending_verification,
-                COALESCE(SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END), 0) as total_collected,
+                COALESCE(SUM(CASE WHEN status = 'paid' THEN amount + COALESCE(late_fee, 0) ELSE 0 END), 0) as total_collected,
                 COALESCE(SUM(CASE WHEN status IN ('unpaid', 'overdue') THEN amount + COALESCE(late_fee, 0) ELSE 0 END), 0) as total_outstanding,
                 COALESCE(SUM(CASE WHEN status IN ('unpaid', 'overdue') AND (due_date = CURRENT_DATE OR due_date < CURRENT_DATE) THEN amount + COALESCE(late_fee, 0) ELSE 0 END), 0) as today_unpaid_amount,
                 COALESCE(SUM(CASE WHEN status IN ('unpaid', 'overdue') AND (due_date = CURRENT_DATE OR due_date < CURRENT_DATE) THEN 1 ELSE 0 END), 0) as today_unpaid_count
@@ -329,7 +372,7 @@ class Payment {
                 COALESCE(SUM(CASE WHEN status = 'paid' THEN 1 ELSE 0 END), 0) as paid_count,
                 COALESCE(SUM(CASE WHEN status = 'unpaid' THEN 1 ELSE 0 END), 0) as unpaid_count,
                 COALESCE(SUM(CASE WHEN status = 'overdue' THEN 1 ELSE 0 END), 0) as overdue_count,
-                COALESCE(SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END), 0) as total_paid,
+                COALESCE(SUM(CASE WHEN status = 'paid' THEN amount + COALESCE(late_fee, 0) ELSE 0 END), 0) as total_paid,
                 COALESCE(SUM(CASE WHEN status IN ('unpaid', 'overdue') THEN amount + COALESCE(late_fee, 0) ELSE 0 END), 0) as total_balance
             FROM payments
             WHERE tenant_id = $1
@@ -368,7 +411,7 @@ class Payment {
             END,
             status = 'overdue',
             updated_at = CURRENT_TIMESTAMP
-            WHERE status = 'unpaid' 
+            WHERE status = 'unpaid' AND paymongo_checkout_id IS NULL
             AND due_date < CURRENT_DATE
             RETURNING id, late_fee
         `);
@@ -385,7 +428,7 @@ class Payment {
                 COALESCE(SUM(CASE WHEN status = 'paid' THEN 1 ELSE 0 END), 0) as paid_count,
                 COALESCE(SUM(CASE WHEN status = 'unpaid' THEN 1 ELSE 0 END), 0) as unpaid_count,
                 COALESCE(SUM(CASE WHEN status = 'overdue' THEN 1 ELSE 0 END), 0) as overdue_count,
-                COALESCE(SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END), 0) as total_collected,
+                COALESCE(SUM(CASE WHEN status = 'paid' THEN amount + COALESCE(late_fee, 0) ELSE 0 END), 0) as total_collected,
                 COALESCE(SUM(CASE WHEN status IN ('unpaid', 'overdue') THEN amount + COALESCE(late_fee, 0) ELSE 0 END), 0) as total_outstanding
             FROM payments
             WHERE EXTRACT(MONTH FROM due_date) = $1 
@@ -409,11 +452,11 @@ class Payment {
         // 1. Quick Glance Real-Time Metrics
         const quickGlanceRes = await pool.query(`
             SELECT 
-                COALESCE(SUM(CASE WHEN (DATE(payment_date) = CURRENT_DATE OR (payment_date IS NULL AND DATE(updated_at) = CURRENT_DATE)) AND status = 'paid' THEN amount ELSE 0 END), 0) as today_collected,
-                COALESCE(SUM(CASE WHEN (payment_date >= CURRENT_DATE - INTERVAL '7 days' OR updated_at >= CURRENT_DATE - INTERVAL '7 days') AND status = 'paid' THEN amount ELSE 0 END), 0) as week_collected,
-                COALESCE(SUM(CASE WHEN EXTRACT(MONTH FROM COALESCE(payment_date, updated_at)) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM COALESCE(payment_date, updated_at)) = EXTRACT(YEAR FROM CURRENT_DATE) AND status = 'paid' THEN amount ELSE 0 END), 0) as month_collected,
-                COALESCE(SUM(CASE WHEN EXTRACT(YEAR FROM COALESCE(payment_date, updated_at)) = $1 AND status = 'paid' THEN amount ELSE 0 END), 0) as year_collected,
-                COALESCE(SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END), 0) as all_time_collected,
+                COALESCE(SUM(CASE WHEN (DATE(payment_date) = CURRENT_DATE OR (payment_date IS NULL AND DATE(updated_at) = CURRENT_DATE)) AND status = 'paid' THEN amount + COALESCE(late_fee, 0) ELSE 0 END), 0) as today_collected,
+                COALESCE(SUM(CASE WHEN (payment_date >= CURRENT_DATE - INTERVAL '7 days' OR updated_at >= CURRENT_DATE - INTERVAL '7 days') AND status = 'paid' THEN amount + COALESCE(late_fee, 0) ELSE 0 END), 0) as week_collected,
+                COALESCE(SUM(CASE WHEN EXTRACT(MONTH FROM COALESCE(payment_date, updated_at)) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM COALESCE(payment_date, updated_at)) = EXTRACT(YEAR FROM CURRENT_DATE) AND status = 'paid' THEN amount + COALESCE(late_fee, 0) ELSE 0 END), 0) as month_collected,
+                COALESCE(SUM(CASE WHEN EXTRACT(YEAR FROM COALESCE(payment_date, updated_at)) = $1 AND status = 'paid' THEN amount + COALESCE(late_fee, 0) ELSE 0 END), 0) as year_collected,
+                COALESCE(SUM(CASE WHEN status = 'paid' THEN amount + COALESCE(late_fee, 0) ELSE 0 END), 0) as all_time_collected,
                 COALESCE(SUM(CASE WHEN status IN ('unpaid', 'overdue') THEN amount + COALESCE(late_fee, 0) ELSE 0 END), 0) as total_outstanding,
                 COUNT(CASE WHEN status = 'paid' THEN 1 END) as paid_count,
                 COUNT(CASE WHEN status IN ('unpaid', 'overdue') THEN 1 END) as unpaid_count,
@@ -431,7 +474,7 @@ class Payment {
             SELECT 
                 COALESCE(payment_method, 'unsettled') as method,
                 COUNT(*) as count,
-                COALESCE(SUM(amount), 0) as total_amount
+                COALESCE(SUM(amount + COALESCE(late_fee, 0)), 0) as total_amount
             FROM payments
             WHERE status = 'paid'
             GROUP BY payment_method
@@ -447,8 +490,8 @@ class Payment {
                 SELECT 
                     TO_CHAR(d.date, 'Mon DD') as label,
                     TO_CHAR(d.date, 'YYYY-MM-DD') as full_date,
-                    COALESCE(SUM(CASE WHEN p.status = 'paid' THEN p.amount ELSE 0 END), 0) as collected,
-                    COALESCE(SUM(p.amount), 0) as expected,
+                    COALESCE(SUM(CASE WHEN p.status = 'paid' THEN p.amount + COALESCE(p.late_fee, 0) ELSE 0 END), 0) as collected,
+                    COALESCE(SUM(p.amount + COALESCE(p.late_fee, 0)), 0) as expected,
                     COUNT(p.id) as count
                 FROM (
                     SELECT CURRENT_DATE - (n || ' days')::interval as date
@@ -464,8 +507,8 @@ class Payment {
             const weeklyRes = await pool.query(`
                 SELECT 
                     'Week ' || TO_CHAR(w.week_start, 'WW (Mon DD)') as label,
-                    COALESCE(SUM(CASE WHEN p.status = 'paid' THEN p.amount ELSE 0 END), 0) as collected,
-                    COALESCE(SUM(p.amount), 0) as expected,
+                    COALESCE(SUM(CASE WHEN p.status = 'paid' THEN p.amount + COALESCE(p.late_fee, 0) ELSE 0 END), 0) as collected,
+                    COALESCE(SUM(p.amount + COALESCE(p.late_fee, 0)), 0) as expected,
                     COUNT(p.id) as count
                 FROM (
                     SELECT (DATE_TRUNC('week', CURRENT_DATE) - (n || ' weeks')::interval)::date as week_start
@@ -481,8 +524,8 @@ class Payment {
             const yearlyRes = await pool.query(`
                 SELECT 
                     y.year::text as label,
-                    COALESCE(SUM(CASE WHEN p.status = 'paid' THEN p.amount ELSE 0 END), 0) as collected,
-                    COALESCE(SUM(p.amount), 0) as expected,
+                    COALESCE(SUM(CASE WHEN p.status = 'paid' THEN p.amount + COALESCE(p.late_fee, 0) ELSE 0 END), 0) as collected,
+                    COALESCE(SUM(p.amount + COALESCE(p.late_fee, 0)), 0) as expected,
                     COUNT(p.id) as count
                 FROM (
                     SELECT generate_series($1 - 3, $1 + 1) as year
@@ -498,9 +541,9 @@ class Payment {
                 SELECT 
                     TO_CHAR(TO_DATE(m.month::text, 'MM'), 'Mon') as label,
                     m.month as month_num,
-                    COALESCE(SUM(CASE WHEN p.status = 'paid' THEN p.amount ELSE 0 END), 0) as collected,
-                    COALESCE(SUM(p.amount), 0) as expected,
-                    COALESCE(SUM(CASE WHEN p.status IN ('unpaid', 'overdue') THEN p.amount ELSE 0 END), 0) as outstanding,
+                    COALESCE(SUM(CASE WHEN p.status = 'paid' THEN p.amount + COALESCE(p.late_fee, 0) ELSE 0 END), 0) as collected,
+                    COALESCE(SUM(p.amount + COALESCE(p.late_fee, 0)), 0) as expected,
+                    COALESCE(SUM(CASE WHEN p.status IN ('unpaid', 'overdue') THEN p.amount + COALESCE(p.late_fee, 0) ELSE 0 END), 0) as outstanding,
                     COUNT(p.id) as count
                 FROM (
                     SELECT generate_series(1, 12) as month
@@ -534,7 +577,7 @@ class Payment {
                 s.location as stall_location,
                 s.size as stall_size,
                 s.monthly_rent,
-                CASE WHEN s.description LIKE '[Billing: DAILY]%' THEN 'daily' ELSE 'monthly' END as rent_type,
+                s.rent_type, s.daily_rent,
                 s.status as stall_status,
                 t.id as tenant_id,
                 t.name as tenant_name,
@@ -571,7 +614,7 @@ class Payment {
                 SELECT 
                     SUM(CASE WHEN status IN ('unpaid', 'overdue') THEN amount + COALESCE(late_fee, 0) ELSE 0 END) as total_unpaid_amount,
                     SUM(CASE WHEN status IN ('unpaid', 'overdue') THEN 1 ELSE 0 END) as unpaid_invoices_count,
-                    SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) as total_paid_amount,
+                    SUM(CASE WHEN status = 'paid' THEN amount + COALESCE(late_fee, 0) ELSE 0 END) as total_paid_amount,
                     SUM(CASE WHEN status = 'paid' THEN 1 ELSE 0 END) as paid_invoices_count,
                     MAX(CASE WHEN status = 'paid' THEN payment_date ELSE NULL END) as latest_payment_date,
                     (SELECT payment_method FROM payments WHERE (stall_id = s.id OR tenant_id = t.id) AND status = 'paid' ORDER BY payment_date DESC, created_at DESC LIMIT 1) as latest_payment_method,

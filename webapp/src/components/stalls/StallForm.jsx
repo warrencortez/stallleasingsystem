@@ -34,8 +34,8 @@ const StallForm = () => {
             const response = await stallAPI.getById(id);
             const stall = response.data.data;
             
-            const isDaily = stall.description?.includes('[Billing: DAILY]');
-            const rentVal = stall.monthly_rent || '';
+            const isDaily = stall.rent_type === 'daily';
+            const rentVal = (isDaily ? stall.daily_rent : stall.monthly_rent) || '';
 
             setFormData({
                 stall_number: stall.stall_number || '',
@@ -88,6 +88,7 @@ const StallForm = () => {
                 size: formData.size.trim(),
                 rent_type: formData.rent_type,
                 monthly_rent: effectiveRent,
+                daily_rent: formData.rent_type === 'daily' ? effectiveRent : null,
                 status: formData.status,
                 description: formData.description.trim(),
                 image_url: formData.image_url
@@ -215,6 +216,7 @@ const StallForm = () => {
                                         </label>
                                     </div>
                                 </div>
+                                <small className="text-muted d-block mt-2">Billing starts after an active lease begins: next day for daily rent, or the same day next month for monthly rent. Vacant stalls are not billed.</small>
                             </div>
 
                             {/* Rate Amount */}

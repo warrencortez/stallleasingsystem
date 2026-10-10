@@ -285,8 +285,8 @@ const StallsScreen = ({ navigation, route }) => {
 
                 <View style={styles.stallSpecsRow}>
                     <View style={styles.specBox}>
-                        <Text style={styles.specLabel}>Monthly Rate</Text>
-                        <Text style={styles.specValueRate}>₱{Number(item.monthly_rent).toLocaleString()}/mo</Text>
+                        <Text style={styles.specLabel}>{item.rent_type === 'daily' ? 'Daily Rate' : 'Monthly Rate'}</Text>
+                        <Text style={styles.specValueRate}>₱{Number((item.rent_type === 'daily' ? item.daily_rent : item.monthly_rent)).toLocaleString()}/{item.rent_type === 'daily' ? 'day' : 'mo'}</Text>
                     </View>
                     <View style={styles.specBox}>
                         <Text style={styles.specLabel}>Size / Dimensions</Text>
@@ -443,9 +443,9 @@ const StallsScreen = ({ navigation, route }) => {
 
                             <View style={styles.detailGrid}>
                                 <View style={styles.detailGridBox}>
-                                    <Text style={styles.specLabel}>Monthly Lease</Text>
+                                    <Text style={styles.specLabel}>{selectedDetailStall?.rent_type === 'daily' ? 'Daily Lease' : 'Monthly Lease'}</Text>
                                     <Text style={styles.detailRentValue}>
-                                        ₱{Number(selectedDetailStall?.monthly_rent || 0).toLocaleString()}
+                                        ₱{Number((selectedDetailStall?.rent_type === 'daily' ? selectedDetailStall?.daily_rent : selectedDetailStall?.monthly_rent) || 0).toLocaleString()}
                                     </Text>
                                 </View>
                                 <View style={styles.detailGridBox}>
@@ -541,7 +541,7 @@ const StallsScreen = ({ navigation, route }) => {
                         <ScrollView showsVerticalScrollIndicator={false}>
                             <View style={styles.rateAlert}>
                                 <Text style={styles.rateAlertText}>
-                                    Monthly Rate: ₱{Number(selectedStall?.monthly_rent || 0).toLocaleString()}
+                                    {selectedStall?.rent_type === 'daily' ? 'Daily Rate: ' : 'Monthly Rate: '}₱{Number((selectedStall?.rent_type === 'daily' ? selectedStall?.daily_rent : selectedStall?.monthly_rent) || 0).toLocaleString()}
                                 </Text>
                             </View>
 

@@ -14,9 +14,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { setCustomServerIP } from '../../config/api';
 import { theme } from '../../styles/theme';
+import { googleAccessToken } from '../../config/googleAuth';
 
 const LoginScreen = ({ navigation }) => {
-    const { login } = useAuth();
+    const { login, loginWithGoogle } = useAuth();
+    const [pendingGoogleToken, setPendingGoogleToken] = useState(null);
+    const [linkPassword, setLinkPassword] = useState('');
+    const [connectExisting, setConnectExisting] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [serverIp, setServerIp] = useState('');
@@ -56,6 +60,30 @@ const LoginScreen = ({ navigation }) => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleGoogle = async () => {
+        if (connectExisting && (!email.trim() || !password)) {
+            Alert.alert('Existing Account', 'Enter your mobile number or email and password above, then connect Google.');
+            return;
+        }
+        setLoading(true);
+        try {
+            const token = pendingGoogleToken || await googleAccessToken();
+            if (!token) return;
+            let identifier = email.trim();
+            if (!identifier.includes('@')) {
+                let digits = identifier.replace(/[^0-9]/g, '');
+                if (digits.startsWith('63')) digits = digits.slice(2);
+                identifier = `+63${digits.replace(/^0+/, '')}`;
+            }
+            const result = await loginWithGoogle(token, connectExisting ? password : pendingGoogleToken ? linkPassword : undefined,
+                connectExisting ? identifier : undefined);
+            if (result.code === 'GOOGLE_LINK_REQUIRED') setPendingGoogleToken(token);
+            else if (!result.success) Alert.alert('Google Sign-in', result.message);
+            else { setPendingGoogleToken(null); setLinkPassword(''); }
+        } catch (error) { Alert.alert('Google Sign-in', error.message || 'Unable to sign in. Please try again.'); }
+        finally { setLoading(false); }
     };
 
     const handleSaveServerIP = async () => {
@@ -119,13 +147,33 @@ const LoginScreen = ({ navigation }) => {
                         )}
                     </TouchableOpacity>
 
-                    <TouchableOpacity
+                    {pendingGoogleToken && (
+                        <View style={{ marginTop: 16 }}>
+                            <Text style={styles.label}>Connect your existing account</Text>
+                            <Text style={{ marginBottom: 8 }}>Enter your current account password to connect Google.</Text>
+                            <TextInput style={styles.inputContainer} value={linkPassword} onChangeText={setLinkPassword}
+                                placeholder="Existing account password" secureTextEntry autoCapitalize="none" />
+                            <TouchableOpacity disabled={loading} onPress={() => { setPendingGoogleToken(null); setLinkPassword(''); }}>
+                                <Text style={styles.registerLink}>Cancel connecting Google</Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
+                    {!pendingGoogleToken && <TouchableOpacity disabled={loading} style={{ marginTop: 16 }} onPress={() => setConnectExisting(!connectExisting)}>
+                        <Text style={styles.registerLink}>{connectExisting ? '✓ Connect Google to my existing tenant account' : 'Already registered by phone? Connect your account to Google'}</Text>
+                        {connectExisting && <Text>Enter your existing login details above before continuing.</Text>}
+                    </TouchableOpacity>}
+                    <TouchableOpacity style={[styles.loginButton, { marginTop: 12, backgroundColor: '#fff', borderWidth: 1, borderColor: '#cbd5e1' }]}
+                        disabled={loading || (!!pendingGoogleToken && !linkPassword)} onPress={handleGoogle}>
+                        <Text style={[styles.loginButtonText, { color: '#334155' }]}>{pendingGoogleToken ? 'Connect Google and Sign In' : 'Continue with Google'}</Text>
+                    </TouchableOpacity>
+
+                    {__DEV__ && !process.env.EXPO_PUBLIC_API_URL && <TouchableOpacity
                         style={styles.ipToggle}
                         onPress={() => setShowIpConfig(!showIpConfig)}
                     >
                         <Ionicons name="settings-outline" size={14} color={theme.colors.textMuted} />
                         <Text style={styles.ipToggleText}>Server Host Network Config</Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity>}
 
                     {showIpConfig && (
                         <View style={styles.ipBox}>

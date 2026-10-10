@@ -140,7 +140,6 @@ const UserList = () => {
                         >
                             <option value="">All Roles</option>
                             <option value="admin">Administrators</option>
-                            <option value="staff">Staff Members</option>
                             <option value="tenant">Tenants / Owners</option>
                         </select>
                     </div>
@@ -266,7 +265,6 @@ const UserList = () => {
                                                 onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
                                             >
                                                 <option value="admin">Admin</option>
-                                                <option value="staff">Staff</option>
                                                 <option value="tenant">Tenant</option>
                                             </select>
                                         </div>

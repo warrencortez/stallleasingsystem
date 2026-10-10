@@ -6,6 +6,7 @@ import api from './axiosConfig';
 export const authAPI = {
     register: (data) => api.post('/auth/register', data),
     login: (data) => api.post('/auth/login', data),
+    google: (data) => api.post('/auth/google', { ...data, audience: 'admin' }),
     getMe: () => api.get('/auth/me'),
     logout: () => api.post('/auth/logout'),
     updateProfile: (data) => api.put('/auth/profile', data),
@@ -71,6 +72,7 @@ export const paymentAPI = {
         }
         return api.patch(`/payments/${id}/record`, formDataOrData);
     },
+    recordOfficePayment: (id, data) => api.post(`/payments/${id}/office-payment`, data),
     createPaymongoCheckout: (id) => api.post(`/payments/${id}/paymongo-checkout`),
     verifyPaymongo: (id, data) => api.post(`/payments/${id}/verify-paymongo`, data),
     getStats: () => api.get('/payments/stats'),
@@ -78,6 +80,7 @@ export const paymentAPI = {
     getOverdue: () => api.get('/payments/overdue'),
     getReport: (month, year) => api.get('/payments/report', { params: { month, year } }),
     getAnalytics: (params) => api.get('/payments/analytics', { params }),
+    getBillingStatus: () => api.get('/payments/billing-status'),
     generateBills: (data) => api.post('/payments/generate-bills', data),
     applyLateFees: () => api.post('/payments/apply-late-fees'),
     getTenantSummary: (tenantId) => api.get(`/payments/tenant/${tenantId}/summary`),

@@ -8,8 +8,7 @@ import {
     Modal,
     ActivityIndicator,
     Alert,
-    ScrollView,
-    TextInput
+    ScrollView
 } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import { Ionicons } from '@expo/vector-icons';
@@ -30,6 +29,7 @@ const PAYMENT_CHANNELS = [
 const BillingScreen = () => {
     const { user } = useAuth();
     const [loadError, setLoadError] = useState('');
+    const [onlineStatus, setOnlineStatus] = useState({ready:false});
     const [payments, setPayments] = useState([]);
     const [tenantProfile, setTenantProfile] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -38,8 +38,6 @@ const BillingScreen = () => {
     // Payment Checkout Modal
     const [selectedPayment, setSelectedPayment] = useState(null);
     const [showPayModal, setShowPayModal] = useState(false);
-    const [selectedChannel, setSelectedChannel] = useState('gcash');
-    const [customRefNumber, setCustomRefNumber] = useState('');
     const [processingPayment, setProcessingPayment] = useState(false);
 
     // Digital Receipt Modal
@@ -58,13 +56,15 @@ const BillingScreen = () => {
     const loadBilling = async (isInitial = false) => {
         try {
             if (isInitial) setLoading(true);
-            const [tenRes, payRes] = await Promise.allSettled([
+            const [tenRes, payRes, onlineRes] = await Promise.allSettled([
                 api.get('/tenants'),
-                api.get('/payments')
+                api.get('/payments'),
+                api.get('/payments/online-status')
             ]);
 
             if (payRes.status === 'rejected') throw payRes.reason;
             setLoadError('');
+            setOnlineStatus(onlineRes.status==='fulfilled' ? onlineRes.value.data.data : {ready:false,message:'Unable to check online payment availability. Please retry.'});
             let myTenant = null;
             if (tenRes.status === 'fulfilled' && tenRes.value.data?.success) {
                 const list = tenRes.value.data.data || [];
@@ -86,42 +86,12 @@ const BillingScreen = () => {
     // Open Payment Channel Modal
     const handleOpenPayModal = (payment) => {
         setSelectedPayment(payment);
-        setSelectedChannel('gcash');
-        setCustomRefNumber('');
         setShowPayModal(true);
-    };
-
-    // Execute Payment Settlement
-    const handleConfirmPayment = async () => {
-        if (!selectedPayment) return;
-        try {
-            setProcessingPayment(true);
-            const refNo = customRefNumber.trim();
-            if (!refNo) { Alert.alert('Reference required', 'Enter the reference from your actual payment.'); return; }
-            
-            // Record payment to backend
-            const res = await api.patch(`/payments/${selectedPayment.id}/record`, {
-                payment_method: selectedChannel,
-                reference_number: refNo
-            });
-
-            if (res.data?.success) {
-                setShowPayModal(false);
-                Alert.alert('Submitted for review', 'Your payment is pending staff verification. A receipt will be available once it is approved.');
-                loadBilling(false);
-            } else {
-                Alert.alert('Payment Error', res.data?.message || 'Failed to complete transaction.');
-            }
-        } catch (error) {
-            Alert.alert('Error', error.response?.data?.message || 'Failed to process payment with server.');
-        } finally {
-            setProcessingPayment(false);
-        }
     };
 
     // Pay with PayMongo Gateway Browser Checkout
     const handlePaymongoGatewayCheckout = async () => {
-        if (!selectedPayment) return;
+        if (!selectedPayment || !onlineStatus.ready) return;
         try {
             setProcessingPayment(true);
             const res = await api.post(`/payments/${selectedPayment.id}/paymongo-checkout`);
@@ -176,7 +146,7 @@ const BillingScreen = () => {
                 onPress={() => handleOpenPayModal(item)}
             >
                 <Ionicons name="card" size={18} color="#fff" />
-                <Text style={styles.paymongoBtnText}>Select Payment Method & Pay</Text>
+                <Text style={styles.paymongoBtnText}>Pay Rent</Text>
             </TouchableOpacity>
             <Text style={styles.paymongoChannelsText}>
                 Supports GCash • Maya • BPI Online • GrabPay • Debit/Credit Cards
@@ -302,8 +272,8 @@ const BillingScreen = () => {
                                     <Text style={styles.leaseVal}>{tenantProfile.business_name}</Text>
                                 </View>
                                 <View style={styles.leaseRow}>
-                                    <Text style={styles.leaseLabel}>Monthly Rent:</Text>
-                                    <Text style={styles.leaseValRate}>₱{Number(tenantProfile.monthly_rent).toLocaleString()}</Text>
+                                    <Text style={styles.leaseLabel}>{tenantProfile.rent_type === 'daily' ? 'Daily Rent:' : 'Monthly Rent:'}</Text>
+                                    <Text style={styles.leaseValRate}>₱{Number((tenantProfile.rent_type === 'daily' ? tenantProfile.daily_rent : tenantProfile.monthly_rent)).toLocaleString()}</Text>
                                 </View>
                                 <View style={styles.leaseRow}>
                                     <Text style={styles.leaseLabel}>Lease Period:</Text>
@@ -335,72 +305,21 @@ const BillingScreen = () => {
                         <View style={styles.sheetHandle} />
 
                         <View style={styles.payModalHeader}>
-                            <Text style={styles.payModalTitle}>Select Payment Method</Text>
+                            <Text style={styles.payModalTitle}>Pay Rent</Text>
                             <Text style={styles.payModalSub}>
                                 Settling rent for <Text style={{ fontWeight: 'bold', color: theme.colors.primary }}>{selectedPayment?.stall_number}</Text> (₱{(Number(selectedPayment?.amount || 0) + Number(selectedPayment?.late_fee || 0)).toLocaleString()})
                             </Text>
                         </View>
 
-                        <ScrollView style={{ maxHeight: 320 }} showsVerticalScrollIndicator={false}>
-                            {PAYMENT_CHANNELS.map((ch) => {
-                                const isSelected = selectedChannel === ch.id;
-                                return (
-                                    <TouchableOpacity
-                                        key={ch.id}
-                                        style={[styles.channelOption, isSelected && styles.channelOptionSelected]}
-                                        onPress={() => setSelectedChannel(ch.id)}
-                                    >
-                                        <View style={[styles.channelIconBox, { backgroundColor: ch.color + '15' }]}>
-                                            <Ionicons name={ch.icon} size={20} color={ch.color} />
-                                        </View>
-                                        <Text style={[styles.channelLabel, isSelected && styles.channelLabelSelected]}>
-                                            {ch.label}
-                                        </Text>
-                                        {isSelected && (
-                                            <Ionicons name="checkmark-circle" size={22} color={theme.colors.primary} />
-                                        )}
-                                    </TouchableOpacity>
-                                );
-                            })}
-                        </ScrollView>
-
-                        {/* Reference Number Field */}
-                        <View style={styles.refInputContainer}>
-                            <Text style={styles.refInputLabel}>Receipt / Bank Reference No.</Text>
-                            <TextInput
-                                style={styles.refInput}
-                                value={customRefNumber}
-                                onChangeText={setCustomRefNumber}
-                                placeholder="e.g. GCASH-10928374"
-                                placeholderTextColor="#94a3b8"
-                            />
-                        </View>
-
+                        {!onlineStatus.ready && <Text style={styles.payModalSub}>{onlineStatus.message || 'Checking online payment availability...'}</Text>}
+                        {onlineStatus.testMode && <Text style={styles.payModalSub}>Test payments only. No real money will be collected.</Text>}
+                        <Text style={styles.payModalSub}>Pay online through PayMongo. Choose an available payment method on its secure checkout page. Your payment is confirmed automatically; no receipt upload or bank reference is needed.</Text>
                         <View style={styles.payActionsRow}>
-                            <TouchableOpacity
-                                style={styles.confirmPayBtn}
-                                onPress={handleConfirmPayment}
-                                disabled={processingPayment}
-                            >
-                                {processingPayment ? (
-                                    <ActivityIndicator size="small" color="#fff" />
-                                ) : (
-                                    <>
-                                        <Ionicons name="checkmark-done" size={18} color="#fff" />
-                                        <Text style={styles.confirmPayBtnText}>Submit for Verification</Text>
-                                    </>
-                                )}
-                            </TouchableOpacity>
-
-                            <TouchableOpacity
-                                style={styles.paymongoGatewayBtn}
-                                onPress={handlePaymongoGatewayCheckout}
-                                disabled={processingPayment}
-                            >
-                                <Ionicons name="globe-outline" size={16} color="#059669" />
-                                <Text style={styles.paymongoGatewayBtnText}>PayMongo Portal</Text>
+                            <TouchableOpacity style={styles.confirmPayBtn} onPress={handlePaymongoGatewayCheckout} disabled={processingPayment || !onlineStatus.ready}>
+                                {processingPayment ? <ActivityIndicator color="#fff" /> : <Text style={styles.confirmPayBtnText}>Continue to PayMongo</Text>}
                             </TouchableOpacity>
                         </View>
+                        <Text style={styles.payModalSub}>Prefer to pay in person? Visit the HOA office with this bill. The administrator will record your cash payment and issue a receipt.</Text>
 
                         <TouchableOpacity
                             style={styles.cancelPayBtn}

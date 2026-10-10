@@ -373,7 +373,7 @@ const Reports = () => {
                                             <div key={idx} className="d-flex align-items-center justify-content-between">
                                                 <div className="d-flex align-items-center gap-2">
                                                     <span className="rounded-circle" style={{ width: 10, height: 10, backgroundColor: COLORS[idx % COLORS.length] }}></span>
-                                                    <span className="text-capitalize text-dark fw-medium">{pm.method.replace('_', ' ')}</span>
+                                                    <span className="text-capitalize text-dark fw-medium">{String(pm.method || 'Unknown').replaceAll('_', ' ')}</span>
                                                 </div>
                                                 <span className="fw-bold text-dark">₱{Number(pm.total_amount).toLocaleString()}</span>
                                             </div>

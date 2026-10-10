@@ -9,6 +9,7 @@ class User {
      */
     static async create(userData) {
         const { name, email, password, role, phone, address } = userData;
+        if (role && !['admin', 'tenant'].includes(role)) throw new Error('Unsupported account role');
         
         // Hash the password (encrypt it)
         const saltRounds = 10;

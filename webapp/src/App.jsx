@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import GoogleCallback from './components/auth/GoogleCallback';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/common/Navbar';
 import Sidebar from './components/common/Sidebar';
 import Login from './components/auth/Login';
+import AccountSettings from './components/auth/AccountSettings';
 import Dashboard from './components/dashboard/Dashboard';
 import StallList from './components/stalls/StallList';
 import StallForm from './components/stalls/StallForm';
@@ -30,6 +32,9 @@ import './styles/global.css';
 const AppContent = () => {
     const { isAuthenticated, loading, isAdmin, user } = useAuth();
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const location = useLocation();
+
+    if (location.pathname === '/auth/callback') return <GoogleCallback />;
 
     if (loading) {
         return (
@@ -61,6 +66,7 @@ const AppContent = () => {
                 <main className="content-container">
                     <Routes>
                         {/* Administrator Routes */}
+                        <Route path="/account" element={<AccountSettings />} />
                         <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/stalls" element={<StallList />} />
                         <Route path="/stalls/new" element={<StallForm />} />

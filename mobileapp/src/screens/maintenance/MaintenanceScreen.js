@@ -29,6 +29,7 @@ const MaintenanceScreen = ({ navigation, route }) => {
 
     // Create Modal
     const [showModal, setShowModal] = useState(false);
+    const [loadError, setLoadError] = useState('');
     const [title, setTitle] = useState('');
     const [category, setCategory] = useState('general');
     const [priority, setPriority] = useState('medium');
@@ -56,23 +57,12 @@ const MaintenanceScreen = ({ navigation, route }) => {
         loadViewed();
     }, [user?.id]);
 
-    // Instantly refresh tickets when navigating into Fix Hub
-    useFocusEffect(
-        useCallback(() => {
-            loadData(true);
-        }, [user?.email])
-    );
-
-    useEffect(() => {
+    // Refresh only while this tab is focused.
+    useFocusEffect(useCallback(() => {
         loadData();
-
-        // Fast auto-poll every 2.5 seconds so status changes reflect in real time
-        const interval = setInterval(() => {
-            loadData(true);
-        }, 2500);
-
+        const interval = setInterval(() => loadData(true), 10000);
         return () => clearInterval(interval);
-    }, []);
+    }, [user?.id]));
 
     // Auto-open highlighted ticket when navigated from banner
     useEffect(() => {
@@ -94,6 +84,11 @@ const MaintenanceScreen = ({ navigation, route }) => {
                 api.get('/stalls')
             ]);
 
+            if (mainRes.status !== 'fulfilled' || !mainRes.value.data?.success || tenRes.status !== 'fulfilled' || !tenRes.value.data?.success) {
+                setLoadError('Unable to load your maintenance tickets and leases. Please retry.');
+                return;
+            }
+            setLoadError('');
             const allStalls = (stallsRes.status === 'fulfilled' && stallsRes.value.data?.success)
                 ? (stallsRes.value.data.data || [])
                 : [];
@@ -121,11 +116,10 @@ const MaintenanceScreen = ({ navigation, route }) => {
                 });
 
                 setMyRentedStalls(rented);
-                if (rented.length > 0) {
-                    setSelectedStallToReport((prev) => prev || rented[0]);
-                }
+                setSelectedStallToReport(prev => rented.find(s => s.stall_id === prev?.stall_id) || rented[0] || null);
             }
         } catch (error) {
+            setLoadError('Unable to load maintenance. Please retry.');
             console.error('Maintenance error:', error);
         } finally {
             setLoading(false);
@@ -207,7 +201,7 @@ const MaintenanceScreen = ({ navigation, route }) => {
                 Alert.alert('Error', res.data?.message || 'Failed to submit report');
             }
         } catch (error) {
-            Alert.alert('Error', 'Unable to reach backend. Please try again.');
+            Alert.alert('Error', error.response?.data?.message || 'Unable to reach backend. Please try again.');
         } finally {
             setSubmitting(false);
         }
@@ -320,7 +314,9 @@ const MaintenanceScreen = ({ navigation, route }) => {
                 )}
             </View>
 
-            {loading ? (
+            {loadError ? (
+                <View style={styles.noActiveRentCard}><Text>{loadError}</Text><TouchableOpacity onPress={() => loadData()} style={styles.applyNowBtn}><Text style={styles.applyNowBtnText}>Retry</Text></TouchableOpacity></View>
+            ) : loading ? (
                 <View style={styles.centerLoader}>
                     <ActivityIndicator size="large" color={theme.colors.primary} />
                     <Text style={styles.loadingText}>Loading maintenance tickets...</Text>

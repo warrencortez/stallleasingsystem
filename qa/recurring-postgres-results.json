@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Existing leases are activated without historical bills",
+    "passed": true
+  },
+  {
+    "name": "First bill next day/month, missed days caught up, duplicates and end dates enforced",
+    "passed": true
+  },
+  {
+    "name": "Lease rates are preserved; inactive leases are not billed",
+    "passed": true
+  },
+  {
+    "name": "Verified payment records provider ID and duplicate delivery sends one confirmation",
+    "passed": true
+  },
+  {
+    "name": "Repeated checkout reuses one provider session and invoice amount cannot change afterward",
+    "passed": true
+  },
+  {
+    "name": "QA schema and fixtures rolled back",
+    "passed": true
+  }
+]

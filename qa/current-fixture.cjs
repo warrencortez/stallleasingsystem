@@ -1,0 +1,22 @@
+process.env.DEMO_MODE='true';
+process.env.JWT_SECRET='isolated-current-qa-secret';
+require('../server/node_modules/dotenv').config=()=>({});
+const fs=require('node:fs'),path=require('node:path');
+process.env.SUPPORT_CHAT_FILE=path.join(fs.mkdtempSync('D:/stall-leasing-qa-20261002/support-'),'chat.json');
+const express=require('../server/node_modules/express');
+const User=require('../server/src/models/User'),Stall=require('../server/src/models/Stall'),Tenant=require('../server/src/models/Tenant'),Payment=require('../server/src/models/Payment');
+(async()=>{
+ const admin=await User.create({name:'QA Administrator',email:'admin@example.invalid',password:'QaPass123',role:'admin'});
+ const owner=await User.create({name:'QA Tenant',email:'tenant@example.invalid',password:'QaPass123',role:'tenant'});
+ const stall=await Stall.create({stall_number:'QA-DAILY',location:'QA Market',monthly_rent:120,daily_rent:120,rent_type:'daily',status:'occupied'});
+ await Stall.create({stall_number:'QA-AVAILABLE',location:'QA Market',monthly_rent:900,status:'available'});
+ const tenant=await Tenant.create({user_id:owner,stall_id:stall,name:'QA Tenant',status:'active',contract_start:'2026-01-01',contract_end:'2027-12-31'});
+ const invoice=await Payment.create({tenant_id:tenant,stall_id:stall,amount:120,late_fee:10,due_date:'2026-10-01',description:'QA office invoice'});
+ const app=express();app.use(express.json());app.use('/api/v1',require('../server/src/routes'));
+ app.use(express.static(path.join(__dirname,'../webapp/dist')));app.use((req,res)=>res.sendFile(path.join(__dirname,'../webapp/dist/index.html')));
+ const server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));
+ const base='http://127.0.0.1:'+server.address().port;
+ const token=require('../server/src/config/jwt').generateToken(admin,'admin');
+ fs.writeFileSync(path.join(__dirname,'browser-fixture.json'),JSON.stringify({base,token,invoice,tenant,stall,user:{id:admin,name:'QA Administrator',email:'admin@example.invalid',role:'admin'}}));
+ console.log('Isolated current QA fixture ready: '+base);
+})().catch(e=>{console.error(e);process.exit(1)});

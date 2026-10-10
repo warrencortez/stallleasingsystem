@@ -1,0 +1,77 @@
+[
+  {
+    "route": "/payments/billing-status",
+    "status": 200,
+    "success": true
+  },
+  {
+    "route": "/payments/online-status",
+    "status": 200,
+    "success": true
+  },
+  {
+    "route": "/payments/stalls-overview",
+    "status": 200,
+    "success": true
+  },
+  {
+    "route": "/payments/stats",
+    "status": 200,
+    "success": true
+  },
+  {
+    "route": "/payments/analytics?timeframe=monthly",
+    "status": 200,
+    "success": true
+  },
+  {
+    "route": "/payments/analytics?timeframe=daily",
+    "status": 200,
+    "success": true
+  },
+  {
+    "route": "/payments/analytics?timeframe=weekly",
+    "status": 200,
+    "success": true
+  },
+  {
+    "route": "/payments/analytics?timeframe=yearly",
+    "status": 200,
+    "success": true
+  },
+  {
+    "route": "/payments/report?month=10&year=2026",
+    "status": 200,
+    "success": true
+  },
+  {
+    "route": "/stalls/stats",
+    "status": 200,
+    "success": true
+  },
+  {
+    "route": "/tenants/stats",
+    "status": 200,
+    "success": true
+  },
+  {
+    "route": "/applications/stats",
+    "status": 200,
+    "success": true
+  },
+  {
+    "route": "/maintenance/stats",
+    "status": 200,
+    "success": true
+  },
+  {
+    "route": "/maintenance",
+    "status": 200,
+    "success": true
+  },
+  {
+    "route": "/announcements",
+    "status": 200,
+    "success": true
+  }
+]

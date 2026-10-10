@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-02",
+  "regressions": {
+    "command": "node --test server/test/*.test.js mobileapp/test/*.test.cjs",
+    "passed": 61,
+    "failed": 0
+  },
+  "postgres_check_groups": 9,
+  "live_http_endpoints": 13,
+  "web_build": "passed with existing Node version and chunk size warnings",
+  "android_export": "passed, 937 modules",
+  "ios_export": "passed, 939 modules",
+  "artifact_directory": "D:/stall-leasing-qa-20261002",
+  "browser_page_checks": 29,
+  "browser_action_groups": 11,
+  "physical_device_tested": false,
+  "lint_errors": 193,
+  "lint_warnings": 25
+}

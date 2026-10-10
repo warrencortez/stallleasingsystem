@@ -12,17 +12,29 @@ export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(localStorage.getItem('token'));
 
     useEffect(() => {
-        // Check if user is logged in on mount
-        const storedUser = localStorage.getItem('user');
-        try {
-            const parsed = storedUser && token ? JSON.parse(storedUser) : null;
-            if (parsed && (!parsed.id || !['admin', 'staff', 'tenant'].includes(parsed.role))) throw new Error('Invalid session');
-            setUser(parsed);
-        } catch {
-            localStorage.removeItem('user'); localStorage.removeItem('token');
-            setUser(null); setToken(null);
+        let cancelled = false;
+        setLoading(true);
+        if (!token) {
+            setUser(null);
+            localStorage.removeItem('user');
+            setLoading(false);
+            return;
         }
-        setLoading(false);
+        // Restore the session using the database-backed API, not cached role/name data.
+        authAPI.getMe().then(response => {
+            if (cancelled) return;
+            const account = response.data?.data?.user;
+            if (!account?.id || !['admin', 'tenant'].includes(account.role)) throw new Error('Invalid account');
+            setUser(account);
+            localStorage.setItem('user', JSON.stringify(account));
+        }).catch(() => {
+            if (cancelled) return;
+            localStorage.removeItem('user');
+            localStorage.removeItem('token');
+            setUser(null);
+            setToken(null);
+        }).finally(() => { if (!cancelled) setLoading(false); });
+        return () => { cancelled = true; };
     }, [token]);
 
     const login = async (email, password) => {
@@ -43,6 +55,21 @@ export const AuthProvider = ({ children }) => {
             const message = error.response?.data?.message || 'Login failed. Please try again.';
             toast.error(message);
             return { success: false, message };
+        }
+    };
+
+    const loginWithGoogle = async (accessToken, existingPassword) => {
+        try {
+            const response = await authAPI.google({ accessToken, existingPassword });
+            const { user, token } = response.data.data;
+            if (user.role !== 'admin') return { success: false, message: 'An administrator account is required.' };
+            localStorage.setItem('token', token);
+            localStorage.setItem('user', JSON.stringify(user));
+            setUser(user);
+            setToken(token);
+            return { success: true };
+        } catch (error) {
+            return { success: false, code: error.response?.data?.code, message: error.response?.data?.message || 'Unable to sign in with Google.' };
         }
     };
 
@@ -85,6 +112,7 @@ export const AuthProvider = ({ children }) => {
         token,
         loading,
         login,
+        loginWithGoogle,
         register,
         logout,
         updateUser,

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { attachmentURL } from '../../api/axiosConfig';
 import { paymentAPI, tenantAPI, stallAPI } from '../../api/endpoints';
 import { useAuth } from '../../context/AuthContext';
 import ConfirmModal from '../common/ConfirmModal';
@@ -55,7 +56,7 @@ const formatPaymentMode = (method) => {
         return { label: 'Bank Transfer (BPI / BDO)', badge: 'bg-info text-dark', icon: <FaUniversity /> };
     }
     if (m.includes('cash')) {
-        return { label: 'Cash Counter Deposit', badge: 'bg-secondary text-white', icon: <FaCoins /> };
+        return { label: 'Walk-in Cash (Office)', badge: 'bg-secondary text-white', icon: <FaCoins /> };
     }
 
     return {
@@ -77,6 +78,12 @@ const PaymentList = () => {
     const [statusFilter, setStatusFilter] = useState('');
 
     // Modals
+    const [loadError, setLoadError] = useState('');
+    const [showOfficeModal, setShowOfficeModal] = useState(false);
+    const [officeInvoices, setOfficeInvoices] = useState([]);
+    const [officeForm, setOfficeForm] = useState({ invoice_id: '', amount_received: '', receipt_number: '' });
+    const [savingOffice, setSavingOffice] = useState(false);
+    const [billingStatus, setBillingStatus] = useState(null);
     const [showGenerateModal, setShowGenerateModal] = useState(false);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showReceiptModal, setShowReceiptModal] = useState(false);
@@ -99,8 +106,6 @@ const PaymentList = () => {
     });
 
     // Form states
-    const [billMonth, setBillMonth] = useState(new Date().getMonth() + 1);
-    const [billYear, setBillYear] = useState(new Date().getFullYear());
     const [newBill, setNewBill] = useState({
         tenant_id: '',
         amount: '',
@@ -120,22 +125,47 @@ const PaymentList = () => {
     const loadData = async (isInitial = false) => {
         try {
             if (isInitial) setLoading(true);
-            const [stallsRes, paymentsRes, statsRes, tenantsRes] = await Promise.all([
+            const [stallsRes, paymentsRes, statsRes, tenantsRes, billingRes] = await Promise.allSettled([
                 paymentAPI.getStallsOverview(),
                 paymentAPI.getAll(statusFilter ? { status: statusFilter } : {}),
                 paymentAPI.getStats(),
-                tenantAPI.getAll({ status: 'active' })
+                tenantAPI.getAll({ status: 'active' }),
+                paymentAPI.getBillingStatus()
             ]);
 
-            if (stallsRes.data?.success) setStallsOverview(stallsRes.data.data || []);
-            if (paymentsRes.data?.success) setPayments(paymentsRes.data.data || []);
-            if (statsRes.data?.success) setStats(statsRes.data.data || null);
-            if (tenantsRes.data?.success) setTenants(tenantsRes.data.data || []);
+            if(billingRes.status==='fulfilled') setBillingStatus(billingRes.value.data.data);
+            else setBillingStatus({lastError:'Unable to check the automatic billing worker.'});
+            const results = [[stallsRes, setStallsOverview], [paymentsRes, setPayments], [statsRes, setStats], [tenantsRes, setTenants]];
+            results.forEach(([result, setter]) => { if (result.status === 'fulfilled' && result.value.data?.success) setter(result.value.data.data); });
+            setLoadError(results.some(([result]) => result.status === 'rejected') ? 'Some billing information could not be loaded. Retry before recording a payment.' : '');
         } catch (error) {
-            console.error('Error loading billing data:', error);
+            setLoadError('Billing could not be loaded. Please retry.');
         } finally {
             if (isInitial) setLoading(false);
         }
+    };
+
+    const openOfficePayment = async () => {
+        try {
+            const res = await paymentAPI.getAll();
+            setOfficeInvoices((res.data.data || []).filter(p => p.status !== 'paid'));
+            setOfficeForm({ invoice_id: '', amount_received: '', receipt_number: '' });
+            setShowOfficeModal(true);
+        } catch { toast.error('Unable to load outstanding invoices.'); }
+    };
+    const submitOfficePayment = async e => {
+        e.preventDefault();
+        if (savingOffice) return;
+        setSavingOffice(true);
+        try {
+            const res = await paymentAPI.recordOfficePayment(officeForm.invoice_id, { amount_received: officeForm.amount_received, receipt_number: officeForm.receipt_number });
+            setShowOfficeModal(false);
+            setSelectedReceipt(res.data.data);
+            setShowReceiptModal(true);
+            toast.success('Walk-in cash payment recorded.');
+            await loadData(false);
+        } catch (error) { toast.error(error.response?.data?.message || 'Payment could not be recorded.'); }
+        finally { setSavingOffice(false); }
     };
 
     // Open Stall Payment History
@@ -165,14 +195,14 @@ const PaymentList = () => {
     const handleGenerateMonthlyInvoices = async (e) => {
         e.preventDefault();
         try {
-            const res = await paymentAPI.generateBills({ month: billMonth, year: billYear });
+            const res = await paymentAPI.generateBills({});
             if (res.data?.success) {
-                toast.success(`Generated ${res.data.data.generatedCount || 0} monthly invoices.`);
+                toast.success(`Generated ${res.data.data.count || 0} scheduled invoices.`);
                 setShowGenerateModal(false);
                 loadData(true);
             }
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Failed to generate monthly bills');
+            toast.error(error.response?.data?.message || 'Failed to issue scheduled bills');
         }
     };
 
@@ -262,6 +292,7 @@ const PaymentList = () => {
                 <div className="d-flex flex-wrap gap-2">
                     {isAdmin && (
                         <>
+                            <button className="btn btn-success btn-sm" onClick={openOfficePayment}><FaCoins /> Record Walk-in Payment</button>
                             <button
                                 className="btn btn-outline-warning btn-sm d-flex align-items-center gap-2 fw-semibold"
                                 onClick={handleApplyLateFeesPrompt}
@@ -272,7 +303,7 @@ const PaymentList = () => {
                                 className="btn btn-outline-primary btn-sm d-flex align-items-center gap-2 fw-semibold"
                                 onClick={() => setShowGenerateModal(true)}
                             >
-                                <FaCalendarAlt /> Generate Monthly Dues
+                                <FaCalendarAlt /> Run Due Billing
                             </button>
                             <button
                                 className="btn btn-primary btn-sm d-flex align-items-center gap-2 px-3 fw-semibold shadow-sm"
@@ -285,6 +316,25 @@ const PaymentList = () => {
                 </div>
             </div>
 
+            {loadError && <div className="alert alert-warning" role="alert">{loadError} <button className="btn btn-sm btn-outline-dark" onClick={() => loadData(true)}>Retry</button></div>}
+            {showOfficeModal && <div className="modal show d-block" role="dialog" aria-label="Record walk-in payment" style={{ backgroundColor: 'rgba(0,0,0,.5)', zIndex: 1060 }}>
+                <div className="modal-dialog modal-dialog-centered"><form className="modal-content" onSubmit={submitOfficePayment}>
+                    <div className="modal-header"><h5 className="modal-title">Walk-in cash payment</h5><button type="button" className="btn-close" aria-label="Close walk-in payment" disabled={savingOffice} onClick={() => setShowOfficeModal(false)} /></div>
+                    <div className="modal-body">
+                        <p>Record cash received at the office. Pay the full invoice balance, including any late fee.</p>
+                        <label className="form-label" htmlFor="office-invoice">Outstanding invoice</label>
+                        <select id="office-invoice" className="form-select mb-3" required value={officeForm.invoice_id} onChange={e => setOfficeForm({ ...officeForm, invoice_id: e.target.value })}>
+                            <option value="">Select tenant and bill</option>{officeInvoices.map(p => <option key={p.id} value={p.id}>{p.tenant_name} / {p.stall_number} / {p.description} / PHP {(Number(p.amount) + Number(p.late_fee || 0)).toFixed(2)} ({p.status})</option>)}
+                        </select>
+                        <label className="form-label" htmlFor="office-amount">Cash applied to this invoice (PHP)</label>
+                        <input id="office-amount" className="form-control mb-3" type="number" min="0.01" step="0.01" required value={officeForm.amount_received} onChange={e => setOfficeForm({ ...officeForm, amount_received: e.target.value })} />
+                        <label className="form-label" htmlFor="office-receipt">Office receipt number</label>
+                        <input id="office-receipt" className="form-control" required maxLength={100} value={officeForm.receipt_number} onChange={e => setOfficeForm({ ...officeForm, receipt_number: e.target.value })} />
+                        <p className="small text-muted mt-3">Resolve any existing online checkout or submitted payment proof before accepting cash. Partial payments are not supported.</p>
+                    </div>
+                    <div className="modal-footer"><button type="button" className="btn btn-secondary" disabled={savingOffice} onClick={() => setShowOfficeModal(false)}>Cancel</button><button className="btn btn-success" disabled={savingOffice || !officeInvoices.length}>{savingOffice ? 'Recording...' : 'Confirm Cash Received'}</button></div>
+                </form></div>
+            </div>}
             {/* Quick KPI Overview */}
             {stats && (
                 <div className="row g-3 mb-4">
@@ -495,7 +545,7 @@ const PaymentList = () => {
 
                                                 <td>
                                                     <strong className="text-dark">
-                                                        ₱{Number(s.monthly_rent || 0).toLocaleString()}
+                                                        ₱{Number((s.rent_type === 'daily' ? s.daily_rent : s.monthly_rent) || 0).toLocaleString()}
                                                     </strong>
                                                     <small className="text-muted d-block text-capitalize">
                                                         /{s.rent_type || 'monthly'}
@@ -726,7 +776,7 @@ const PaymentList = () => {
                                         Payment & Dues Ledger: {selectedStallHistory.stall_number}
                                     </h6>
                                     <small className="text-white text-opacity-75">
-                                        Merchant: {selectedStallHistory.tenant_name || 'No tenant'} • Rate: ₱{Number(selectedStallHistory.monthly_rent || 0).toLocaleString()}/mo
+                                        Merchant: {selectedStallHistory.tenant_name || 'No tenant'} • Rate: ₱{Number((selectedStallHistory.rent_type === 'daily' ? selectedStallHistory.daily_rent : selectedStallHistory.monthly_rent) || 0).toLocaleString()}/{selectedStallHistory.rent_type === 'daily' ? 'day' : 'mo'}
                                     </small>
                                 </div>
                                 <button
@@ -948,7 +998,7 @@ const PaymentList = () => {
                                         )}
                                         <div className="d-flex justify-content-between pt-2 border-top fw-bold fs-5 text-success">
                                             <span>Total Paid Amount:</span>
-                                            <span>₱{Number(selectedReceipt.amount).toLocaleString()}</span>
+                                            <span>₱{(Number(selectedReceipt.amount) + Number(selectedReceipt.late_fee || 0)).toLocaleString()}</span>
                                         </div>
                                     </div>
 
@@ -956,7 +1006,7 @@ const PaymentList = () => {
                                         <div className="border rounded-3 p-2 bg-white text-center">
                                             <small className="text-muted d-block mb-1">Attached Bank Deposit / Transfer Slip Proof:</small>
                                             <img
-                                                src={selectedReceipt.proof_image}
+                                                src={attachmentURL(selectedReceipt.proof_image)}
                                                 alt="Payment Proof"
                                                 className="img-fluid rounded border"
                                                 style={{ maxHeight: '180px', objectFit: 'contain' }}
@@ -999,7 +1049,7 @@ const PaymentList = () => {
                     <div className="modal-dialog modal-dialog-centered">
                         <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
                             <div className="modal-header bg-primary text-white p-3">
-                                <h6 className="modal-title fw-bold">Generate Monthly Stall Lease Invoices</h6>
+                                <h6 className="modal-title fw-bold">Automatic Lease Billing</h6>
                                 <button
                                     type="button"
                                     className="btn-close btn-close-white"
@@ -1007,38 +1057,11 @@ const PaymentList = () => {
                                 />
                             </div>
                             <form onSubmit={handleGenerateMonthlyInvoices}>
-                                <div className="modal-body p-4 bg-white">
-                                    <p className="text-muted small mb-3">
-                                        Automatically generates rental bills for all commercial stalls with active tenants based on their agreed contract rates.
-                                    </p>
-                                    <div className="row g-3">
-                                        <div className="col-6">
-                                            <label className="form-label small fw-semibold">Billing Month</label>
-                                            <select
-                                                className="form-select"
-                                                value={billMonth}
-                                                onChange={(e) => setBillMonth(Number(e.target.value))}
-                                            >
-                                                {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-                                                    <option key={m} value={m}>
-                                                        {new Date(0, m - 1).toLocaleString('en', { month: 'long' })}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                        <div className="col-6">
-                                            <label className="form-label small fw-semibold">Billing Year</label>
-                                            <select
-                                                className="form-select"
-                                                value={billYear}
-                                                onChange={(e) => setBillYear(Number(e.target.value))}
-                                            >
-                                                {[2025, 2026, 2027, 2028].map((y) => (
-                                                    <option key={y} value={y}>{y}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                    </div>
+                                <div className="modal-body p-4">
+                                    {billingStatus?.lastError && <p className="text-danger" role="alert">{billingStatus.lastError}</p>}
+                                    <p className="small text-muted">Last successful automatic check: {billingStatus?.lastSuccess ? new Date(billingStatus.lastSuccess).toLocaleString() : 'Waiting for the billing worker'}</p>
+                                    <p>Bills are issued automatically from each active lease start date: the next day for daily rent, or the same day next month for monthly rent.</p>
+                                    <p>For shorter months, billing uses the last day of the month. This check issues only bills already due and skips existing bills. Keep the server running for automatic delivery.</p>
                                 </div>
                                 <div className="modal-footer bg-light p-3">
                                     <button
@@ -1049,7 +1072,7 @@ const PaymentList = () => {
                                         Cancel
                                     </button>
                                     <button type="submit" className="btn btn-primary btn-sm px-4 fw-semibold">
-                                        Generate Invoices
+                                        Issue Due Bills Now
                                     </button>
                                 </div>
                             </form>

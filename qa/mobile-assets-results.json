@@ -1,0 +1,638 @@
+[
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/AntDesign.ttf",
+    "platform": "android",
+    "status": 200,
+    "bytes": 130484
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/AntDesign.ttf",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 130484
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Entypo.ttf",
+    "platform": "android",
+    "status": 200,
+    "bytes": 66200
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Entypo.ttf",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 66200
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/EvilIcons.ttf",
+    "platform": "android",
+    "status": 200,
+    "bytes": 13456
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/EvilIcons.ttf",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 13456
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Feather.ttf",
+    "platform": "android",
+    "status": 200,
+    "bytes": 55596
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Feather.ttf",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 55596
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/FontAwesome.ttf",
+    "platform": "android",
+    "status": 200,
+    "bytes": 165548
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/FontAwesome.ttf",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 165548
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/FontAwesome5_Brands.ttf",
+    "platform": "android",
+    "status": 200,
+    "bytes": 134040
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/FontAwesome5_Brands.ttf",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 134040
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/FontAwesome5_Regular.ttf",
+    "platform": "android",
+    "status": 200,
+    "bytes": 33736
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/FontAwesome5_Regular.ttf",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 33736
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/FontAwesome5_Solid.ttf",
+    "platform": "android",
+    "status": 200,
+    "bytes": 202744
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/FontAwesome5_Solid.ttf",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 202744
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/FontAwesome6_Brands.ttf",
+    "platform": "android",
+    "status": 200,
+    "bytes": 209376
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/FontAwesome6_Brands.ttf",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 209376
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/FontAwesome6_Regular.ttf",
+    "platform": "android",
+    "status": 200,
+    "bytes": 67976
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/FontAwesome6_Regular.ttf",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 67976
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/FontAwesome6_Solid.ttf",
+    "platform": "android",
+    "status": 200,
+    "bytes": 423676
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/FontAwesome6_Solid.ttf",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 423676
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Fontisto.ttf",
+    "platform": "android",
+    "status": 200,
+    "bytes": 313528
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Fontisto.ttf",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 313528
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Foundation.ttf",
+    "platform": "android",
+    "status": 200,
+    "bytes": 56976
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Foundation.ttf",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 56976
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.ttf",
+    "platform": "android",
+    "status": 200,
+    "bytes": 389724
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.ttf",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 389724
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf",
+    "platform": "android",
+    "status": 200,
+    "bytes": 1307660
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 1307660
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialIcons.ttf",
+    "platform": "android",
+    "status": 200,
+    "bytes": 356840
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialIcons.ttf",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 356840
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Octicons.ttf",
+    "platform": "android",
+    "status": 200,
+    "bytes": 69436
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Octicons.ttf",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 69436
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/SimpleLineIcons.ttf",
+    "platform": "android",
+    "status": 200,
+    "bytes": 54056
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/SimpleLineIcons.ttf",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 54056
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Zocial.ttf",
+    "platform": "android",
+    "status": 200,
+    "bytes": 25788
+  },
+  {
+    "asset": "@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Zocial.ttf",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 25788
+  },
+  {
+    "asset": "react-native/Libraries/LogBox/UI/LogBoxImages/alert-triangle.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 609
+  },
+  {
+    "asset": "react-native/Libraries/LogBox/UI/LogBoxImages/alert-triangle.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 609
+  },
+  {
+    "asset": "react-native/Libraries/LogBox/UI/LogBoxImages/chevron-left.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 126
+  },
+  {
+    "asset": "react-native/Libraries/LogBox/UI/LogBoxImages/chevron-left.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 126
+  },
+  {
+    "asset": "react-native/Libraries/LogBox/UI/LogBoxImages/chevron-right.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 123
+  },
+  {
+    "asset": "react-native/Libraries/LogBox/UI/LogBoxImages/chevron-right.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 123
+  },
+  {
+    "asset": "react-native/Libraries/LogBox/UI/LogBoxImages/close.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 187
+  },
+  {
+    "asset": "react-native/Libraries/LogBox/UI/LogBoxImages/close.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 187
+  },
+  {
+    "asset": "react-native/Libraries/LogBox/UI/LogBoxImages/loader.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 282
+  },
+  {
+    "asset": "react-native/Libraries/LogBox/UI/LogBoxImages/loader.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 282
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/back-icon-mask.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 653
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/back-icon-mask.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 653
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/back-icon.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 100
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/back-icon.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 290
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/back-icon@1x.android.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 100
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/back-icon@1x.android.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 100
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/back-icon@1x.ios.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 290
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/back-icon@1x.ios.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 290
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/back-icon@2x.android.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 134
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/back-icon@2x.android.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 134
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/back-icon@2x.ios.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 405
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/back-icon@2x.ios.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 405
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/back-icon@3x.android.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 167
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/back-icon@3x.android.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 167
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/back-icon@3x.ios.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 761
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/back-icon@3x.ios.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 761
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/back-icon@4x.android.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 207
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/back-icon@4x.android.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 207
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/back-icon@4x.ios.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 809
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/back-icon@4x.ios.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 809
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/clear-icon.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 645
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/clear-icon.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 645
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/clear-icon@1x.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 645
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/clear-icon@1x.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 645
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/clear-icon@2x.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 334
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/clear-icon@2x.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 334
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/clear-icon@3x.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 502
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/clear-icon@3x.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 502
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/clear-icon@4x.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 645
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/clear-icon@4x.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 645
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/close-icon.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 332
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/close-icon.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 332
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/close-icon@1x.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 332
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/close-icon@1x.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 332
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/close-icon@2x.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 201
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/close-icon@2x.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 201
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/close-icon@3x.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 266
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/close-icon@3x.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 266
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/close-icon@4x.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 332
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/close-icon@4x.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 332
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/search-icon.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 258
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/search-icon.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 317
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/search-icon@1x.android.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 258
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/search-icon@1x.android.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 258
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/search-icon@1x.ios.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 317
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/search-icon@1x.ios.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 317
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/search-icon@2x.android.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 483
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/search-icon@2x.android.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 483
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/search-icon@2x.ios.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 589
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/search-icon@2x.ios.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 589
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/search-icon@3x.android.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 728
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/search-icon@3x.android.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 728
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/search-icon@3x.ios.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 839
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/search-icon@3x.ios.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 839
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/search-icon@4x.android.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 928
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/search-icon@4x.android.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 928
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/search-icon@4x.ios.png",
+    "platform": "android",
+    "status": 200,
+    "bytes": 589
+  },
+  {
+    "asset": "@react-navigation/elements/lib/module/assets/search-icon@4x.ios.png",
+    "platform": "ios",
+    "status": 200,
+    "bytes": 589
+  }
+]

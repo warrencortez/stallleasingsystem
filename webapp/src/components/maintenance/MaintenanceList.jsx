@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { attachmentURL } from '../../api/axiosConfig';
 import { maintenanceAPI } from '../../api/endpoints';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -470,7 +471,7 @@ const MaintenanceList = () => {
                             </div>
                             <div className="modal-body p-4 text-center">
                                 <img
-                                    src={`http://localhost:5000${selectedRequest.photo_url}`}
+                                    src={attachmentURL(selectedRequest.photo_url)}
                                     alt="Maintenance Photo"
                                     className="img-fluid rounded"
                                     style={{ maxHeight: '350px' }}

@@ -148,9 +148,9 @@ const DashboardScreen = ({ navigation }) => {
 
                 <View style={styles.heroBottom}>
                     <View>
-                        <Text style={styles.heroRentLabel}>Monthly Lease Rent</Text>
+                        <Text style={styles.heroRentLabel}>{tenantProfile?.rent_type === 'daily' ? 'Daily Lease Rent' : 'Monthly Lease Rent'}</Text>
                         <Text style={styles.heroRentAmount}>
-                            ₱{Number(tenantProfile?.monthly_rent || 0).toLocaleString()}
+                            ₱{Number((tenantProfile?.rent_type === 'daily' ? tenantProfile?.daily_rent : tenantProfile?.monthly_rent) || 0).toLocaleString()}
                         </Text>
                     </View>
                     <TouchableOpacity
@@ -187,7 +187,7 @@ const DashboardScreen = ({ navigation }) => {
 
                 <TouchableOpacity
                     style={styles.actionBtn}
-                    onPress={() => navigation.navigate('Maintenance')}
+                    onPress={() => navigation.navigate('Fix Hub')}
                 >
                     <View style={[styles.actionIcon, { backgroundColor: '#fef3c7' }]}>
                         <Ionicons name="build" size={22} color={theme.colors.warning} />

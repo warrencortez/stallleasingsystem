@@ -1,9 +1,15 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-// Create Axios client instance
+export const apiBaseURL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5000/api/v1' : '');
+export function attachmentURL(value) {
+    if (!value) return '';
+    if (/^https:\/\//i.test(value)) return value;
+    if (value.startsWith('/uploads/') && apiBaseURL) return new URL(value, apiBaseURL).href;
+    return '';
+}
 const api = axios.create({
-    baseURL: 'http://localhost:5000/api/v1',
+    baseURL: apiBaseURL,
     headers: {
         'Content-Type': 'application/json',
     },
@@ -15,6 +21,7 @@ const api = axios.create({
 // ==========================================================
 api.interceptors.request.use(
     (config) => {
+        if (!apiBaseURL || (!import.meta.env.DEV && !apiBaseURL.startsWith('https://'))) throw new Error('The secure API address is not configured.');
         const token = localStorage.getItem('token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
@@ -29,9 +36,6 @@ api.interceptors.request.use(
             'color: #64748b;'
         );
         console.log('Endpoint:', `${config.baseURL}${config.url}`);
-        console.log('Headers:', config.headers);
-        if (config.params) console.log('Query Params:', config.params);
-        if (config.data) console.log('Request Payload:', config.data);
         console.groupEnd();
 
         return config;
@@ -80,16 +84,15 @@ api.interceptors.response.use(
         console.error('Error Message:', serverMessage);
         if (errorDetails) console.error('Diagnostic Details:', errorDetails);
         if (error.response?.data) console.log('Server Response Body:', error.response.data);
-        console.log('Request Config:', error.config);
         console.groupEnd();
 
         if (!error.response) {
-            toast.error('Network Error: Cannot connect to API backend server (http://localhost:5000). Ensure the backend is running.', {
+            toast.error('Cannot connect to the server. Please check your connection and try again.', {
                 id: 'net-err',
                 duration: 6000
             });
         } else if (status === 401) {
-            const isLoginRoute = error.config?.url?.includes('/auth/login');
+            const isLoginRoute = ['/auth/login', '/auth/google', '/auth/change-password'].includes(error.config?.url);
             if (!isLoginRoute) {
                 toast.error('Session Expired: Please log in again to continue.', { id: 'session-err' });
                 localStorage.removeItem('token');

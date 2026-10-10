@@ -84,7 +84,8 @@ const RegisterScreen = ({ navigation }) => {
             });
 
             if (res.success) {
-                Alert.alert('Registration Successful', 'Welcome to Dela Costa HOA Stall Leasing!');
+                navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+                Alert.alert('Registration Successful', 'Your account has been created. Please log in with your mobile number and password.');
             } else {
                 Alert.alert('Registration Failed', res.message || 'Unable to create account.');
             }

@@ -2,8 +2,8 @@ const Stall = require('../models/Stall');
 const Notification = require('../models/Notification');
 const { pool } = require('../config/database');
 const publicStall = s => {
-    const { id, stall_number, location, size, monthly_rent, status, description, image_url, created_at, updated_at } = s;
-    return { id, stall_number, location, size, monthly_rent, status, description, image_url, created_at, updated_at };
+    const { id, stall_number, location, size, monthly_rent, rent_type, daily_rent, status, description, image_url, created_at, updated_at } = s;
+    return { id, stall_number, location, size, monthly_rent, rent_type, daily_rent, status, description, image_url, created_at, updated_at };
 };
 
 /**
@@ -94,9 +94,14 @@ const getStallDetails = async (req, res) => {
 const createStall = async (req, res) => {
     try {
         const stallData = req.body;
+        if (stallData.rent_type && !['monthly','daily'].includes(stallData.rent_type)) return res.status(400).json({ success: false, message: 'Invalid rent frequency.' });
+        if (stallData.rent_type === 'daily') {
+            stallData.daily_rent = Number(stallData.daily_rent || stallData.monthly_rent);
+            if (!Number.isFinite(stallData.daily_rent) || stallData.daily_rent <= 0) return res.status(400).json({ success: false, message: 'Daily rent must be positive.' });
+        }
 
         // Validate required fields
-        if (!stallData.stall_number || !stallData.monthly_rent) {
+        if (!stallData.stall_number || !Number.isFinite(Number(stallData.monthly_rent)) || Number(stallData.monthly_rent) <= 0) {
             return res.status(400).json({
                 success: false,
                 message: 'Stall number and monthly rent are required.'
@@ -158,6 +163,13 @@ const updateStall = async (req, res) => {
     try {
         const { id } = req.params;
         const updateData = req.body;
+        if (updateData.monthly_rent !== undefined && (!Number.isFinite(Number(updateData.monthly_rent)) || Number(updateData.monthly_rent) <= 0)) return res.status(400).json({ success:false, message:'Rent must be positive.' });
+        if (updateData.daily_rent != null && (!Number.isFinite(Number(updateData.daily_rent)) || Number(updateData.daily_rent) <= 0)) return res.status(400).json({ success:false, message:'Daily rent must be positive.' });
+        if (updateData.rent_type && !['monthly','daily'].includes(updateData.rent_type)) return res.status(400).json({ success: false, message: 'Invalid rent frequency.' });
+        if (updateData.rent_type === 'daily') {
+            updateData.daily_rent = Number(updateData.daily_rent || updateData.monthly_rent);
+            if (!Number.isFinite(updateData.daily_rent) || updateData.daily_rent <= 0) return res.status(400).json({ success: false, message: 'Daily rent must be positive.' });
+        }
 
         // Check if stall exists
         const stall = await Stall.findById(id);

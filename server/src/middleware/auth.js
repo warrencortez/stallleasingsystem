@@ -49,6 +49,8 @@ const authenticate = async (req, res, next) => {
             });
         }
 
+        if (!['admin', 'tenant'].includes(user.role)) return res.status(403).json({ success: false, message: 'This role is no longer supported. Contact the administrator.' });
+
         // 7. Attach user to request object
         req.user = user;
         req.userId = user.id;

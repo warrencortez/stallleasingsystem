@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { stallAPI } from '../../api/endpoints';
@@ -210,7 +211,7 @@ const StallList = () => {
                                             </div>
                                             <div className="d-flex justify-content-between mb-1">
                                                 <span className="text-muted">Rental Rate:</span>
-                                                <strong className="text-success fs-6">₱{Number(stall.monthly_rent).toLocaleString()} / mo</strong>
+                                                <strong className="text-success fs-6">₱{Number((stall.rent_type === 'daily' ? stall.daily_rent : stall.monthly_rent)).toLocaleString()} / {stall.rent_type === 'daily' ? 'day' : 'mo'}</strong>
                                             </div>
                                             {stall.tenant_name && (
                                                 <div className="d-flex justify-content-between pt-1 border-top mt-2">

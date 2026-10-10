@@ -3,6 +3,7 @@ const Tenant = require('../models/Tenant');
 const Stall = require('../models/Stall');
 const Notification = require('../models/Notification');
 const payMongoService = require('../services/paymongoService');
+const uploadStorage = require('../services/uploadStorage');
 
 /**
  * Get all payments / invoices
@@ -15,7 +16,7 @@ const getAllPayments = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            data: payments,
+            data: await uploadStorage.signRecords(payments, 'proof_image'),
             count: payments.length
         });
     } catch (error) {
@@ -45,7 +46,7 @@ const getPayment = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            data: payment
+            data: await uploadStorage.signRecords(payment, 'proof_image')
         });
     } catch (error) {
         console.error('Get payment error:', error);
@@ -165,12 +166,13 @@ const updatePayment = async (req, res) => {
             });
         }
 
+        if(payment.status==='paid' || payment.paymongo_checkout_id) return res.status(409).json({success:false,message:'Paid invoices and invoices with online checkout cannot be edited.'});
         const fields = ['amount', 'late_fee', 'due_date', 'description', 'status', 'payment_method', 'reference_number', 'proof_image'];
         if (Object.keys(updateData).some(key => !fields.includes(key)) ||
             ['amount', 'late_fee'].some(key => updateData[key] !== undefined &&
                 (!Number.isFinite(Number(updateData[key])) || Number(updateData[key]) < (key === 'amount' ? 0.01 : 0) ||
                  Math.abs(Number(updateData[key]) * 100 - Math.round(Number(updateData[key]) * 100)) > 0.000001)) ||
-            (updateData.status && !['unpaid', 'paid', 'overdue', 'partial', 'pending_verification'].includes(updateData.status)) ||
+            (updateData.status && !['unpaid', 'overdue'].includes(updateData.status)) ||
             (updateData.due_date !== undefined && (typeof updateData.due_date !== 'string' ||
                 !/^\d{4}-\d{2}-\d{2}$/.test(updateData.due_date) || !Number.isFinite(Date.parse(updateData.due_date)) ||
                 new Date(updateData.due_date).toISOString().slice(0, 10) !== updateData.due_date))) {
@@ -205,133 +207,45 @@ const updatePayment = async (req, res) => {
  */
 const createPaymongoCheckout = async (req, res) => {
     try {
-        const { id } = req.params;
-        let payment = await Payment.findById(id);
-
-        if (!payment) {
-            return res.status(404).json({
-                success: false,
-                message: 'Payment record not found. Please generate monthly bills first.'
-            });
-        }
-
-        if (payment.status === 'paid') {
-            return res.status(400).json({
-                success: false,
-                message: 'This payment has already been settled.'
-            });
-        }
-
-        const totalAmount = parseFloat(payment.amount) + parseFloat(payment.late_fee || 0);
-
-        const checkoutResult = await payMongoService.createCheckoutSession({
-            paymentId: payment.id,
-            amount: totalAmount,
-            stallNumber: payment.stall_number,
-            description: payment.description || `Rent for ${payment.stall_number}`,
-            tenantName: payment.tenant_name,
-            tenantEmail: payment.tenant_email,
-            tenantPhone: payment.tenant_phone
-        });
-
-        // Save session to database
-        await Payment.setCheckoutSession(
-            payment.id,
-            checkoutResult.checkoutId,
-            checkoutResult.checkoutUrl,
-            checkoutResult.referenceNumber
-        );
-
-        res.status(200).json({
-            success: true,
-            message: 'PayMongo Checkout session initiated! 💳',
-            data: {
-                checkoutUrl: checkoutResult.checkoutUrl,
-                checkoutId: checkoutResult.checkoutId,
-                referenceNumber: checkoutResult.referenceNumber,
-                isSimulated: checkoutResult.isSimulated
+        if(!await Payment.findById(req.params.id)) return res.status(404).json({success:false,message:"Invoice not found."});
+        payMongoService.assertReady();
+        const result = await require('../config/database').pool.withTransaction(async client => {
+            const locked=(await client.query('SELECT * FROM payments WHERE id = $1 FOR UPDATE',[req.params.id])).rows[0];
+            if(!locked) throw Object.assign(new Error('Invoice not found.'),{status:404});
+            if(locked.status==='paid' || locked.status==='pending_verification') throw Object.assign(new Error('This bill is already paid or awaiting verification.'),{status:409});
+            if(locked.paymongo_checkout_id) {
+                const session=await payMongoService.retrieveCheckoutSession(locked.paymongo_checkout_id);
+                if(!session) throw Object.assign(new Error('Unable to check existing checkout. Please retry.'),{status:503});
+                if(session.attributes?.payments?.some(p=>p.attributes?.status==='paid')) throw Object.assign(new Error('Payment received; confirmation is processing. Refresh your bills shortly.'),{status:409});
+                if(session.attributes?.status==='expired' && ['awaiting_next_action','processing','succeeded'].includes(session.attributes?.payment_intent?.attributes?.status)) throw Object.assign(new Error('A previous payment attempt is still being resolved. Please contact the HOA office before trying again.'),{status:409});
+                if(session.attributes?.status!=='expired') {
+                    if(!session.attributes?.checkout_url) throw Object.assign(new Error('Checkout is unavailable. Please contact the HOA office.'),{status:409});
+                    return {checkoutId:session.id,checkoutUrl:session.attributes.checkout_url,referenceNumber:locked.reference_number};
+                }
             }
+            const payment=await Payment.findById(req.params.id);
+            const checkout=await payMongoService.createCheckoutSession({paymentId:payment.id,
+                amount:Number(payment.amount)+Number(payment.late_fee||0),stallNumber:payment.stall_number,
+                description:payment.description,tenantName:payment.tenant_name,tenantEmail:payment.tenant_email,tenantPhone:payment.tenant_phone});
+            await Payment.setCheckoutSession(payment.id,checkout.checkoutId,checkout.checkoutUrl,checkout.referenceNumber);
+            return checkout;
         });
-    } catch (error) {
-        console.error('PayMongo Checkout session error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Failed to initiate PayMongo payment.'
-        });
+        res.json({success:true,data:result});
+    } catch(error) {
+        res.status(error.status || 503).json({success:false,message:error.message || 'Online payment is unavailable.'});
     }
 };
 
-/**
- * Verify PayMongo payment after user redirects from checkout
- * POST /api/v1/payments/:id/verify-paymongo
- */
-const verifyPaymongoPayment = async (req, res) => {
+const verifyPaymongoPayment = async (req,res) => {
     try {
-        const { id } = req.params;
-        const { checkout_id, reference_number } = req.body;
-
-        const payment = await Payment.findById(id);
-        if (!payment) {
-            return res.status(404).json({
-                success: false,
-                message: 'Payment record not found.'
-            });
-        }
-
-        if (payment.status === 'paid') {
-            return res.status(200).json({
-                success: true,
-                message: 'Payment already marked as paid.',
-                data: payment
-            });
-        }
-
-        const sessionId = payment.paymongo_checkout_id;
-        if (!sessionId || (checkout_id && checkout_id !== sessionId)) {
-            return res.status(400).json({ success: false, message: 'Checkout session does not match this invoice.' });
-        }
-        const session = await payMongoService.retrieveCheckoutSession(sessionId);
-        const expectedAmount = Math.round((Number(payment.amount) + Number(payment.late_fee || 0)) * 100);
-        const attrs = session?.attributes;
-        const settled = attrs?.payments?.find(p => p.attributes?.status === 'paid' &&
-            p.attributes.amount === expectedAmount && p.attributes.currency === 'PHP');
-        if (session?.id !== sessionId || !settled ||
-            (attrs.metadata?.invoice_id && attrs.metadata.invoice_id !== payment.id) ||
-            (process.env.NODE_ENV === 'production' && attrs.livemode !== true)) {
-            return res.status(409).json({ success: false, message: 'Payment is not confirmed. Your bill remains outstanding.' });
-        }
-
-        // Update payment record
-        const updatedPayment = await Payment.recordPayment(id, {
-            payment_method: 'paymongo_online',
-            reference_number: payment.reference_number || settled.id,
-            paymongo_checkout_id: sessionId,
-            status: 'paid'
-        });
-
-        // Send confirmation notification
-        const tenant = await Tenant.findById(payment.tenant_id);
-        if (tenant?.user_id) {
-            await Notification.create({
-                user_id: tenant.user_id,
-                title: 'Payment Confirmation Received! ✅',
-                message: `Your payment of ₱${Number(payment.amount).toLocaleString()} for ${payment.stall_number} was successfully processed via PayMongo.`,
-                type: 'payment_success',
-                link: '/payments'
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: 'PayMongo payment verified and recorded successfully! 🎉',
-            data: updatedPayment
-        });
-    } catch (error) {
-        console.error('PayMongo verification error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Failed to verify PayMongo payment.'
-        });
+        const payment=await Payment.findById(req.params.id);
+        if(!payment) return res.status(404).json({success:false,message:'Invoice not found.'});
+        if(payment.status==='paid') return res.json({success:true,data:payment});
+        if(!payment.paymongo_checkout_id || (req.body.checkout_id && req.body.checkout_id!==payment.paymongo_checkout_id)) return res.status(400).json({success:false,message:'Checkout session does not match this invoice.'});
+        const updated=await require('../services/paymentSettlement').settleInvoice(payment.id,payment.paymongo_checkout_id);
+        res.json({success:true,data:updated});
+    } catch(error) {
+        res.status(error.status||500).json({success:false,message:error.message||'Unable to verify payment.'});
     }
 };
 
@@ -341,6 +255,7 @@ const verifyPaymongoPayment = async (req, res) => {
  */
 const recordPayment = async (req, res) => {
     try {
+        if(req.userRole!=='admin') return res.status(400).json({success:false,message:'Use PayMongo checkout or pay at the HOA office. No manual payment reference is required.'});
         const { id } = req.params;
         const {
             payment_method,
@@ -357,16 +272,17 @@ const recordPayment = async (req, res) => {
             });
         }
 
+        if(payment.paymongo_checkout_id || payment.status!=='pending_verification') return res.status(409).json({success:false,message:'Use verified online checkout or the office payment form. Only existing manual submissions can be reviewed here.'});
         if (payment.status === 'paid') return res.status(409).json({ success: false, message: 'This invoice is already paid.' });
 
         // Handle uploaded file if present via multer
         let finalProofImage = proof_image;
         if (req.file) {
-            finalProofImage = `/uploads/payments/${req.file.filename}`;
+            finalProofImage = req.file.buffer ? await uploadStorage.save(req.file, 'payments', req.userId) : `/uploads/payments/${req.file.filename}`;
         }
 
         // If tenant uploaded proof, mark as pending verification unless admin verified
-        const canVerify = req.userRole === 'admin' || req.userRole === 'staff';
+        const canVerify = req.userRole === 'admin';
         const status = canVerify && (is_manual_verify || req.userRole === 'admin') ? 'paid' : 'pending_verification';
 
         const updated = await Payment.recordPayment(id, {
@@ -396,27 +312,12 @@ const recordPayment = async (req, res) => {
  */
 const generateBills = async (req, res) => {
     try {
-        const { month, year } = req.body;
-
-        if (!Number.isInteger(Number(month)) || Number(month) < 1 || Number(month) > 12 ||
-            !Number.isInteger(Number(year)) || Number(year) < 1900 || Number(year) > 9999) {
-            return res.status(400).json({
-                success: false,
-                message: 'Month and year are required.'
-            });
-        }
-
-        const bills = await Payment.generateMonthlyBills(month, year);
-
-        res.status(201).json({
-            success: true,
-            message: `Generated ${bills.length} bills for period ${month}/${year} ✅`,
-            data: {
-                count: bills.length,
-                bills
-            }
-        });
+        if(Object.keys(req.body || {}).length) return res.status(400).json({success:false,message:'Billing follows lease schedules. Arbitrary dates and frequencies are no longer accepted.'});
+        if(process.env.DEMO_MODE==='true') return res.status(503).json({success:false,message:'Scheduled billing requires PostgreSQL.'});
+        const result = await require('../services/recurringBilling').runDueBilling();
+        res.status(201).json({success:true, message:`Issued ${result.count} scheduled bills.`, data:result});
     } catch (error) {
+        if (error instanceof RangeError) return res.status(400).json({ success: false, message: error.message });
         console.error('Generate bills error:', error);
         res.status(500).json({
             success: false,
@@ -537,7 +438,7 @@ const getMonthlyReport = async (req, res) => {
 const deletePayment = async (req, res) => {
     try {
         const { id } = req.params;
-        await Payment.delete(id);
+        if(!await Payment.delete(id)) return res.status(409).json({success:false,message:'Invoice is missing, paid, or has online checkout and cannot be deleted.'});
         res.status(200).json({
             success: true,
             message: 'Payment record deleted successfully.'
@@ -596,7 +497,17 @@ const getStallsBillingOverview = async (req, res) => {
     }
 };
 
+const recordOfficePayment = async (req, res) => {
+    try {
+        const payment = await Payment.recordOfficePayment(req.params.id, req.body.amount_received, req.body.receipt_number, req.userId);
+        res.json({ success: true, message: 'Office payment recorded.', data: payment });
+    } catch (error) {
+        res.status(error.code === '23505' ? 409 : error.status || 500).json({ success: false, message: error.code === '23505' ? 'Receipt number already used.' : error.status ? error.message : 'Could not record office payment.' });
+    }
+};
+
 module.exports = {
+    recordOfficePayment,
     getAllPayments,
     getPayment,
     getTenantPayments,

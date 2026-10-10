@@ -19,8 +19,9 @@ async function review(id, status, notes, reviewerId) {
             if (!stall || stall.status !== 'available') fail(409, 'This stall is no longer available.');
             const leases = await Tenant.findAll();
             if (leases.some(t => t.stall_id === stall.id && t.status === 'active')) fail(409, 'This stall already has an active lease.');
-            const start = new Date();
-            const end = new Date(start); end.setFullYear(end.getFullYear() + 1);
+            const start = require('./billingCalendar').todayManila();
+            const nextYear = new Date(start+'T00:00:00Z'); nextYear.setUTCFullYear(nextYear.getUTCFullYear()+1);
+            const end = nextYear.toISOString().slice(0,10);
             // Each approved stall has its own lease; do not overwrite an earlier lease by email.
             await Tenant.create({ user_id: application.user_id, stall_id: stall.id,
                 name: application.full_name, email: application.email, phone: application.phone,

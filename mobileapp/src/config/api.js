@@ -28,7 +28,7 @@ const getExpoHost = () => {
 const serverHost = getExpoHost();
 const configuredUrl = process.env.EXPO_PUBLIC_API_URL;
 const apiUrl = configuredUrl || (__DEV__ ? `http://${serverHost}:5000/api/v1` : '');
-console.log(`[API Config] Connecting to backend at: http://${serverHost}:5000/api/v1`);
+if (__DEV__) console.log(`[API Config] Connecting to backend at: ${apiUrl}`);
 
 const api = axios.create({
     baseURL: apiUrl,
@@ -63,7 +63,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
-        if (error.response?.status === 401 && !['/auth/login', '/auth/change-password'].includes(error.config?.url)) {
+        if (error.response?.status === 401 && !['/auth/login', '/auth/google', '/auth/change-password'].includes(error.config?.url)) {
             console.warn('[API Auth] 401 Unauthorized - token expired or invalid. Clearing session.');
             try {
                 await AsyncStorage.removeItem('user_token');

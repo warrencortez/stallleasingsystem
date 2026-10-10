@@ -220,8 +220,11 @@ const Navbar = ({ onToggleSidebar }) => {
                     </div>
                     <div className="d-none d-sm-block text-start">
                         <div className="fw-semibold text-dark small">{user?.name || 'Administrator'}</div>
-                        <div className="text-muted" style={{ fontSize: '0.75rem' }}>{user?.email || 'rentastall@gmail.com'}</div>
+                        <div className="text-muted" style={{ fontSize: '0.75rem' }}>{user?.email || ''}</div>
                     </div>
+                    <button type="button" className="btn btn-sm btn-outline-primary" onClick={() => navigate('/account')}>
+                        Account Settings
+                    </button>
                     <button
                         onClick={logout}
                         className="btn btn-sm btn-outline-danger ms-2 p-2 rounded-circle"

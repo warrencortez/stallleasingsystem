@@ -1,0 +1,9 @@
+{
+  "checks": [
+    "Billing schedule modal and healthy worker status at 1440px",
+    "Billing schedule modal and healthy worker status at 375px",
+    "Stall form explains lease-based automatic billing",
+    "No uncaught browser exceptions"
+  ],
+  "errors": []
+}

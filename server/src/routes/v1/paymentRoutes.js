@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const {
+    recordOfficePayment,
     getAllPayments,
     getPayment,
     getTenantPayments,
@@ -40,6 +41,11 @@ const requirePaymentOwner = async (req, res, next) => {
 // ALL ROUTES REQUIRE AUTHENTICATION
 // ==================================================
 router.use(authenticate);
+router.get('/online-status', (req,res) => {
+    const provider=require('../../services/paymongoService');
+    try { provider.assertReady();res.json({success:true,data:{ready:true,testMode:!provider.secretKey.startsWith('sk_live_')}}); }
+    catch(error) { res.json({success:true,data:{ready:false,message:'Online payments are not available yet. Please pay at the HOA office.'}}); }
+});
 
 // Get comprehensive analytics report (Daily, Weekly, Monthly, Yearly)
 router.get('/analytics', authorize('admin', 'staff'), getAnalytics);
@@ -57,6 +63,14 @@ router.get('/overdue', authorize('admin', 'staff'), getOverduePayments);
 router.get('/report', authorize('admin', 'staff'), getMonthlyReport);
 
 // Generate monthly bills (Admin only)
+router.get('/billing-status', authorize('admin'), async (req,res) => {
+    if (!process.env.VERCEL) return res.json({success:true,data:require('../../services/recurringBilling').status});
+    const { rows } = await require('../../config/database').pool.query("SELECT * FROM scheduled_job_runs WHERE name='maintenance'");
+    const run = rows[0];
+    res.json({success:true,data:{running:false,lastSuccess:run?.last_success || null,lastCount:run?.details?.count || 0,
+        lastError: !run ? 'Scheduled billing has not run yet. Configure the Supabase schedule.' :
+            run.details?.skipped?.length ? 'Some lease schedules require review.' : null}});
+});
 router.post('/generate-bills', authorize('admin'), generateBills);
 
 // Apply late fees (Admin only)
@@ -107,6 +121,8 @@ router.post('/', authorize('admin', 'staff'), createPayment);
 
 // Update a payment (Admin/Staff only)
 router.put('/:id', authorize('admin', 'staff'), updatePayment);
+
+router.post('/:id/office-payment', authorize('admin'), recordOfficePayment);
 
 // Record payment or submit proof upload
 router.patch('/:id/record', requirePaymentOwner, upload.single('proof_image'), recordPayment);

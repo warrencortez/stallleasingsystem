@@ -49,7 +49,7 @@ class Tenant {
     static async findAll(filters = {}) {
         let query = `
             SELECT t.*, 
-                   s.stall_number, s.location, s.monthly_rent,
+                   s.stall_number, s.location, s.monthly_rent, s.rent_type, s.daily_rent,
                    u.name as user_name, u.email as user_email
             FROM tenants t
             LEFT JOIN stalls s ON t.stall_id = s.id
@@ -89,7 +89,7 @@ class Tenant {
     static async findById(id) {
         const result = await pool.query(
             `SELECT t.*, 
-                    s.stall_number, s.location, s.monthly_rent, s.status as stall_status,
+                    s.stall_number, s.location, s.monthly_rent, s.rent_type, s.daily_rent, s.status as stall_status,
                     u.name as user_name, u.email as user_email, u.phone as user_phone
              FROM tenants t
              LEFT JOIN stalls s ON t.stall_id = s.id
@@ -106,7 +106,7 @@ class Tenant {
     static async findByUserId(userId) {
         const result = await pool.query(
             `SELECT t.*, 
-                    s.stall_number, s.location, s.monthly_rent,
+                    s.stall_number, s.location, s.monthly_rent, s.rent_type, s.daily_rent,
                     u.name as user_name, u.email as user_email
              FROM tenants t
              LEFT JOIN stalls s ON t.stall_id = s.id

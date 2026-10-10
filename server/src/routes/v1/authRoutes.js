@@ -20,6 +20,7 @@ router.post('/register', authRateLimiter, register);
 
 // Login user
 router.post('/login', authRateLimiter, login);
+router.post('/google', authRateLimiter, require('../../controllers/googleAuthController').googleLogin);
 
 // ==================================================
 // PROTECTED ROUTES (Need authentication)

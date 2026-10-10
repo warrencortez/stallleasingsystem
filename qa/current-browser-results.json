@@ -1,0 +1,4034 @@
+{
+  "checks": [
+    "Real admin login and dashboard redirect",
+    "16 admin routes rendered",
+    "Staff role absent from user filter",
+    "Admin floating chat contains tenant inbox only",
+    "Admin tenant inbox takeover and message submission still work",
+    "Create and edit daily stall through real forms",
+    "Admin maintenance report dialog opens and cancels",
+    "Walk-in payment with late fee produces settled receipt and correct total",
+    "Daily generation modal creates a daily lease invoice",
+    "No uncaught browser exceptions",
+    "Corrupt stored session recovers to login"
+  ],
+  "pages": [
+    {
+      "label": "current-login",
+      "buttons": [
+        {
+          "text": "Sign In to Admin Portal",
+          "label": "",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/login",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "Dela Costa HOA Stall Leasing\n\nAdministrative Management Portal\n\nAdministrator Email\nPassword\nSign In to Admin Portal\nEnterprise Security Active\nAuthorized facility management personnel only.",
+      "inputs": [
+        {
+          "type": "email",
+          "name": "email",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "rentastall@gmail.com"
+        },
+        {
+          "type": "password",
+          "name": "password",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "••••••••"
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 567.2000000476837,
+          "loadMs": 568.7000000476837
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "current-dashboard",
+      "buttons": [
+        {
+          "text": "Dashboard",
+          "label": "",
+          "href": "/dashboard"
+        },
+        {
+          "text": "Stalls & QR Codes",
+          "label": "",
+          "href": "/stalls"
+        },
+        {
+          "text": "Tenants Directory",
+          "label": "",
+          "href": "/tenants"
+        },
+        {
+          "text": "Tenant Conversations",
+          "label": "",
+          "href": "/conversations"
+        },
+        {
+          "text": "Stall Applications",
+          "label": "",
+          "href": "/applications"
+        },
+        {
+          "text": "Billing & Payments",
+          "label": "",
+          "href": "/payments"
+        },
+        {
+          "text": "Maintenance Hub",
+          "label": "",
+          "href": "/maintenance"
+        },
+        {
+          "text": "Announcements",
+          "label": "",
+          "href": "/announcements"
+        },
+        {
+          "text": "Reports & Analytics",
+          "label": "",
+          "href": "/reports"
+        },
+        {
+          "text": "User Accounts",
+          "label": "",
+          "href": "/users"
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Notifications",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "Review Outstanding Invoices",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Add Commercial Stall",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Review Applications (0)",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Billing & PayMongo Gateway",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Open tenant messages",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/dashboard",
+      "width": 1440,
+      "scrollWidth": 1432,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nTenant Conversations\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\nStall leasing & community management\nAdministrator Portal\nQA Administrator\nadmin@example.invalid\nExecutive Operations Dashboard\n\nReal-time commercial stall operations, occupancy pipeline, and revenue tracking.\n\nFriday, October 2, 2026 • 05:38:35 AM\nLive Auto-Sync Active\nACTION REQUIRED\nToday's Unpaid Rent\n₱130\n\n1 pending invoice(s) due for collection\n\nReview Outstanding Invoices\nCOMMERCIAL STALLS\n2\n1 Available • 1 Occupied\n1 Active Leases\nACTIVE TENANTS\n1\n1 Total Registered\n0 Inactive\nAPPLICATIONS\n0\n0 Total • 0 Approved\n0 Rejected\nTOTAL COLLECTED\n₱0\n0 Invoices Settled\n₱130 Balance\nOperational Quick Shortcuts\nAdd Commercial Stall\nReview Applications (0)\nBilling & PayMongo Gateway\nOverdue Rental Invoices (1)\nQA Tenant\nQA-DAILY\n₱120\nLease Contracts Expiring Soon (1)\nQA Tenant\nMerchant\nQA-DAILY\nRecent Operations & Tenant Activity\nQA Tenant's lease contract for QA-DAILY expires in 455 days\n12/31/2027\nQA Tenant has an overdue rental bill of ₱120 (0 days overdue)\n10/1/2026",
+      "inputs": [],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 45,
+          "loadMs": 45.299999952316284
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "current-stalls",
+      "buttons": [
+        {
+          "text": "Dashboard",
+          "label": "",
+          "href": "/dashboard"
+        },
+        {
+          "text": "Stalls & QR Codes",
+          "label": "",
+          "href": "/stalls"
+        },
+        {
+          "text": "Tenants Directory",
+          "label": "",
+          "href": "/tenants"
+        },
+        {
+          "text": "Tenant Conversations",
+          "label": "",
+          "href": "/conversations"
+        },
+        {
+          "text": "Stall Applications",
+          "label": "",
+          "href": "/applications"
+        },
+        {
+          "text": "Billing & Payments",
+          "label": "",
+          "href": "/payments"
+        },
+        {
+          "text": "Maintenance Hub",
+          "label": "",
+          "href": "/maintenance"
+        },
+        {
+          "text": "Announcements",
+          "label": "",
+          "href": "/announcements"
+        },
+        {
+          "text": "Reports & Analytics",
+          "label": "",
+          "href": "/reports"
+        },
+        {
+          "text": "User Accounts",
+          "label": "",
+          "href": "/users"
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Notifications",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "Add New Commercial Stall",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Search",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Details",
+          "label": "View complete stall specs & tenant history",
+          "href": null
+        },
+        {
+          "text": "QR Card",
+          "label": "View / Print QR Code",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Edit Stall",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Delete Stall",
+          "href": null
+        },
+        {
+          "text": "Details",
+          "label": "View complete stall specs & tenant history",
+          "href": null
+        },
+        {
+          "text": "QR Card",
+          "label": "View / Print QR Code",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Edit Stall",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Delete Stall",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Open tenant messages",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/stalls",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nTenant Conversations\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\nStall leasing & community management\nAdministrator Portal\nQA Administrator\nadmin@example.invalid\nStalls Directory & QR Identification\n\nCommercial spaces overview, tenant assignment, live maintenance tickets, and QR placards.\n\nAdd New Commercial Stall\nSearch\nAll Statuses (2)\nAvailable Only\nOccupied Only\nUnder Maintenance\nReserved\nAuto-Sync Active\nQA-AVAILABLE\nDetails\nAvailable\n\nQA Market\n\nSpace Size:\n20 sqm\nRental Rate:\n₱900 / mo\n\n[Billing: MONTHLY]\n\nQR Card\nQA-DAILY\nDetails\nOccupied\n\nQA Market\n\nSpace Size:\n20 sqm\nRental Rate:\n₱120 / day\n\n[Billing: DAILY]\n\nQR Card",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Search by stall number or location zone..."
+        },
+        {
+          "type": "select-one",
+          "name": "",
+          "labels": 0,
+          "aria": null
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 42.199999928474426,
+          "loadMs": 42.799999952316284
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "current-tenants",
+      "buttons": [
+        {
+          "text": "Dashboard",
+          "label": "",
+          "href": "/dashboard"
+        },
+        {
+          "text": "Stalls & QR Codes",
+          "label": "",
+          "href": "/stalls"
+        },
+        {
+          "text": "Tenants Directory",
+          "label": "",
+          "href": "/tenants"
+        },
+        {
+          "text": "Tenant Conversations",
+          "label": "",
+          "href": "/conversations"
+        },
+        {
+          "text": "Stall Applications",
+          "label": "",
+          "href": "/applications"
+        },
+        {
+          "text": "Billing & Payments",
+          "label": "",
+          "href": "/payments"
+        },
+        {
+          "text": "Maintenance Hub",
+          "label": "",
+          "href": "/maintenance"
+        },
+        {
+          "text": "Announcements",
+          "label": "",
+          "href": "/announcements"
+        },
+        {
+          "text": "Reports & Analytics",
+          "label": "",
+          "href": "/reports"
+        },
+        {
+          "text": "User Accounts",
+          "label": "",
+          "href": "/users"
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Notifications",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "Search",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "View Profile",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Edit Record",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Deactivate Tenant",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Delete Tenant",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Open tenant messages",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/tenants",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nTenant Conversations\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\nStall leasing & community management\nAdministrator Portal\nQA Administrator\nadmin@example.invalid\nCommercial Tenants Directory\n\nRoster of registered market merchants, lease contracts, and assigned retail spaces.\n\nSearch\nAll Statuses (1)\nActive Occupants\nInactive\nPending\nAuto-Sync Active\nMerchant Name\tBusiness Entity\tAssigned Stall\tContact Information\tStatus\tActions\n\nQA Tenant\n\t\nN/A\n\t QA-DAILY\t\nN/A\n\tACTIVE\t",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Search by name, email, or business..."
+        },
+        {
+          "type": "select-one",
+          "name": "",
+          "labels": 0,
+          "aria": null
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 42.10000002384186,
+          "loadMs": 42.60000002384186
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "current-applications",
+      "buttons": [
+        {
+          "text": "Dashboard",
+          "label": "",
+          "href": "/dashboard"
+        },
+        {
+          "text": "Stalls & QR Codes",
+          "label": "",
+          "href": "/stalls"
+        },
+        {
+          "text": "Tenants Directory",
+          "label": "",
+          "href": "/tenants"
+        },
+        {
+          "text": "Tenant Conversations",
+          "label": "",
+          "href": "/conversations"
+        },
+        {
+          "text": "Stall Applications",
+          "label": "",
+          "href": "/applications"
+        },
+        {
+          "text": "Billing & Payments",
+          "label": "",
+          "href": "/payments"
+        },
+        {
+          "text": "Maintenance Hub",
+          "label": "",
+          "href": "/maintenance"
+        },
+        {
+          "text": "Announcements",
+          "label": "",
+          "href": "/announcements"
+        },
+        {
+          "text": "Reports & Analytics",
+          "label": "",
+          "href": "/reports"
+        },
+        {
+          "text": "User Accounts",
+          "label": "",
+          "href": "/users"
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Notifications",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "Search",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Open tenant messages",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/applications",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nTenant Conversations\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\nStall leasing & community management\nAdministrator Portal\nQA Administrator\nadmin@example.invalid\nStall Lease Applications Pipeline\n\nReview incoming applicant submissions from the Tenant Mobile App and manage lease approvals.\n\nPending: 0\nTotal Submissions: 0\nSearch\nPending Review Only\nApproved Applications\nRejected Applications\nAll Applications\nLive Auto-Sync Active\nNo applications found\n\nNo applicant submissions match your current filter.",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Search by applicant name, email, or business..."
+        },
+        {
+          "type": "select-one",
+          "name": "",
+          "labels": 0,
+          "aria": null
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 38.10000002384186,
+          "loadMs": 38.60000002384186
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "current-payments",
+      "buttons": [
+        {
+          "text": "Dashboard",
+          "label": "",
+          "href": "/dashboard"
+        },
+        {
+          "text": "Stalls & QR Codes",
+          "label": "",
+          "href": "/stalls"
+        },
+        {
+          "text": "Tenants Directory",
+          "label": "",
+          "href": "/tenants"
+        },
+        {
+          "text": "Tenant Conversations",
+          "label": "",
+          "href": "/conversations"
+        },
+        {
+          "text": "Stall Applications",
+          "label": "",
+          "href": "/applications"
+        },
+        {
+          "text": "Billing & Payments",
+          "label": "",
+          "href": "/payments"
+        },
+        {
+          "text": "Maintenance Hub",
+          "label": "",
+          "href": "/maintenance"
+        },
+        {
+          "text": "Announcements",
+          "label": "",
+          "href": "/announcements"
+        },
+        {
+          "text": "Reports & Analytics",
+          "label": "",
+          "href": "/reports"
+        },
+        {
+          "text": "User Accounts",
+          "label": "",
+          "href": "/users"
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Notifications",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "Record Walk-in Payment",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Apply Late Fees",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Generate Rent Bills",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Create Custom Bill",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Stalls Dues & Rent Master (Top Priority)",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "All Payments & Receipts Ledger",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "History & Receipts",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "History & Receipts",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Open tenant messages",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/payments",
+      "width": 1440,
+      "scrollWidth": 1432,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nTenant Conversations\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\nStall leasing & community management\nAdministrator Portal\nQA Administrator\nadmin@example.invalid\nCommercial Stalls Billing & Payment Ledger\n\nAudit active stall rental dues, view payment methods (GCash, Maya, Bank Transfer, Cards), and inspect official receipts.\n\n Record Walk-in Payment\nApply Late Fees\nGenerate Rent Bills\nCreate Custom Bill\nTOTAL REVENUE COLLECTED\n₱0\n0 Settled Invoices\nTOTAL OUTSTANDING DUES\n₱130\n1 Stalls with Balance\nTODAY'S UNPAID DUES\n₱0\n0 Dues Matured Today\nOVERDUE INVOICES\n0\nSubject to Late Penalties\n Stalls Dues & Rent Master (Top Priority)\n All Payments & Receipts Ledger\nCommercial Stalls Rent & Dues Roster\nStalls with outstanding dues and overdue rents are automatically sorted to the top.\n2 Stalls Registered\nSTALL SPACE\tOCCUPANT / MERCHANT\tCONTRACT RENT\tCURRENT ACTIVE DUE\tTOTAL OUTSTANDING\tLATEST SETTLED MODE\tACTIONS\n\nQA-DAILY\nQA Market\n\t\nQA Tenant\nActive Tenant\n\t₱120\n/Daily\n\t\nUNPAID\n₱120\nDue: 10/1/2026\n\t\n₱130\n1 Pending Invoices\n\tNo prior receipts\t\nHistory & Receipts\n\nQA-AVAILABLE\nQA Market\n\tVacant / Unassigned\t₱900\n/Monthly\n\t\nAll Dues Settled\n\t₱0.00 Outstanding\tNo prior receipts\t\nHistory & Receipts",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Search stall #, tenant name, or ref..."
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 40,
+          "loadMs": 40.299999952316284
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "current-payments-stats",
+      "buttons": [
+        {
+          "text": "Dashboard",
+          "label": "",
+          "href": "/dashboard"
+        },
+        {
+          "text": "Stalls & QR Codes",
+          "label": "",
+          "href": "/stalls"
+        },
+        {
+          "text": "Tenants Directory",
+          "label": "",
+          "href": "/tenants"
+        },
+        {
+          "text": "Tenant Conversations",
+          "label": "",
+          "href": "/conversations"
+        },
+        {
+          "text": "Stall Applications",
+          "label": "",
+          "href": "/applications"
+        },
+        {
+          "text": "Billing & Payments",
+          "label": "",
+          "href": "/payments"
+        },
+        {
+          "text": "Maintenance Hub",
+          "label": "",
+          "href": "/maintenance"
+        },
+        {
+          "text": "Announcements",
+          "label": "",
+          "href": "/announcements"
+        },
+        {
+          "text": "Reports & Analytics",
+          "label": "",
+          "href": "/reports"
+        },
+        {
+          "text": "User Accounts",
+          "label": "",
+          "href": "/users"
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Notifications",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Open tenant messages",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/payments/stats",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nTenant Conversations\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\nStall leasing & community management\nAdministrator Portal\nQA Administrator\nadmin@example.invalid\nPayment & Revenue Analytics\n\nFinancial metrics, monthly collection reports, and delinquency tracking.\n\nJanuary\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember\nTotal Collected\n₱0\n0 Settled Bills\nTotal Outstanding\n₱130\n0 Overdue Bills\nUnpaid Active\n1\nAwaiting Payment\nTotal Invoices\n1\nLifetime Invoices\nPeriod Collection: October 2026\nTotal Monthly Bills:\n0\nPaid Count:\n0\nUnpaid Count:\n0\nOverdue Count:\n0\nCollection Progress\nNo bills recorded for this month.",
+      "inputs": [
+        {
+          "type": "select-one",
+          "name": "",
+          "labels": 0,
+          "aria": null
+        },
+        {
+          "type": "number",
+          "name": "",
+          "labels": 0,
+          "aria": null,
+          "placeholder": ""
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 40.299999952316284,
+          "loadMs": 41
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "current-maintenance",
+      "buttons": [
+        {
+          "text": "Dashboard",
+          "label": "",
+          "href": "/dashboard"
+        },
+        {
+          "text": "Stalls & QR Codes",
+          "label": "",
+          "href": "/stalls"
+        },
+        {
+          "text": "Tenants Directory",
+          "label": "",
+          "href": "/tenants"
+        },
+        {
+          "text": "Tenant Conversations",
+          "label": "",
+          "href": "/conversations"
+        },
+        {
+          "text": "Stall Applications",
+          "label": "",
+          "href": "/applications"
+        },
+        {
+          "text": "Billing & Payments",
+          "label": "",
+          "href": "/payments"
+        },
+        {
+          "text": "Maintenance Hub",
+          "label": "",
+          "href": "/maintenance"
+        },
+        {
+          "text": "Announcements",
+          "label": "",
+          "href": "/announcements"
+        },
+        {
+          "text": "Reports & Analytics",
+          "label": "",
+          "href": "/reports"
+        },
+        {
+          "text": "User Accounts",
+          "label": "",
+          "href": "/users"
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Notifications",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "Report New Stall Issue",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Open tenant messages",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/maintenance",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nTenant Conversations\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\nStall leasing & community management\nAdministrator Portal\nQA Administrator\nadmin@example.invalid\nMaintenance & Repair Operations\n\nTrack stall issues submitted by tenants, assign building technicians, and record resolutions.\n\nReport New Stall Issue\nAll Categories\nRoof Leak\nElectrical\nPlumbing\nStructural\nPest Control\nGeneral\nAll Statuses (0)\nPending\nIn Progress\nCompleted\nNo maintenance requests recorded.",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Search by issue title, stall #, or tenant..."
+        },
+        {
+          "type": "select-one",
+          "name": "",
+          "labels": 0,
+          "aria": null
+        },
+        {
+          "type": "select-one",
+          "name": "",
+          "labels": 0,
+          "aria": null
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 40.5,
+          "loadMs": 40.800000071525574
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "current-announcements",
+      "buttons": [
+        {
+          "text": "Dashboard",
+          "label": "",
+          "href": "/dashboard"
+        },
+        {
+          "text": "Stalls & QR Codes",
+          "label": "",
+          "href": "/stalls"
+        },
+        {
+          "text": "Tenants Directory",
+          "label": "",
+          "href": "/tenants"
+        },
+        {
+          "text": "Tenant Conversations",
+          "label": "",
+          "href": "/conversations"
+        },
+        {
+          "text": "Stall Applications",
+          "label": "",
+          "href": "/applications"
+        },
+        {
+          "text": "Billing & Payments",
+          "label": "",
+          "href": "/payments"
+        },
+        {
+          "text": "Maintenance Hub",
+          "label": "",
+          "href": "/maintenance"
+        },
+        {
+          "text": "Announcements",
+          "label": "",
+          "href": "/announcements"
+        },
+        {
+          "text": "Reports & Analytics",
+          "label": "",
+          "href": "/reports"
+        },
+        {
+          "text": "User Accounts",
+          "label": "",
+          "href": "/users"
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Notifications",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "Post Announcement",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "All Announcements",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Events",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Market Advisories",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Billing Notices",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Maintenance",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Open tenant messages",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/announcements",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nTenant Conversations\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\nStall leasing & community management\nAdministrator Portal\nQA Administrator\nadmin@example.invalid\nMarket Announcements & Advisories\n\nBroadcast center news, mall schedule adjustments, and advisories to all tenants.\n\nPost Announcement\nAll Announcements\nEvents\nMarket Advisories\nBilling Notices\nMaintenance\nNo announcements posted in this category.",
+      "inputs": [],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 45.300000071525574,
+          "loadMs": 46
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "current-reports",
+      "buttons": [
+        {
+          "text": "Dashboard",
+          "label": "",
+          "href": "/dashboard"
+        },
+        {
+          "text": "Stalls & QR Codes",
+          "label": "",
+          "href": "/stalls"
+        },
+        {
+          "text": "Tenants Directory",
+          "label": "",
+          "href": "/tenants"
+        },
+        {
+          "text": "Tenant Conversations",
+          "label": "",
+          "href": "/conversations"
+        },
+        {
+          "text": "Stall Applications",
+          "label": "",
+          "href": "/applications"
+        },
+        {
+          "text": "Billing & Payments",
+          "label": "",
+          "href": "/payments"
+        },
+        {
+          "text": "Maintenance Hub",
+          "label": "",
+          "href": "/maintenance"
+        },
+        {
+          "text": "Announcements",
+          "label": "",
+          "href": "/announcements"
+        },
+        {
+          "text": "Reports & Analytics",
+          "label": "",
+          "href": "/reports"
+        },
+        {
+          "text": "User Accounts",
+          "label": "",
+          "href": "/users"
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Notifications",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "Print Report",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Daily",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Weekly",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Monthly",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Yearly",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Area",
+          "label": "Smooth Area Graph",
+          "href": null
+        },
+        {
+          "text": "Bar",
+          "label": "Bar Chart",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Open tenant messages",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/reports",
+      "width": 1440,
+      "scrollWidth": 1432,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nTenant Conversations\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\nStall leasing & community management\nAdministrator Portal\nQA Administrator\nadmin@example.invalid\nReports & Financial Analytics\n\nReal-time revenue monitoring, multi-timeframe collection graphs, and commercial stall capacity.\n\n2024\n2025\n2026\n2027\n2028\nPrint Report\nTotal Collections\n₱0\n100% Rate\n0 Paid\nTotal Outstanding\n₱130\n0 Unpaid Invoices\nToday's Collections\n₱0\nWeek Total: ₱0\nStall Occupancy\n50%\n1 / 2 Stalls Leased\nRevenue & Collections Breakdown\n\nSelect a timeframe below to view daily, weekly, monthly, or multi-year financial trends.\n\n Daily\n Weekly\n Monthly\n Yearly\nArea\nBar\n\nNo payment transactions recorded for this timeframe.\n\nSettlement Channels\nNo settled payments found yet. Settle an invoice to see channel metrics.\nCommercial Stall Capacity\nOccupied Leases\n1 (50%)\nAvailable Stalls\n1 (50%)\nUnder Maintenance\n0\nMONTHLY Financial Audit Breakdown (2026)\n0 Intervals Recorded\nInterval / Period\tCollected Revenue\tExpected Invoices\tSettlement Efficiency\tTransactions\nNo data available for this timeframe.",
+      "inputs": [
+        {
+          "type": "select-one",
+          "name": "",
+          "labels": 0,
+          "aria": null
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 42.299999952316284,
+          "loadMs": 42.89999997615814
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "current-users",
+      "buttons": [
+        {
+          "text": "Dashboard",
+          "label": "",
+          "href": "/dashboard"
+        },
+        {
+          "text": "Stalls & QR Codes",
+          "label": "",
+          "href": "/stalls"
+        },
+        {
+          "text": "Tenants Directory",
+          "label": "",
+          "href": "/tenants"
+        },
+        {
+          "text": "Tenant Conversations",
+          "label": "",
+          "href": "/conversations"
+        },
+        {
+          "text": "Stall Applications",
+          "label": "",
+          "href": "/applications"
+        },
+        {
+          "text": "Billing & Payments",
+          "label": "",
+          "href": "/payments"
+        },
+        {
+          "text": "Maintenance Hub",
+          "label": "",
+          "href": "/maintenance"
+        },
+        {
+          "text": "Announcements",
+          "label": "",
+          "href": "/announcements"
+        },
+        {
+          "text": "Reports & Analytics",
+          "label": "",
+          "href": "/reports"
+        },
+        {
+          "text": "User Accounts",
+          "label": "",
+          "href": "/users"
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Notifications",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Edit User",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Delete User",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Edit User",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Delete User",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Edit User",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Delete User",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Open tenant messages",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/users",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nTenant Conversations\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\nStall leasing & community management\nAdministrator Portal\nQA Administrator\nadmin@example.invalid\nUser Accounts & Role Control\n\nManage system users, grant administrative permissions, and deactivate accounts.\n\nAll Roles\nAdministrators\nTenants / Owners\nName / Contact\tEmail\tRole\tStatus\tCreated\tActions\n\nQA Tenant\nNo phone\n\ttenant@example.invalid\tTenant\tACTIVE\t\n10/2/2026\n\t\n\n\nQA Administrator\nNo phone\n\tadmin@example.invalid\tAdmin\tACTIVE\t\n10/2/2026\n\t\n\n\nSystem Administrator\n+63 900 000 0000\n\trentastall@gmail.com\tAdmin\tACTIVE\t\n10/2/2026\n\t",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Search by name or email..."
+        },
+        {
+          "type": "select-one",
+          "name": "",
+          "labels": 0,
+          "aria": null
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 49.89999997615814,
+          "loadMs": 50.199999928474426
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "current-stalls-new",
+      "buttons": [
+        {
+          "text": "Dashboard",
+          "label": "",
+          "href": "/dashboard"
+        },
+        {
+          "text": "Stalls & QR Codes",
+          "label": "",
+          "href": "/stalls"
+        },
+        {
+          "text": "Tenants Directory",
+          "label": "",
+          "href": "/tenants"
+        },
+        {
+          "text": "Tenant Conversations",
+          "label": "",
+          "href": "/conversations"
+        },
+        {
+          "text": "Stall Applications",
+          "label": "",
+          "href": "/applications"
+        },
+        {
+          "text": "Billing & Payments",
+          "label": "",
+          "href": "/payments"
+        },
+        {
+          "text": "Maintenance Hub",
+          "label": "",
+          "href": "/maintenance"
+        },
+        {
+          "text": "Announcements",
+          "label": "",
+          "href": "/announcements"
+        },
+        {
+          "text": "Reports & Analytics",
+          "label": "",
+          "href": "/reports"
+        },
+        {
+          "text": "User Accounts",
+          "label": "",
+          "href": "/users"
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Notifications",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "Cancel",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Cancel",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Create Stall",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Open tenant messages",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/stalls/new",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nTenant Conversations\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\nStall leasing & community management\nAdministrator Portal\nQA Administrator\nadmin@example.invalid\nAdd New Commercial Stall\n\nRegister a new retail space in the commercial complex\n\nCancel\nStall Number / Identifier *\nLocation / Zone\nRental Billing Frequency *\nMonthly Lease\nDaily Rent\nMonthly Rent Rate (₱) *\n₱\n/ month\nFloor Area / Dimensions\nOccupancy Status\nAvailable (Vacant)\nOccupied\nUnder Maintenance\nReserved\nStall Description & Amenities\nCancel\nCreate Stall",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "stall_number",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "e.g. Stall A-101"
+        },
+        {
+          "type": "text",
+          "name": "location",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "e.g. Building A, Ground Floor, Food Court"
+        },
+        {
+          "type": "radio",
+          "name": "rent_type_option",
+          "labels": 1,
+          "aria": null,
+          "placeholder": ""
+        },
+        {
+          "type": "radio",
+          "name": "rent_type_option",
+          "labels": 1,
+          "aria": null,
+          "placeholder": ""
+        },
+        {
+          "type": "number",
+          "name": "monthly_rent",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "e.g. 15000"
+        },
+        {
+          "type": "text",
+          "name": "size",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "e.g. 20 sqm (4m x 5m)"
+        },
+        {
+          "type": "select-one",
+          "name": "status",
+          "labels": 0,
+          "aria": null
+        },
+        {
+          "type": "textarea",
+          "name": "description",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Add notes about power outlets, water line connection, corner visibility..."
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 44.199999928474426,
+          "loadMs": 44.60000002384186
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "current-tenants-new",
+      "buttons": [
+        {
+          "text": "Dashboard",
+          "label": "",
+          "href": "/dashboard"
+        },
+        {
+          "text": "Stalls & QR Codes",
+          "label": "",
+          "href": "/stalls"
+        },
+        {
+          "text": "Tenants Directory",
+          "label": "",
+          "href": "/tenants"
+        },
+        {
+          "text": "Tenant Conversations",
+          "label": "",
+          "href": "/conversations"
+        },
+        {
+          "text": "Stall Applications",
+          "label": "",
+          "href": "/applications"
+        },
+        {
+          "text": "Billing & Payments",
+          "label": "",
+          "href": "/payments"
+        },
+        {
+          "text": "Maintenance Hub",
+          "label": "",
+          "href": "/maintenance"
+        },
+        {
+          "text": "Announcements",
+          "label": "",
+          "href": "/announcements"
+        },
+        {
+          "text": "Reports & Analytics",
+          "label": "",
+          "href": "/reports"
+        },
+        {
+          "text": "User Accounts",
+          "label": "",
+          "href": "/users"
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Notifications",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "Search",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "View Profile",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Edit Record",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Deactivate Tenant",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Delete Tenant",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Open tenant messages",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/tenants",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nTenant Conversations\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\nStall leasing & community management\nAdministrator Portal\nQA Administrator\nadmin@example.invalid\nCommercial Tenants Directory\n\nRoster of registered market merchants, lease contracts, and assigned retail spaces.\n\nSearch\nAll Statuses (1)\nActive Occupants\nInactive\nPending\nAuto-Sync Active\nMerchant Name\tBusiness Entity\tAssigned Stall\tContact Information\tStatus\tActions\n\nQA Tenant\n\t\nN/A\n\t QA-DAILY\t\nN/A\n\tACTIVE\t",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Search by name, email, or business..."
+        },
+        {
+          "type": "select-one",
+          "name": "",
+          "labels": 0,
+          "aria": null
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 51.59999990463257,
+          "loadMs": 52.5
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "current-conversations",
+      "buttons": [
+        {
+          "text": "Dashboard",
+          "label": "",
+          "href": "/dashboard"
+        },
+        {
+          "text": "Stalls & QR Codes",
+          "label": "",
+          "href": "/stalls"
+        },
+        {
+          "text": "Tenants Directory",
+          "label": "",
+          "href": "/tenants"
+        },
+        {
+          "text": "Tenant Conversations",
+          "label": "",
+          "href": "/conversations"
+        },
+        {
+          "text": "Stall Applications",
+          "label": "",
+          "href": "/applications"
+        },
+        {
+          "text": "Billing & Payments",
+          "label": "",
+          "href": "/payments"
+        },
+        {
+          "text": "Maintenance Hub",
+          "label": "",
+          "href": "/maintenance"
+        },
+        {
+          "text": "Announcements",
+          "label": "",
+          "href": "/announcements"
+        },
+        {
+          "text": "Reports & Analytics",
+          "label": "",
+          "href": "/reports"
+        },
+        {
+          "text": "User Accounts",
+          "label": "",
+          "href": "/users"
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Notifications",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "All tenants",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Waiting (0)",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "QA Tenant\nAssistant\nNo messages yet",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Open tenant messages",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/conversations",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nTenant Conversations\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\nStall leasing & community management\nAdministrator Portal\nQA Administrator\nadmin@example.invalid\nTenant conversations\n\nRead assistant history, respond to requests, and message a tenant.\n\n0 waiting\nAll tenants\nWaiting (0)\nQA Tenant\nAssistant\nNo messages yet\nYour tenant inbox\n\nSelect a tenant to see their conversation or start a live chat.",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "",
+          "labels": 0,
+          "aria": "Search tenant conversations",
+          "placeholder": "Search tenants…"
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 41,
+          "loadMs": 41.5
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "current-stalls-edit-76e7f9c2-596f-4f44-82d0-c8892c6b4233",
+      "buttons": [
+        {
+          "text": "Dashboard",
+          "label": "",
+          "href": "/dashboard"
+        },
+        {
+          "text": "Stalls & QR Codes",
+          "label": "",
+          "href": "/stalls"
+        },
+        {
+          "text": "Tenants Directory",
+          "label": "",
+          "href": "/tenants"
+        },
+        {
+          "text": "Tenant Conversations",
+          "label": "",
+          "href": "/conversations"
+        },
+        {
+          "text": "Stall Applications",
+          "label": "",
+          "href": "/applications"
+        },
+        {
+          "text": "Billing & Payments",
+          "label": "",
+          "href": "/payments"
+        },
+        {
+          "text": "Maintenance Hub",
+          "label": "",
+          "href": "/maintenance"
+        },
+        {
+          "text": "Announcements",
+          "label": "",
+          "href": "/announcements"
+        },
+        {
+          "text": "Reports & Analytics",
+          "label": "",
+          "href": "/reports"
+        },
+        {
+          "text": "User Accounts",
+          "label": "",
+          "href": "/users"
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Notifications",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "Cancel",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Cancel",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Save Changes",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Open tenant messages",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/stalls/edit/76e7f9c2-596f-4f44-82d0-c8892c6b4233",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nTenant Conversations\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\nStall leasing & community management\nAdministrator Portal\nQA Administrator\nadmin@example.invalid\nEdit Stall: QA-DAILY\n\nUpdate stall attributes, pricing, and occupancy status\n\nCancel\nStall Number / Identifier *\nLocation / Zone\nRental Billing Frequency *\nMonthly Lease\nDaily Rent\nDaily Rent Rate (₱) *\n₱\n/ day\nFloor Area / Dimensions\nOccupancy Status\nAvailable (Vacant)\nOccupied\nUnder Maintenance\nReserved\nStall Description & Amenities\nCancel\nSave Changes",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "stall_number",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "e.g. Stall A-101"
+        },
+        {
+          "type": "text",
+          "name": "location",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "e.g. Building A, Ground Floor, Food Court"
+        },
+        {
+          "type": "radio",
+          "name": "rent_type_option",
+          "labels": 1,
+          "aria": null,
+          "placeholder": ""
+        },
+        {
+          "type": "radio",
+          "name": "rent_type_option",
+          "labels": 1,
+          "aria": null,
+          "placeholder": ""
+        },
+        {
+          "type": "number",
+          "name": "daily_rent",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "e.g. 500"
+        },
+        {
+          "type": "text",
+          "name": "size",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "e.g. 20 sqm (4m x 5m)"
+        },
+        {
+          "type": "select-one",
+          "name": "status",
+          "labels": 0,
+          "aria": null
+        },
+        {
+          "type": "textarea",
+          "name": "description",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Add notes about power outlets, water line connection, corner visibility..."
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 47.09999990463257,
+          "loadMs": 47.799999952316284
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "current-tenants-60d1ad75-870d-47f4-9e63-6da751444786",
+      "buttons": [
+        {
+          "text": "Dashboard",
+          "label": "",
+          "href": "/dashboard"
+        },
+        {
+          "text": "Stalls & QR Codes",
+          "label": "",
+          "href": "/stalls"
+        },
+        {
+          "text": "Tenants Directory",
+          "label": "",
+          "href": "/tenants"
+        },
+        {
+          "text": "Tenant Conversations",
+          "label": "",
+          "href": "/conversations"
+        },
+        {
+          "text": "Stall Applications",
+          "label": "",
+          "href": "/applications"
+        },
+        {
+          "text": "Billing & Payments",
+          "label": "",
+          "href": "/payments"
+        },
+        {
+          "text": "Maintenance Hub",
+          "label": "",
+          "href": "/maintenance"
+        },
+        {
+          "text": "Announcements",
+          "label": "",
+          "href": "/announcements"
+        },
+        {
+          "text": "Reports & Analytics",
+          "label": "",
+          "href": "/reports"
+        },
+        {
+          "text": "User Accounts",
+          "label": "",
+          "href": "/users"
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Notifications",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "Back to Tenants List",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Edit Tenant Record",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Open tenant messages",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/tenants/60d1ad75-870d-47f4-9e63-6da751444786",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nTenant Conversations\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\nStall leasing & community management\nAdministrator Portal\nQA Administrator\nadmin@example.invalid\nBack to Tenants List\nEdit Tenant Record\nQA Tenant\n\nCommercial Merchant\n\nACTIVE\nNo email registered\nNo phone registered\nNo mailing address\nNo stall assigned\nBusiness Trade Information\nBUSINESS ENTITY\n\nIndividual Merchant\n\nLINE OF BUSINESS\n\nGeneral Merchandise\n\nCONTRACT COMMENCED\n\n1/1/2026\n\nCONTRACT EXPIRY\n\n12/31/2027\n\nPayment & Ledger Summary\nTotal Paid\n₱0\nOutstanding\n₱0\nTotal Invoices\n0",
+      "inputs": [],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 45.699999928474426,
+          "loadMs": 46.5
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "current-tenants-edit-60d1ad75-870d-47f4-9e63-6da751444786",
+      "buttons": [
+        {
+          "text": "Dashboard",
+          "label": "",
+          "href": "/dashboard"
+        },
+        {
+          "text": "Stalls & QR Codes",
+          "label": "",
+          "href": "/stalls"
+        },
+        {
+          "text": "Tenants Directory",
+          "label": "",
+          "href": "/tenants"
+        },
+        {
+          "text": "Tenant Conversations",
+          "label": "",
+          "href": "/conversations"
+        },
+        {
+          "text": "Stall Applications",
+          "label": "",
+          "href": "/applications"
+        },
+        {
+          "text": "Billing & Payments",
+          "label": "",
+          "href": "/payments"
+        },
+        {
+          "text": "Maintenance Hub",
+          "label": "",
+          "href": "/maintenance"
+        },
+        {
+          "text": "Announcements",
+          "label": "",
+          "href": "/announcements"
+        },
+        {
+          "text": "Reports & Analytics",
+          "label": "",
+          "href": "/reports"
+        },
+        {
+          "text": "User Accounts",
+          "label": "",
+          "href": "/users"
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Notifications",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "Cancel",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Cancel",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Save Changes",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Open tenant messages",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/tenants/edit/60d1ad75-870d-47f4-9e63-6da751444786",
+      "width": 1440,
+      "scrollWidth": 1432,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nTenant Conversations\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\nStall leasing & community management\nAdministrator Portal\nQA Administrator\nadmin@example.invalid\nEdit Tenant: QA Tenant\n\nUpdate tenant identity, contact details, and contract window\n\nCancel\nPersonal & Contact Identity\n\nMerchant legal name and communications info\n\nFull Legal Name *\nEmail Address\nContact Phone Number\nResidential / Mailing Address\nBusiness & Lease Terms\n\nCommercial entity and assigned stall information\n\nBusiness Trade Name\nBusiness Concept / Category\nAssign Commercial Stall\n-- No Stall Assigned --\nQA-AVAILABLE - QA Market (₱900/mo)\nQA-DAILY - QA Market (₱120/mo)\nContract Start Date\nContract End Date\nAccount Status\nPending Approval\nActive Occupant\nInactive / Terminated\nCancel\nSave Changes",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "name",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Enter full name"
+        },
+        {
+          "type": "email",
+          "name": "email",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "e.g. tenant@example.com"
+        },
+        {
+          "type": "tel",
+          "name": "phone",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "e.g. 0917-123-4567"
+        },
+        {
+          "type": "text",
+          "name": "address",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Enter full address"
+        },
+        {
+          "type": "text",
+          "name": "business_name",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "e.g. Reese Gourmet Cafe"
+        },
+        {
+          "type": "text",
+          "name": "business_type",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "e.g. Food & Beverage, Apparel, Electronics"
+        },
+        {
+          "type": "select-one",
+          "name": "stall_id",
+          "labels": 0,
+          "aria": null
+        },
+        {
+          "type": "date",
+          "name": "contract_start",
+          "labels": 0,
+          "aria": null,
+          "placeholder": ""
+        },
+        {
+          "type": "date",
+          "name": "contract_end",
+          "labels": 0,
+          "aria": null,
+          "placeholder": ""
+        },
+        {
+          "type": "select-one",
+          "name": "status",
+          "labels": 0,
+          "aria": null
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 48.200000047683716,
+          "loadMs": 48.89999997615814
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "current-users",
+      "buttons": [
+        {
+          "text": "Dashboard",
+          "label": "",
+          "href": "/dashboard"
+        },
+        {
+          "text": "Stalls & QR Codes",
+          "label": "",
+          "href": "/stalls"
+        },
+        {
+          "text": "Tenants Directory",
+          "label": "",
+          "href": "/tenants"
+        },
+        {
+          "text": "Tenant Conversations",
+          "label": "",
+          "href": "/conversations"
+        },
+        {
+          "text": "Stall Applications",
+          "label": "",
+          "href": "/applications"
+        },
+        {
+          "text": "Billing & Payments",
+          "label": "",
+          "href": "/payments"
+        },
+        {
+          "text": "Maintenance Hub",
+          "label": "",
+          "href": "/maintenance"
+        },
+        {
+          "text": "Announcements",
+          "label": "",
+          "href": "/announcements"
+        },
+        {
+          "text": "Reports & Analytics",
+          "label": "",
+          "href": "/reports"
+        },
+        {
+          "text": "User Accounts",
+          "label": "",
+          "href": "/users"
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Notifications",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Edit User",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Delete User",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Edit User",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Delete User",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Edit User",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Delete User",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Open tenant messages",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/users",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nTenant Conversations\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\nStall leasing & community management\nAdministrator Portal\nQA Administrator\nadmin@example.invalid\nUser Accounts & Role Control\n\nManage system users, grant administrative permissions, and deactivate accounts.\n\nAll Roles\nAdministrators\nTenants / Owners\nName / Contact\tEmail\tRole\tStatus\tCreated\tActions\n\nQA Tenant\nNo phone\n\ttenant@example.invalid\tTenant\tACTIVE\t\n10/2/2026\n\t\n\n\nQA Administrator\nNo phone\n\tadmin@example.invalid\tAdmin\tACTIVE\t\n10/2/2026\n\t\n\n\nSystem Administrator\n+63 900 000 0000\n\trentastall@gmail.com\tAdmin\tACTIVE\t\n10/2/2026\n\t",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Search by name or email..."
+        },
+        {
+          "type": "select-one",
+          "name": "",
+          "labels": 0,
+          "aria": null
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 49.800000071525574,
+          "loadMs": 50.40000009536743
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "current-stall-create",
+      "buttons": [
+        {
+          "text": "Dashboard",
+          "label": "",
+          "href": "/dashboard"
+        },
+        {
+          "text": "Stalls & QR Codes",
+          "label": "",
+          "href": "/stalls"
+        },
+        {
+          "text": "Tenants Directory",
+          "label": "",
+          "href": "/tenants"
+        },
+        {
+          "text": "Tenant Conversations",
+          "label": "",
+          "href": "/conversations"
+        },
+        {
+          "text": "Stall Applications",
+          "label": "",
+          "href": "/applications"
+        },
+        {
+          "text": "Billing & Payments",
+          "label": "",
+          "href": "/payments"
+        },
+        {
+          "text": "Maintenance Hub",
+          "label": "",
+          "href": "/maintenance"
+        },
+        {
+          "text": "Announcements",
+          "label": "",
+          "href": "/announcements"
+        },
+        {
+          "text": "Reports & Analytics",
+          "label": "",
+          "href": "/reports"
+        },
+        {
+          "text": "User Accounts",
+          "label": "",
+          "href": "/users"
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Notifications",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "Cancel",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Cancel",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Create Stall",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Open tenant messages",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/stalls/new",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nTenant Conversations\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\nStall leasing & community management\nAdministrator Portal\nQA Administrator\nadmin@example.invalid\nAdd New Commercial Stall\n\nRegister a new retail space in the commercial complex\n\nCancel\nStall Number / Identifier *\nLocation / Zone\nRental Billing Frequency *\nMonthly Lease\nDaily Rent\nMonthly Rent Rate (₱) *\n₱\n/ month\nFloor Area / Dimensions\nOccupancy Status\nAvailable (Vacant)\nOccupied\nUnder Maintenance\nReserved\nStall Description & Amenities\nCancel\nCreate Stall",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "stall_number",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "e.g. Stall A-101"
+        },
+        {
+          "type": "text",
+          "name": "location",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "e.g. Building A, Ground Floor, Food Court"
+        },
+        {
+          "type": "radio",
+          "name": "rent_type_option",
+          "labels": 1,
+          "aria": null,
+          "placeholder": ""
+        },
+        {
+          "type": "radio",
+          "name": "rent_type_option",
+          "labels": 1,
+          "aria": null,
+          "placeholder": ""
+        },
+        {
+          "type": "number",
+          "name": "monthly_rent",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "e.g. 15000"
+        },
+        {
+          "type": "text",
+          "name": "size",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "e.g. 20 sqm (4m x 5m)"
+        },
+        {
+          "type": "select-one",
+          "name": "status",
+          "labels": 0,
+          "aria": null
+        },
+        {
+          "type": "textarea",
+          "name": "description",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Add notes about power outlets, water line connection, corner visibility..."
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 56.90000009536743,
+          "loadMs": 57.5
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "current-stall-edit",
+      "buttons": [
+        {
+          "text": "Dashboard",
+          "label": "",
+          "href": "/dashboard"
+        },
+        {
+          "text": "Stalls & QR Codes",
+          "label": "",
+          "href": "/stalls"
+        },
+        {
+          "text": "Tenants Directory",
+          "label": "",
+          "href": "/tenants"
+        },
+        {
+          "text": "Tenant Conversations",
+          "label": "",
+          "href": "/conversations"
+        },
+        {
+          "text": "Stall Applications",
+          "label": "",
+          "href": "/applications"
+        },
+        {
+          "text": "Billing & Payments",
+          "label": "",
+          "href": "/payments"
+        },
+        {
+          "text": "Maintenance Hub",
+          "label": "",
+          "href": "/maintenance"
+        },
+        {
+          "text": "Announcements",
+          "label": "",
+          "href": "/announcements"
+        },
+        {
+          "text": "Reports & Analytics",
+          "label": "",
+          "href": "/reports"
+        },
+        {
+          "text": "User Accounts",
+          "label": "",
+          "href": "/users"
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "1",
+          "label": "Notifications",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "Cancel",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Cancel",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Save Changes",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Open tenant messages",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/stalls/edit/f69c5d08-3e47-4fa5-9264-84a89566b29e",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nTenant Conversations\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\nStall leasing & community management\nAdministrator Portal\n1\nQA Administrator\nadmin@example.invalid\nEdit Stall: QA-BROWSER\n\nUpdate stall attributes, pricing, and occupancy status\n\nCancel\nStall Number / Identifier *\nLocation / Zone\nRental Billing Frequency *\nMonthly Lease\nDaily Rent\nDaily Rent Rate (₱) *\n₱\n/ day\nFloor Area / Dimensions\nOccupancy Status\nAvailable (Vacant)\nOccupied\nUnder Maintenance\nReserved\nStall Description & Amenities\nCancel\nSave Changes",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "stall_number",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "e.g. Stall A-101"
+        },
+        {
+          "type": "text",
+          "name": "location",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "e.g. Building A, Ground Floor, Food Court"
+        },
+        {
+          "type": "radio",
+          "name": "rent_type_option",
+          "labels": 1,
+          "aria": null,
+          "placeholder": ""
+        },
+        {
+          "type": "radio",
+          "name": "rent_type_option",
+          "labels": 1,
+          "aria": null,
+          "placeholder": ""
+        },
+        {
+          "type": "number",
+          "name": "daily_rent",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "e.g. 500"
+        },
+        {
+          "type": "text",
+          "name": "size",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "e.g. 20 sqm (4m x 5m)"
+        },
+        {
+          "type": "select-one",
+          "name": "status",
+          "labels": 0,
+          "aria": null
+        },
+        {
+          "type": "textarea",
+          "name": "description",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Add notes about power outlets, water line connection, corner visibility..."
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 54.89999997615814,
+          "loadMs": 56.700000047683716
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "current-maintenance-dialog",
+      "buttons": [
+        {
+          "text": "Dashboard",
+          "label": "",
+          "href": "/dashboard"
+        },
+        {
+          "text": "Stalls & QR Codes",
+          "label": "",
+          "href": "/stalls"
+        },
+        {
+          "text": "Tenants Directory",
+          "label": "",
+          "href": "/tenants"
+        },
+        {
+          "text": "Tenant Conversations",
+          "label": "",
+          "href": "/conversations"
+        },
+        {
+          "text": "Stall Applications",
+          "label": "",
+          "href": "/applications"
+        },
+        {
+          "text": "Billing & Payments",
+          "label": "",
+          "href": "/payments"
+        },
+        {
+          "text": "Maintenance Hub",
+          "label": "",
+          "href": "/maintenance"
+        },
+        {
+          "text": "Announcements",
+          "label": "",
+          "href": "/announcements"
+        },
+        {
+          "text": "Reports & Analytics",
+          "label": "",
+          "href": "/reports"
+        },
+        {
+          "text": "User Accounts",
+          "label": "",
+          "href": "/users"
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "1",
+          "label": "Notifications",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "Report New Stall Issue",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Open tenant messages",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/maintenance",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nTenant Conversations\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\nStall leasing & community management\nAdministrator Portal\n1\nQA Administrator\nadmin@example.invalid\nMaintenance & Repair Operations\n\nTrack stall issues submitted by tenants, assign building technicians, and record resolutions.\n\nReport New Stall Issue\nAll Categories\nRoof Leak\nElectrical\nPlumbing\nStructural\nPest Control\nGeneral\nAll Statuses (0)\nPending\nIn Progress\nCompleted\nNo maintenance requests recorded.",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Search by issue title, stall #, or tenant..."
+        },
+        {
+          "type": "select-one",
+          "name": "",
+          "labels": 0,
+          "aria": null
+        },
+        {
+          "type": "select-one",
+          "name": "",
+          "labels": 0,
+          "aria": null
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 50.5,
+          "loadMs": 52.10000002384186
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "current-payments",
+      "buttons": [
+        {
+          "text": "Dashboard",
+          "label": "",
+          "href": "/dashboard"
+        },
+        {
+          "text": "Stalls & QR Codes",
+          "label": "",
+          "href": "/stalls"
+        },
+        {
+          "text": "Tenants Directory",
+          "label": "",
+          "href": "/tenants"
+        },
+        {
+          "text": "Tenant Conversations",
+          "label": "",
+          "href": "/conversations"
+        },
+        {
+          "text": "Stall Applications",
+          "label": "",
+          "href": "/applications"
+        },
+        {
+          "text": "Billing & Payments",
+          "label": "",
+          "href": "/payments"
+        },
+        {
+          "text": "Maintenance Hub",
+          "label": "",
+          "href": "/maintenance"
+        },
+        {
+          "text": "Announcements",
+          "label": "",
+          "href": "/announcements"
+        },
+        {
+          "text": "Reports & Analytics",
+          "label": "",
+          "href": "/reports"
+        },
+        {
+          "text": "User Accounts",
+          "label": "",
+          "href": "/users"
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "1",
+          "label": "Notifications",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "Record Walk-in Payment",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Apply Late Fees",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Generate Rent Bills",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Create Custom Bill",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Stalls Dues & Rent Master (Top Priority)",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "All Payments & Receipts Ledger",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "History & Receipts",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "History & Receipts",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "History & Receipts",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Open tenant messages",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/payments",
+      "width": 1440,
+      "scrollWidth": 1432,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nTenant Conversations\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\nStall leasing & community management\nAdministrator Portal\n1\nQA Administrator\nadmin@example.invalid\nCommercial Stalls Billing & Payment Ledger\n\nAudit active stall rental dues, view payment methods (GCash, Maya, Bank Transfer, Cards), and inspect official receipts.\n\n Record Walk-in Payment\nApply Late Fees\nGenerate Rent Bills\nCreate Custom Bill\nTOTAL REVENUE COLLECTED\n₱0\n0 Settled Invoices\nTOTAL OUTSTANDING DUES\n₱130\n1 Stalls with Balance\nTODAY'S UNPAID DUES\n₱0\n0 Dues Matured Today\nOVERDUE INVOICES\n0\nSubject to Late Penalties\n Stalls Dues & Rent Master (Top Priority)\n All Payments & Receipts Ledger\nCommercial Stalls Rent & Dues Roster\nStalls with outstanding dues and overdue rents are automatically sorted to the top.\n3 Stalls Registered\nSTALL SPACE\tOCCUPANT / MERCHANT\tCONTRACT RENT\tCURRENT ACTIVE DUE\tTOTAL OUTSTANDING\tLATEST SETTLED MODE\tACTIONS\n\nQA-DAILY\nQA Market\n\t\nQA Tenant\nActive Tenant\n\t₱120\n/Daily\n\t\nUNPAID\n₱120\nDue: 10/1/2026\n\t\n₱130\n1 Pending Invoices\n\tNo prior receipts\t\nHistory & Receipts\n\nQA-AVAILABLE\nQA Market\n\tVacant / Unassigned\t₱900\n/Monthly\n\t\nAll Dues Settled\n\t₱0.00 Outstanding\tNo prior receipts\t\nHistory & Receipts\n\nQA-BROWSER\nQA Office\n\tVacant / Unassigned\t₱160\n/Daily\n\t\nAll Dues Settled\n\t₱0.00 Outstanding\tNo prior receipts\t\nHistory & Receipts",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Search stall #, tenant name, or ref..."
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 49.5,
+          "loadMs": 50.299999952316284
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "current-mobile-dashboard",
+      "buttons": [
+        {
+          "text": "Dashboard",
+          "label": "",
+          "href": "/dashboard"
+        },
+        {
+          "text": "Stalls & QR Codes",
+          "label": "",
+          "href": "/stalls"
+        },
+        {
+          "text": "Tenants Directory",
+          "label": "",
+          "href": "/tenants"
+        },
+        {
+          "text": "Tenant Conversations",
+          "label": "",
+          "href": "/conversations"
+        },
+        {
+          "text": "Stall Applications",
+          "label": "",
+          "href": "/applications"
+        },
+        {
+          "text": "Billing & Payments",
+          "label": "",
+          "href": "/payments"
+        },
+        {
+          "text": "Maintenance Hub",
+          "label": "",
+          "href": "/maintenance"
+        },
+        {
+          "text": "Announcements",
+          "label": "",
+          "href": "/announcements"
+        },
+        {
+          "text": "Reports & Analytics",
+          "label": "",
+          "href": "/reports"
+        },
+        {
+          "text": "User Accounts",
+          "label": "",
+          "href": "/users"
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Toggle menu",
+          "href": null
+        },
+        {
+          "text": "1",
+          "label": "Notifications",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "Review Outstanding Invoices",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Add Commercial Stall",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Review Applications (0)",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Billing & PayMongo Gateway",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Open tenant messages",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/dashboard",
+      "width": 375,
+      "scrollWidth": 367,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nTenant Conversations\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\n1\nExecutive Operations Dashboard\n\nReal-time commercial stall operations, occupancy pipeline, and revenue tracking.\n\nFriday, October 2, 2026 • 05:39:14 AM\nLive Auto-Sync Active\nACTION REQUIRED\nToday's Unpaid Rent\n₱120\n\n1 pending invoice(s) due for collection\n\nReview Outstanding Invoices\nCOMMERCIAL STALLS\n3\n2 Available • 1 Occupied\n1 Active Leases\nACTIVE TENANTS\n1\n1 Total Registered\n0 Inactive\nAPPLICATIONS\n0\n0 Total • 0 Approved\n0 Rejected\nTOTAL COLLECTED\n₱130\n1 Invoices Settled\n₱120 Balance\nOperational Quick Shortcuts\nAdd Commercial Stall\nReview Applications (0)\nBilling & PayMongo Gateway\nOverdue Rental Invoices (2)\nQA Tenant\nQA-DAILY\n₱120\nQA Tenant\nQA-DAILY\n₱120\nLease Contracts Expiring Soon (1)\nQA Tenant\nMerchant\nQA-DAILY\nRecent Operations & Tenant Activity\nQA Tenant's lease contract for QA-DAILY expires in 455 days\n12/31/2027\nQA Tenant has an overdue rental bill of ₱120 (-1 days overdue)\n10/2/2026\nQA Tenant has an overdue rental bill of ₱120 (0 days overdue)\n10/1/2026",
+      "inputs": [],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 58,
+          "loadMs": 58.700000047683716
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "current-mobile-payments",
+      "buttons": [
+        {
+          "text": "Dashboard",
+          "label": "",
+          "href": "/dashboard"
+        },
+        {
+          "text": "Stalls & QR Codes",
+          "label": "",
+          "href": "/stalls"
+        },
+        {
+          "text": "Tenants Directory",
+          "label": "",
+          "href": "/tenants"
+        },
+        {
+          "text": "Tenant Conversations",
+          "label": "",
+          "href": "/conversations"
+        },
+        {
+          "text": "Stall Applications",
+          "label": "",
+          "href": "/applications"
+        },
+        {
+          "text": "Billing & Payments",
+          "label": "",
+          "href": "/payments"
+        },
+        {
+          "text": "Maintenance Hub",
+          "label": "",
+          "href": "/maintenance"
+        },
+        {
+          "text": "Announcements",
+          "label": "",
+          "href": "/announcements"
+        },
+        {
+          "text": "Reports & Analytics",
+          "label": "",
+          "href": "/reports"
+        },
+        {
+          "text": "User Accounts",
+          "label": "",
+          "href": "/users"
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Toggle menu",
+          "href": null
+        },
+        {
+          "text": "1",
+          "label": "Notifications",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "Record Walk-in Payment",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Apply Late Fees",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Generate Rent Bills",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Create Custom Bill",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Stalls Dues & Rent Master (Top Priority)",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "All Payments & Receipts Ledger",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "History & Receipts",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "History & Receipts",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "History & Receipts",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Open tenant messages",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/payments",
+      "width": 375,
+      "scrollWidth": 367,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nTenant Conversations\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\n1\nCommercial Stalls Billing & Payment Ledger\n\nAudit active stall rental dues, view payment methods (GCash, Maya, Bank Transfer, Cards), and inspect official receipts.\n\n Record Walk-in Payment\nApply Late Fees\nGenerate Rent Bills\nCreate Custom Bill\nTOTAL REVENUE COLLECTED\n₱130\n1 Settled Invoices\nTOTAL OUTSTANDING DUES\n₱120\n1 Stalls with Balance\nTODAY'S UNPAID DUES\n₱0\n0 Dues Matured Today\nOVERDUE INVOICES\n0\nSubject to Late Penalties\n Stalls Dues & Rent Master (Top Priority)\n All Payments & Receipts Ledger\nCommercial Stalls Rent & Dues Roster\nStalls with outstanding dues and overdue rents are automatically sorted to the top.\n3 Stalls Registered\nSTALL SPACE\tOCCUPANT / MERCHANT\tCONTRACT RENT\tCURRENT ACTIVE DUE\tTOTAL OUTSTANDING\tLATEST SETTLED MODE\tACTIONS\n\nQA-DAILY\nQA Market\n\t\nQA Tenant\nActive Tenant\n\t₱120\n/Daily\n\t\nUNPAID\n₱120\nDue: 10/2/2026\n\t\n₱120\n1 Pending Invoices\n\t\nWalk-in Cash (Office)\nRef: OR-BROWSER-001\n\t\nHistory & Receipts\n\nQA-AVAILABLE\nQA Market\n\tVacant / Unassigned\t₱900\n/Monthly\n\t\nAll Dues Settled\n\t₱0.00 Outstanding\tNo prior receipts\t\nHistory & Receipts\n\nQA-BROWSER\nQA Office\n\tVacant / Unassigned\t₱160\n/Daily\n\t\nAll Dues Settled\n\t₱0.00 Outstanding\tNo prior receipts\t\nHistory & Receipts",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Search stall #, tenant name, or ref..."
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 38.799999952316284,
+          "loadMs": 40.39999997615814
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "current-mobile-maintenance",
+      "buttons": [
+        {
+          "text": "Dashboard",
+          "label": "",
+          "href": "/dashboard"
+        },
+        {
+          "text": "Stalls & QR Codes",
+          "label": "",
+          "href": "/stalls"
+        },
+        {
+          "text": "Tenants Directory",
+          "label": "",
+          "href": "/tenants"
+        },
+        {
+          "text": "Tenant Conversations",
+          "label": "",
+          "href": "/conversations"
+        },
+        {
+          "text": "Stall Applications",
+          "label": "",
+          "href": "/applications"
+        },
+        {
+          "text": "Billing & Payments",
+          "label": "",
+          "href": "/payments"
+        },
+        {
+          "text": "Maintenance Hub",
+          "label": "",
+          "href": "/maintenance"
+        },
+        {
+          "text": "Announcements",
+          "label": "",
+          "href": "/announcements"
+        },
+        {
+          "text": "Reports & Analytics",
+          "label": "",
+          "href": "/reports"
+        },
+        {
+          "text": "User Accounts",
+          "label": "",
+          "href": "/users"
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Toggle menu",
+          "href": null
+        },
+        {
+          "text": "1",
+          "label": "Notifications",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "Report New Stall Issue",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Open tenant messages",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/maintenance",
+      "width": 375,
+      "scrollWidth": 375,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nTenant Conversations\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\n1\nMaintenance & Repair Operations\n\nTrack stall issues submitted by tenants, assign building technicians, and record resolutions.\n\nReport New Stall Issue\nAll Categories\nRoof Leak\nElectrical\nPlumbing\nStructural\nPest Control\nGeneral\nAll Statuses (0)\nPending\nIn Progress\nCompleted\nNo maintenance requests recorded.",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Search by issue title, stall #, or tenant..."
+        },
+        {
+          "type": "select-one",
+          "name": "",
+          "labels": 0,
+          "aria": null
+        },
+        {
+          "type": "select-one",
+          "name": "",
+          "labels": 0,
+          "aria": null
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 41.39999997615814,
+          "loadMs": 42
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "current-mobile-users",
+      "buttons": [
+        {
+          "text": "Dashboard",
+          "label": "",
+          "href": "/dashboard"
+        },
+        {
+          "text": "Stalls & QR Codes",
+          "label": "",
+          "href": "/stalls"
+        },
+        {
+          "text": "Tenants Directory",
+          "label": "",
+          "href": "/tenants"
+        },
+        {
+          "text": "Tenant Conversations",
+          "label": "",
+          "href": "/conversations"
+        },
+        {
+          "text": "Stall Applications",
+          "label": "",
+          "href": "/applications"
+        },
+        {
+          "text": "Billing & Payments",
+          "label": "",
+          "href": "/payments"
+        },
+        {
+          "text": "Maintenance Hub",
+          "label": "",
+          "href": "/maintenance"
+        },
+        {
+          "text": "Announcements",
+          "label": "",
+          "href": "/announcements"
+        },
+        {
+          "text": "Reports & Analytics",
+          "label": "",
+          "href": "/reports"
+        },
+        {
+          "text": "User Accounts",
+          "label": "",
+          "href": "/users"
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Toggle menu",
+          "href": null
+        },
+        {
+          "text": "1",
+          "label": "Notifications",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Edit User",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Delete User",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Edit User",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Delete User",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Edit User",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Delete User",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Open tenant messages",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/users",
+      "width": 375,
+      "scrollWidth": 375,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nTenant Conversations\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\n1\nUser Accounts & Role Control\n\nManage system users, grant administrative permissions, and deactivate accounts.\n\nAll Roles\nAdministrators\nTenants / Owners\nName / Contact\tEmail\tRole\tStatus\tCreated\tActions\n\nQA Tenant\nNo phone\n\ttenant@example.invalid\tTenant\tACTIVE\t\n10/2/2026\n\t\n\n\nQA Administrator\nNo phone\n\tadmin@example.invalid\tAdmin\tACTIVE\t\n10/2/2026\n\t\n\n\nSystem Administrator\n+63 900 000 0000\n\trentastall@gmail.com\tAdmin\tACTIVE\t\n10/2/2026\n\t",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Search by name or email..."
+        },
+        {
+          "type": "select-one",
+          "name": "",
+          "labels": 0,
+          "aria": null
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 51.700000047683716,
+          "loadMs": 52.60000002384186
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "current-mobile-conversations",
+      "buttons": [
+        {
+          "text": "Dashboard",
+          "label": "",
+          "href": "/dashboard"
+        },
+        {
+          "text": "Stalls & QR Codes",
+          "label": "",
+          "href": "/stalls"
+        },
+        {
+          "text": "Tenants Directory",
+          "label": "",
+          "href": "/tenants"
+        },
+        {
+          "text": "Tenant Conversations",
+          "label": "",
+          "href": "/conversations"
+        },
+        {
+          "text": "Stall Applications",
+          "label": "",
+          "href": "/applications"
+        },
+        {
+          "text": "Billing & Payments",
+          "label": "",
+          "href": "/payments"
+        },
+        {
+          "text": "Maintenance Hub",
+          "label": "",
+          "href": "/maintenance"
+        },
+        {
+          "text": "Announcements",
+          "label": "",
+          "href": "/announcements"
+        },
+        {
+          "text": "Reports & Analytics",
+          "label": "",
+          "href": "/reports"
+        },
+        {
+          "text": "User Accounts",
+          "label": "",
+          "href": "/users"
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Toggle menu",
+          "href": null
+        },
+        {
+          "text": "1",
+          "label": "Notifications",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "All tenants",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Waiting (0)",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "QA Tenant\nLive conversation\nYour office payment can be recorded by the administrator.",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Open tenant messages",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/conversations",
+      "width": 375,
+      "scrollWidth": 367,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nTenant Conversations\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\n1\nTenant conversations\n\nRead assistant history, respond to requests, and message a tenant.\n\n0 waiting\nAll tenants\nWaiting (0)\nQA Tenant\nLive conversation\nYour office payment can be recorded by the administrator.",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "",
+          "labels": 0,
+          "aria": "Search tenant conversations",
+          "placeholder": "Search tenants…"
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 41.200000047683716,
+          "loadMs": 42.39999997615814
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "current-mobile-stalls",
+      "buttons": [
+        {
+          "text": "Dashboard",
+          "label": "",
+          "href": "/dashboard"
+        },
+        {
+          "text": "Stalls & QR Codes",
+          "label": "",
+          "href": "/stalls"
+        },
+        {
+          "text": "Tenants Directory",
+          "label": "",
+          "href": "/tenants"
+        },
+        {
+          "text": "Tenant Conversations",
+          "label": "",
+          "href": "/conversations"
+        },
+        {
+          "text": "Stall Applications",
+          "label": "",
+          "href": "/applications"
+        },
+        {
+          "text": "Billing & Payments",
+          "label": "",
+          "href": "/payments"
+        },
+        {
+          "text": "Maintenance Hub",
+          "label": "",
+          "href": "/maintenance"
+        },
+        {
+          "text": "Announcements",
+          "label": "",
+          "href": "/announcements"
+        },
+        {
+          "text": "Reports & Analytics",
+          "label": "",
+          "href": "/reports"
+        },
+        {
+          "text": "User Accounts",
+          "label": "",
+          "href": "/users"
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Toggle menu",
+          "href": null
+        },
+        {
+          "text": "1",
+          "label": "Notifications",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Sign Out",
+          "href": null
+        },
+        {
+          "text": "Add New Commercial Stall",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Search",
+          "label": "",
+          "href": null
+        },
+        {
+          "text": "Details",
+          "label": "View complete stall specs & tenant history",
+          "href": null
+        },
+        {
+          "text": "QR Card",
+          "label": "View / Print QR Code",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Edit Stall",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Delete Stall",
+          "href": null
+        },
+        {
+          "text": "Details",
+          "label": "View complete stall specs & tenant history",
+          "href": null
+        },
+        {
+          "text": "QR Card",
+          "label": "View / Print QR Code",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Edit Stall",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Delete Stall",
+          "href": null
+        },
+        {
+          "text": "Details",
+          "label": "View complete stall specs & tenant history",
+          "href": null
+        },
+        {
+          "text": "QR Card",
+          "label": "View / Print QR Code",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Edit Stall",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Delete Stall",
+          "href": null
+        },
+        {
+          "text": "",
+          "label": "Open tenant messages",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/stalls",
+      "width": 375,
+      "scrollWidth": 367,
+      "text": "Dela Costa HOA Stall Leasing\nAdmin Operations\nOPERATIONS MENU\nDashboard\nStalls & QR Codes\nTenants Directory\nTenant Conversations\nStall Applications\nBilling & Payments\nMaintenance Hub\nAnnouncements\nReports & Analytics\nUser Accounts\nAdmin\nQA Administrator\nDela Costa HOA Stall Leasing\n1\nStalls Directory & QR Identification\n\nCommercial spaces overview, tenant assignment, live maintenance tickets, and QR placards.\n\nAdd New Commercial Stall\nSearch\nAll Statuses (3)\nAvailable Only\nOccupied Only\nUnder Maintenance\nReserved\nAuto-Sync Active\nQA-BROWSER\nDetails\nAvailable\n\nQA Office\n\nSpace Size:\n20 sqm\nRental Rate:\n₱160 / day\nQR Card\nQA-AVAILABLE\nDetails\nAvailable\n\nQA Market\n\nSpace Size:\n20 sqm\nRental Rate:\n₱900 / mo\n\n[Billing: MONTHLY]\n\nQR Card\nQA-DAILY\nDetails\nOccupied\n\nQA Market\n\nSpace Size:\n20 sqm\nRental Rate:\n₱120 / day\n\n[Billing: DAILY]\n\nQR Card",
+      "inputs": [
+        {
+          "type": "text",
+          "name": "",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "Search by stall number or location zone..."
+        },
+        {
+          "type": "select-one",
+          "name": "",
+          "labels": 0,
+          "aria": null
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 45,
+          "loadMs": 45.700000047683716
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "current-corrupt-session",
+      "buttons": [
+        {
+          "text": "Sign In to Admin Portal",
+          "label": "",
+          "href": null
+        }
+      ],
+      "title": "Dela Costa HOA Stall Leasing",
+      "path": "/login",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "Dela Costa HOA Stall Leasing\n\nAdministrative Management Portal\n\nAdministrator Email\nPassword\nSign In to Admin Portal\nEnterprise Security Active\nAuthorized facility management personnel only.",
+      "inputs": [
+        {
+          "type": "email",
+          "name": "email",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "rentastall@gmail.com"
+        },
+        {
+          "type": "password",
+          "name": "password",
+          "labels": 0,
+          "aria": null,
+          "placeholder": "••••••••"
+        }
+      ],
+      "emptyButtons": 0,
+      "navTiming": [
+        {
+          "domContentLoadedMs": 40.5,
+          "loadMs": 41.10000002384186
+        }
+      ],
+      "errors": []
+    }
+  ],
+  "errors": [],
+  "apiErrors": [],
+  "requests": [
+    "http://localhost:5000/api/v1/auth/login",
+    "http://localhost:5000/api/v1/auth/login",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/stalls/stats",
+    "http://localhost:5000/api/v1/tenants/stats",
+    "http://localhost:5000/api/v1/applications/stats",
+    "http://localhost:5000/api/v1/payments/stats",
+    "http://localhost:5000/api/v1/tenants/expiring?days=30",
+    "http://localhost:5000/api/v1/payments/overdue",
+    "http://localhost:5000/api/v1/stalls/stats",
+    "http://localhost:5000/api/v1/tenants/stats",
+    "http://localhost:5000/api/v1/applications/stats",
+    "http://localhost:5000/api/v1/payments/stats",
+    "http://localhost:5000/api/v1/tenants/expiring?days=30",
+    "http://localhost:5000/api/v1/payments/overdue",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/stalls/stats",
+    "http://localhost:5000/api/v1/tenants/stats",
+    "http://localhost:5000/api/v1/applications/stats",
+    "http://localhost:5000/api/v1/payments/stats",
+    "http://localhost:5000/api/v1/tenants/expiring?days=30",
+    "http://localhost:5000/api/v1/payments/overdue",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/stalls/stats",
+    "http://localhost:5000/api/v1/tenants/stats",
+    "http://localhost:5000/api/v1/applications/stats",
+    "http://localhost:5000/api/v1/payments/stats",
+    "http://localhost:5000/api/v1/tenants/expiring?days=30",
+    "http://localhost:5000/api/v1/payments/overdue",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/stalls",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/stalls",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/tenants",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/tenants",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/applications?status=pending",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/applications?status=pending",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/payments/stalls-overview",
+    "http://localhost:5000/api/v1/payments",
+    "http://localhost:5000/api/v1/payments/stats",
+    "http://localhost:5000/api/v1/tenants?status=active",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/payments/stalls-overview",
+    "http://localhost:5000/api/v1/payments",
+    "http://localhost:5000/api/v1/payments/stats",
+    "http://localhost:5000/api/v1/tenants?status=active",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/payments/stats",
+    "http://localhost:5000/api/v1/payments/report?month=10&year=2026",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/payments/stats",
+    "http://localhost:5000/api/v1/payments/report?month=10&year=2026",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/maintenance",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/maintenance",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/announcements",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/announcements",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/payments/analytics?timeframe=monthly&year=2026",
+    "http://localhost:5000/api/v1/stalls/stats",
+    "http://localhost:5000/api/v1/tenants/stats",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/payments/analytics?timeframe=monthly&year=2026",
+    "http://localhost:5000/api/v1/stalls/stats",
+    "http://localhost:5000/api/v1/tenants/stats",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/users",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/users",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/tenants",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/tenants",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/stalls/76e7f9c2-596f-4f44-82d0-c8892c6b4233",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/stalls/76e7f9c2-596f-4f44-82d0-c8892c6b4233",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/tenants/60d1ad75-870d-47f4-9e63-6da751444786",
+    "http://localhost:5000/api/v1/payments/tenant/60d1ad75-870d-47f4-9e63-6da751444786",
+    "http://localhost:5000/api/v1/payments/tenant/60d1ad75-870d-47f4-9e63-6da751444786/summary",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/tenants/60d1ad75-870d-47f4-9e63-6da751444786",
+    "http://localhost:5000/api/v1/payments/tenant/60d1ad75-870d-47f4-9e63-6da751444786",
+    "http://localhost:5000/api/v1/payments/tenant/60d1ad75-870d-47f4-9e63-6da751444786/summary",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/stalls?status=available",
+    "http://localhost:5000/api/v1/tenants/60d1ad75-870d-47f4-9e63-6da751444786",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/stalls?status=available",
+    "http://localhost:5000/api/v1/tenants/60d1ad75-870d-47f4-9e63-6da751444786",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/users",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/users",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/support/threads/d28507cc-b3b2-481e-a91c-8b28a8b7739e?read=true",
+    "http://localhost:5000/api/v1/support/threads/d28507cc-b3b2-481e-a91c-8b28a8b7739e?read=true",
+    "http://localhost:5000/api/v1/support/threads/d28507cc-b3b2-481e-a91c-8b28a8b7739e/claim",
+    "http://localhost:5000/api/v1/support/threads/d28507cc-b3b2-481e-a91c-8b28a8b7739e/claim",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/support/threads/d28507cc-b3b2-481e-a91c-8b28a8b7739e/messages",
+    "http://localhost:5000/api/v1/support/threads/d28507cc-b3b2-481e-a91c-8b28a8b7739e/messages",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/stalls",
+    "http://localhost:5000/api/v1/stalls",
+    "http://localhost:5000/api/v1/stalls",
+    "http://localhost:5000/api/v1/stalls",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/stalls/f69c5d08-3e47-4fa5-9264-84a89566b29e",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/stalls/f69c5d08-3e47-4fa5-9264-84a89566b29e",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/stalls/f69c5d08-3e47-4fa5-9264-84a89566b29e",
+    "http://localhost:5000/api/v1/stalls/f69c5d08-3e47-4fa5-9264-84a89566b29e",
+    "http://localhost:5000/api/v1/stalls",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/stalls",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/maintenance",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/maintenance",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/payments/stalls-overview",
+    "http://localhost:5000/api/v1/payments",
+    "http://localhost:5000/api/v1/payments/stats",
+    "http://localhost:5000/api/v1/tenants?status=active",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/payments/stalls-overview",
+    "http://localhost:5000/api/v1/payments",
+    "http://localhost:5000/api/v1/payments/stats",
+    "http://localhost:5000/api/v1/tenants?status=active",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/payments",
+    "http://localhost:5000/api/v1/payments",
+    "http://localhost:5000/api/v1/payments/406548e2-0c13-4a5c-a0ff-807491b90094/office-payment",
+    "http://localhost:5000/api/v1/payments/406548e2-0c13-4a5c-a0ff-807491b90094/office-payment",
+    "http://localhost:5000/api/v1/payments/stalls-overview",
+    "http://localhost:5000/api/v1/payments",
+    "http://localhost:5000/api/v1/payments/stats",
+    "http://localhost:5000/api/v1/tenants?status=active",
+    "http://localhost:5000/api/v1/payments/stalls-overview",
+    "http://localhost:5000/api/v1/payments",
+    "http://localhost:5000/api/v1/payments/stats",
+    "http://localhost:5000/api/v1/tenants?status=active",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/payments/generate-bills",
+    "http://localhost:5000/api/v1/payments/generate-bills",
+    "http://localhost:5000/api/v1/payments/stalls-overview",
+    "http://localhost:5000/api/v1/payments",
+    "http://localhost:5000/api/v1/payments/stats",
+    "http://localhost:5000/api/v1/tenants?status=active",
+    "http://localhost:5000/api/v1/payments/stalls-overview",
+    "http://localhost:5000/api/v1/payments",
+    "http://localhost:5000/api/v1/payments/stats",
+    "http://localhost:5000/api/v1/tenants?status=active",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/payments/stalls-overview",
+    "http://localhost:5000/api/v1/payments",
+    "http://localhost:5000/api/v1/payments/stats",
+    "http://localhost:5000/api/v1/tenants?status=active",
+    "http://localhost:5000/api/v1/payments/stalls-overview",
+    "http://localhost:5000/api/v1/payments",
+    "http://localhost:5000/api/v1/payments/stats",
+    "http://localhost:5000/api/v1/tenants?status=active",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/stalls/stats",
+    "http://localhost:5000/api/v1/tenants/stats",
+    "http://localhost:5000/api/v1/applications/stats",
+    "http://localhost:5000/api/v1/payments/stats",
+    "http://localhost:5000/api/v1/tenants/expiring?days=30",
+    "http://localhost:5000/api/v1/payments/overdue",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/stalls/stats",
+    "http://localhost:5000/api/v1/tenants/stats",
+    "http://localhost:5000/api/v1/applications/stats",
+    "http://localhost:5000/api/v1/payments/stats",
+    "http://localhost:5000/api/v1/tenants/expiring?days=30",
+    "http://localhost:5000/api/v1/payments/overdue",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/payments/stalls-overview",
+    "http://localhost:5000/api/v1/payments",
+    "http://localhost:5000/api/v1/payments/stats",
+    "http://localhost:5000/api/v1/tenants?status=active",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/payments/stalls-overview",
+    "http://localhost:5000/api/v1/payments",
+    "http://localhost:5000/api/v1/payments/stats",
+    "http://localhost:5000/api/v1/tenants?status=active",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/maintenance",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/maintenance",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/users",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/users",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/stalls",
+    "http://localhost:5000/api/v1/support/inbox",
+    "http://localhost:5000/api/v1/maintenance/stats",
+    "http://localhost:5000/api/v1/notifications",
+    "http://localhost:5000/api/v1/stalls",
+    "http://localhost:5000/api/v1/support/inbox"
+  ]
+}

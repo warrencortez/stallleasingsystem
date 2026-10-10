@@ -80,7 +80,7 @@ class Announcement {
         let paramCount = 1;
 
         Object.entries(updateData).forEach(([key, value]) => {
-            if (value !== undefined && value !== null) {
+            if (['title','content','category','is_pinned','target_audience'].includes(key) && value !== undefined && value !== null) {
                 fields.push(`${key} = $${paramCount}`);
                 values.push(value);
                 paramCount++;

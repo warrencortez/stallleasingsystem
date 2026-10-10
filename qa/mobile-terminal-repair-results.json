@@ -1,0 +1,27 @@
+{
+  "cause": "Windows cross-drive Metro asset URLs incorrectly prefixed with ./",
+  "regressions": {
+    "passed": 63,
+    "failed": 0
+  },
+  "runtimeAssetDownloads": {
+    "passed": 106,
+    "failed": 0
+  },
+  "liveApiEndpoints": {
+    "passed": 13,
+    "failed": 0
+  },
+  "developmentBundles": {
+    "android": {
+      "status": 200,
+      "bytes": 5790655
+    },
+    "ios": {
+      "status": 200,
+      "bytes": 5790572
+    }
+  },
+  "cDriveFreeBytes": 815452160,
+  "physicalPhoneReloadConfirmation": "pending"
+}

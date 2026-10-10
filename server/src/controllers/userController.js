@@ -32,6 +32,12 @@ const updateUser = async (req, res) => {
         const { id } = req.params;
         const { name, email, role, phone, address, is_active } = req.body;
 
+        if (role !== undefined && !['admin', 'tenant'].includes(role)) {
+            return res.status(400).json({ success: false, message: 'Only administrator and tenant roles are available.' });
+        }
+        if (id === req.userId && ((role && role !== 'admin') || is_active === false)) {
+            return res.status(400).json({ success: false, message: 'You cannot remove your own administrator access.' });
+        }
         const updated = await User.update(id, {
             name,
             email,

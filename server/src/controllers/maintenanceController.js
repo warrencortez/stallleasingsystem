@@ -2,6 +2,7 @@ const Maintenance = require('../models/Maintenance');
 const Tenant = require('../models/Tenant');
 const Notification = require('../models/Notification');
 const { pool } = require('../config/database');
+const uploadStorage = require('../services/uploadStorage');
 
 /**
  * Get all maintenance requests
@@ -23,7 +24,7 @@ const getAllRequests = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            data: requests,
+            data: await uploadStorage.signRecords(requests, 'photo_url'),
             count: requests.length
         });
     } catch (error) {
@@ -58,7 +59,7 @@ const getRequestById = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            data: request
+            data: await uploadStorage.signRecords(request, 'photo_url')
         });
     } catch (error) {
         console.error('Get maintenance request error:', error);
@@ -77,12 +78,14 @@ const createRequest = async (req, res) => {
     try {
         const { title, description, category, priority, stall_id } = req.body;
 
-        if (!title || !description) {
+        if (typeof title !== 'string' || !title.trim() || typeof description !== 'string' || !description.trim()) {
             return res.status(400).json({
                 success: false,
                 message: 'Title and description are required.'
             });
         }
+
+        if ((category && !['roof_leak','electrical','plumbing','structural','pest_control','general'].includes(category)) || (priority && !['low','medium','high','urgent'].includes(priority))) return res.status(400).json({ success:false, message:'Invalid maintenance category or priority.' });
 
         // Determine tenant ID with resilient user-to-tenant lookup
         let tenantId = req.body.tenant_id;
@@ -98,7 +101,7 @@ const createRequest = async (req, res) => {
 
         let photoUrl = req.body.photo_url || null;
         if (req.file) {
-            photoUrl = `/uploads/maintenance/${req.file.filename}`;
+            photoUrl = req.file.buffer ? await uploadStorage.save(req.file, 'maintenance', req.userId) : `/uploads/maintenance/${req.file.filename}`;
         }
 
         const requestId = await Maintenance.create({
@@ -169,6 +172,7 @@ const updateStatus = async (req, res) => {
     try {
         const { id } = req.params;
         const { status, assigned_to, resolution_notes } = req.body;
+        if (status !== undefined && !['pending','in_progress','completed','cancelled'].includes(status)) return res.status(400).json({ success:false, message:'Invalid maintenance status.' });
 
         const request = await Maintenance.findById(id);
         if (!request) {

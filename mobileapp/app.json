@@ -2,13 +2,16 @@
   "expo": {
     "name": "Dela Costa HOA Stall Leasing",
     "slug": "leasehub-tenant",
+    "owner": "tealicieuxtest",
+    "extra": {
+      "eas": {
+        "projectId": "f6fa1783-a50e-415e-bea0-ea5fa7f6fde1"
+      }
+    },
+    "scheme": "leasehub",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "splash": {
-      "resizeMode": "contain",
-      "backgroundColor": "#4f46e5"
-    },
     "ios": {
       "supportsTablet": true
     },
@@ -19,7 +22,15 @@
       "package": "com.leasehub.tenant"
     },
     "plugins": [
-      "expo-web-browser"
+      "expo-dev-client",
+      "expo-web-browser",
+      [
+        "expo-splash-screen",
+        {
+          "resizeMode": "contain",
+          "backgroundColor": "#4f46e5"
+        }
+      ]
     ]
   }
 }

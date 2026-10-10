@@ -1,0 +1,22 @@
+{
+  "expo": "57.0.26",
+  "reactNative": "0.86.3",
+  "react": "19.2.3",
+  "node": "22.23.3",
+  "dependencyCheck": "pass",
+  "expoDoctor": {
+    "passed": 21,
+    "failed": 0
+  },
+  "mobileRegression": {
+    "passed": 9,
+    "failed": 0
+  },
+  "androidExport": "pass",
+  "iosExport": "pass",
+  "androidDevelopmentBundle": {
+    "httpStatus": 200,
+    "bytes": 5790655
+  },
+  "physicalPhoneLaunch": "awaiting user scan"
+}
