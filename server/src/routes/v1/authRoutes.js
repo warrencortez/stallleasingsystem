@@ -17,6 +17,8 @@ const { authRateLimiter } = require('../../middleware/rateLimiter');
 
 // Register a new user
 router.post('/register', authRateLimiter, register);
+router.post('/register/verify', authRateLimiter, require('../../controllers/registrationController').verify);
+router.post('/register/resend', authRateLimiter, require('../../controllers/registrationController').resend);
 
 // Login user
 router.post('/login', authRateLimiter, login);

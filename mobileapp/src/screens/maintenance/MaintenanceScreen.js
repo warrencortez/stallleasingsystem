@@ -492,7 +492,7 @@ const MaintenanceScreen = ({ navigation, route }) => {
             >
                 <KeyboardAvoidingView
                     style={styles.modalOverlay}
-                    behavior={undefined}
+                    behavior="padding"
                 >
                     <View style={styles.bottomSheet}>
                         <View style={styles.sheetHandle} />
@@ -504,7 +504,13 @@ const MaintenanceScreen = ({ navigation, route }) => {
                             </TouchableOpacity>
                         </View>
 
-                        <ScrollView showsVerticalScrollIndicator={false}>
+                        <ScrollView
+                            style={{ flexShrink: 1 }}
+                            contentContainerStyle={{ paddingBottom: 24 }}
+                            keyboardShouldPersistTaps="handled"
+                            keyboardDismissMode="on-drag"
+                            showsVerticalScrollIndicator={false}
+                        >
                             {/* MULTI-STALL SELECTOR */}
                             <Text style={styles.formLabel}>Select Stall to Report *</Text>
                             {myRentedStalls.length > 1 ? (
@@ -882,6 +888,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end'
     },
     bottomSheet: {
+        flexShrink: 1,
         backgroundColor: '#fff',
         borderTopLeftRadius: theme.borderRadius.xl,
         borderTopRightRadius: theme.borderRadius.xl,

@@ -83,7 +83,7 @@ class PayMongoService {
                             description: description || 'Monthly stall rental fee'
                         }
                     ],
-                    payment_method_types: (process.env.PAYMONGO_PAYMENT_METHODS || 'gcash,card').split(',').map(value=>value.trim()).filter(Boolean),
+                    payment_method_types: (process.env.PAYMONGO_PAYMENT_METHODS || 'qrph').split(',').map(value=>value.trim()).filter(Boolean),
                     reference_number: refNumber,
                     success_url: this.returnUrl(this.successUrl, paymentId),
                     cancel_url: this.returnUrl(this.cancelUrl, paymentId)

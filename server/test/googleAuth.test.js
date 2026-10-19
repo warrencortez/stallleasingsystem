@@ -15,7 +15,7 @@ function fixture({ accounts = [], valid = true, google = true, confirmed = true 
         if (sql.includes('pg_advisory')) return { rows: [] };
         if (sql.startsWith('SELECT')) {
             const found = sql.includes('supabase_user_id') ? records.find(u => u.supabase_user_id === args[0]) :
-                records.find(u => u.email.toLowerCase() === args[0].toLowerCase() || (sql.includes('phone=') && u.phone === args[0]));
+                sql.includes('WHERE phone=$1') ? records.find(u => u.phone === args[0]) : records.find(u => u.email.toLowerCase() === args[0].toLowerCase() || (sql.includes('phone=') && u.phone === args[0]));
             return { rows: found ? [found] : [] };
         }
         if (sql.startsWith('UPDATE users')) { records.find(u => u.id === args[1]).supabase_user_id = args[0]; return { rows: [] }; }
@@ -23,6 +23,7 @@ function fixture({ accounts = [], valid = true, google = true, confirmed = true 
     };
     const dependencies = {
         'node:crypto': crypto,
+        '../services/registrationVerification': require('../src/services/registrationVerification'),
         '../config/database': { pool: { withTransaction: async fn => {
             const before = structuredClone(records);
             try { return await fn({ query }); } catch (error) { records.splice(0, records.length, ...before); throw error; }
@@ -57,7 +58,12 @@ test('forged, non-Google and unconfirmed identities never reach account storage'
 });
 test('new Google users are tenants and cannot self-provision an administrator', async () => {
     const app = fixture();
-    const result = await app.login({ role: 'admin', email: 'forged@example.com' });
+    const pending = await app.login();
+    assert.equal(pending.body.data.profileRequired, true);
+    assert.equal(pending.body.data.email, 'tenant@example.com');
+    assert.equal(pending.body.data.token, undefined);
+    assert.equal(app.records.length, 0);
+    const result = await app.login({ role: 'admin', email: 'forged@example.com', profile: { name: 'New Tenant', phone: '+639123456789', email: 'forged@example.com' } });
     assert.equal(result.statusCode, 200);
     assert.equal(result.body.data.user.role, 'tenant');
     assert.equal(result.body.data.user.email, 'tenant@example.com');
@@ -100,4 +106,13 @@ test('only an existing administrator with proof can connect Google to the admin 
     const response = await app.login({ audience: 'admin', existingPassword: 'correct-password' });
     assert.equal(response.body.data.user.role, 'admin');
     assert.equal((await app.login({ audience: 'tenant' })).statusCode, 403);
+});
+
+test('Google onboarding rejects missing contacts and duplicate phone numbers', async () => {
+    const app = fixture();
+    assert.equal((await app.login({profile:{name:'Tenant',phone:''}})).statusCode,400);
+    assert.equal(app.records.length,0);
+    const existing=fixture({accounts:[{...account,email:'other@example.com',phone:'+639123456789'}]});
+    assert.equal((await existing.login({profile:{name:'Tenant',phone:'+639123456789'}})).statusCode,409);
+    assert.equal(existing.records.length,1);
 });

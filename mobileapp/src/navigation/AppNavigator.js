@@ -2,6 +2,8 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuth } from '../context/AuthContext';
 import LoginScreen from '../screens/auth/LoginScreen';
+import VerifyEmailScreen from '../screens/auth/VerifyEmailScreen';
+import GoogleProfileScreen from '../screens/auth/GoogleProfileScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
 import BottomTabNavigator from './BottomTabNavigator';
 import { ActivityIndicator, View } from 'react-native';
@@ -28,6 +30,8 @@ const AppNavigator = () => {
                 <>
                     <Stack.Screen name="Login" component={LoginScreen} />
                     <Stack.Screen name="Register" component={RegisterScreen} />
+                    <Stack.Screen name="VerifyEmail" component={VerifyEmailScreen} />
+                    <Stack.Screen name="GoogleProfile" component={GoogleProfileScreen} />
                 </>
             ) : (
                 <>

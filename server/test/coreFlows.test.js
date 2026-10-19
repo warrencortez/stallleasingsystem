@@ -25,15 +25,23 @@ test.before(async () => {
     base = `http://127.0.0.1:${server.address().port}`;
     const adminId = await User.create({ name: 'QA admin', email: 'qa-admin@example.invalid', password: 'QaPass123', role: 'admin' });
     admin = generateToken(adminId, 'admin');
-    owner = (await request('/auth/register', null, { name: 'Owner', email: 'owner@example.invalid', password: 'QaPass123', role: 'admin' })).body.data;
-    other = (await request('/auth/register', null, { name: 'Other', email: 'other@example.invalid', phone: '09999999999', password: 'QaPass123' })).body.data;
+    // Core business-flow fixtures represent already verified tenants; registration is
+    // exercised separately against transactional PostgreSQL and a fake OTP provider.
+    const ownerId = await User.create({name:'Owner',email:'owner@example.invalid',phone:'+639111111111',password:'QaPass123',role:'tenant'});
+    const otherId = await User.create({name:'Other',email:'other@example.invalid',phone:'09999999999',password:'QaPass123',role:'tenant'});
+    owner = {user:await User.findById(ownerId),token:generateToken(ownerId,'tenant')};
+    other = {user:await User.findById(otherId),token:generateToken(otherId,'tenant')};
     stall = await Stall.create({ stall_number: 'QA-01', monthly_rent: 1000, status: 'available' });
     lease = await Tenant.create({ user_id: owner.user.id, stall_id: stall, name: 'Owner', email: owner.user.email, status: 'active' });
     invoice = await Payment.create({ tenant_id: lease, stall_id: stall, amount: 1000, due_date: '2026-10-28' });
 });
 test.after(() => server?.close());
-test('public signup cannot grant admin or expose password hashes', () => {
-    assert.equal(owner.user.role, 'tenant'); assert.equal(owner.user.password, undefined);
+test('public signup cannot bypass email verification with the old registration payload', async () => {
+    const response=await request('/auth/register',null,{name:'Unverified',email:'unverified@example.invalid',phone:'+639222222222',password:'QaPass123',role:'admin'});
+    assert.equal(response.status,400);
+    assert.equal(response.body.data,undefined);
+    assert.equal(await User.findByEmail('unverified@example.invalid'),undefined);
+    assert.equal(owner.user.password,undefined);
 });
 test('repeat login works, wrong demo passwords fail, profiles hide hashes', async () => {
     for (let i = 0; i < 2; i++) assert.equal((await request('/auth/login', null, { email: owner.user.email, password: 'QaPass123' })).status, 200);
@@ -175,4 +183,24 @@ test('cash cannot overlap a pending online checkout or submitted proof', async()
         const result=await request('/payments/'+id+'/office-payment',admin,{amount_received:50,receipt_number:'OR-CONFLICT'});
         assert.equal(result.status,409);assert.notEqual((await Payment.findById(id)).status,'paid');
     }
+});
+
+test('only the owning tenant can cancel pending applications, and can apply again', async () => {
+    const id=await Stall.create({stall_number:'QA-CANCEL',monthly_rent:100,status:'available'});
+    const body={stall_id:id,full_name:'Owner',business_name:'Shop',email:owner.user.email,phone:'+639111111111'};
+    const created=await request('/applications',owner.token,body);
+    assert.equal(created.status,201);
+    const applicationId=created.body.data.id;
+    const route='/applications/'+applicationId+'/cancel';
+    assert.equal((await request(route,other.token,{},'PATCH')).status,403);
+    assert.equal((await request(route,null,{},'PATCH')).status,401);
+    assert.equal((await request(route,admin,{},'PATCH')).status,403);
+    assert.equal((await request(route,owner.token,{},'PATCH')).body.data.status,'cancelled');
+    assert.equal((await request(route,owner.token,{},'PATCH')).status,200);
+    assert.equal((await request('/applications/'+applicationId+'/review',admin,{status:'approved'},'PATCH')).status,409);
+    assert.equal((await Stall.findById(id)).status,'available');
+    const again=await request('/applications',owner.token,body);
+    assert.equal(again.status,201);
+    assert.equal((await request('/applications/'+again.body.data.id+'/review',admin,{status:'approved'},'PATCH')).status,200);
+    assert.equal((await request('/applications/'+again.body.data.id+'/cancel',owner.token,{},'PATCH')).status,409);
 });

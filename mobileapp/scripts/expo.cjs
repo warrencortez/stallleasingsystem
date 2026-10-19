@@ -21,7 +21,12 @@ if (fs.existsSync(path.dirname(localTemp))) {
 // Prefer Wi-Fi over virtual adapters when sharing the QR code with a phone.
 const wifi = Object.entries(require('node:os').networkInterfaces()).find(([name]) => /wi-?fi|wlan|wireless/i.test(name))?.[1]?.find(address => address.family === 'IPv4' && !address.internal);
 if (wifi && !env.REACT_NATIVE_PACKAGER_HOSTNAME) env.REACT_NATIVE_PACKAGER_HOSTNAME = wifi.address;
-env.PATH = path.dirname(runtime) + path.delimiter + (env.PATH || '');
+// Windows may expose Path rather than PATH. Keep one key so child processes
+// retain npm and the inherited executable search path.
+const pathKeys = Object.keys(env).filter(key => key.toLowerCase() === 'path');
+const inheritedPath = pathKeys.map(key => env[key]).filter(Boolean).join(path.delimiter);
+for (const key of pathKeys) delete env[key];
+env.PATH = [path.dirname(runtime), path.dirname(process.execPath), inheritedPath].join(path.delimiter);
 const args = process.argv.slice(2);
 const child = spawn(runtime, [require.resolve('expo/bin/cli'), ...(args.length ? args : ['start'])], { cwd: root, env, stdio: 'inherit', windowsHide: true });
 child.on('error', error => { console.error(error.message); process.exitCode = 1; });

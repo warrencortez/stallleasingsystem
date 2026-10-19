@@ -185,7 +185,17 @@ const deleteApplication = async (req, res) => {
     }
 };
 
+const cancelApplication = async (req,res) => {
+    try {
+        const application=await require('../services/applicationCancellation').cancel(req.params.id,req.userId);
+        return res.json({success:true,message:'Application cancelled.',data:application});
+    } catch(error) {
+        return res.status(error.status || 500).json({success:false,message:error.status?error.message:'Unable to cancel the application. Please try again.'});
+    }
+};
+
 module.exports = {
+    cancelApplication,
     getAllApplications,
     getApplication,
     createApplication,

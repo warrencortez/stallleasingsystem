@@ -1,4 +1,4 @@
-﻿const test = require('node:test');
+const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -63,14 +63,14 @@ test('checkout explains online and office options without asking for a reference
     const app=await mountBilling();
     assert.match(app.text(),/1,050/);
     await app.press('Pay Rent');
-    assert.match(app.text(),/Continue to PayMongo/);
+    assert.match(app.text(),/Pay with QR Ph/);
     assert.match(app.text(),/Visit the HOA office/);
     assert.doesNotMatch(app.text(),/Receipt \/ Bank Reference No.|Submit for Verification/);
     assert.equal(app.calls.length,0);
 });
 test('closing unpaid checkout only asks the server to verify; no manual paid write', async () => {
     const app = await mountBilling({ cancel: true });
-    await app.press('Pay Rent'); await app.press('Continue to PayMongo');
+    await app.press('Pay Rent'); await app.press('Pay with QR Ph');
     assert.equal(app.calls.filter(c => c.method === 'patch').length, 0);
     assert.equal(app.calls[1].body.checkout_id, 'cs_owned');
     assert.match(app.text(), /Receipts \(0\)/);
@@ -78,7 +78,7 @@ test('closing unpaid checkout only asks the server to verify; no manual paid wri
 });
 test('server-confirmed checkout moves invoice into receipts', async () => {
     const app = await mountBilling();
-    await app.press('Pay Rent'); await app.press('Continue to PayMongo');
+    await app.press('Pay Rent'); await app.press('Pay with QR Ph');
     assert.match(app.text(), /Receipts \(1\)/);
     assert.equal(app.alerts.at(-1)[0], 'Payment confirmed');
 });
@@ -86,7 +86,7 @@ test('unconfigured online payments show office instructions and cannot start che
     const app=await mountBilling({onlineReady:false});
     await app.press('Pay Rent');
     assert.match(app.text(),/Online payments are not available yet/);
-    await app.press('Continue to PayMongo');
+    await app.press('Pay with QR Ph');
     assert.equal(app.calls.length,0);
 });
 test('network failure shows retry instead of a false all-caught-up state', async () => {
@@ -131,7 +131,7 @@ test('dashboard Report Fix callback lands on the registered maintenance tab', ()
 });
 
 test('every literal mobile navigation target has a registered route', () => {
-    const routes = ['Main','Login','Register','Notifications', ...[...fs.readFileSync(path.join(root,'navigation/BottomTabNavigator.js'),'utf8').matchAll(/name="([^"]+)"/g)].map(m=>m[1])];
+    const routes = ['AppNavigator.js','BottomTabNavigator.js'].flatMap(file => [...fs.readFileSync(path.join(root,'navigation',file),'utf8').matchAll(/name="([^"]+)"/g)].map(m=>m[1]));
     const failures = [];
     function scan(dir) { for (const entry of fs.readdirSync(dir,{withFileTypes:true})) {
         const filename=path.join(dir,entry.name); if(entry.isDirectory()) scan(filename); else if(filename.endsWith('.js')) {

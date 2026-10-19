@@ -72,6 +72,7 @@ const ApplicationReview = () => {
         const config = {
             pending: { color: 'warning text-dark', icon: <FaHourglassHalf className="me-1" />, label: 'Pending Review' },
             approved: { color: 'success', icon: <FaCheckCircle className="me-1" />, label: 'Approved & Leased' },
+            cancelled: { color: 'secondary', icon: <FaTimesCircle className="me-1" />, label: 'Cancelled' },
             rejected: { color: 'danger', icon: <FaTimesCircle className="me-1" />, label: 'Rejected' }
         };
         const c = config[status] || { color: 'secondary', icon: null, label: status };

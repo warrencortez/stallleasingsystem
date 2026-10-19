@@ -5,7 +5,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const babel = require('@babel/core');
 
-function mountAuth(success = true) {
+function mountAuth(success = true, responseData = null) {
     const state = [], writes = [], requests = [];
     let cursor = 0;
     const react = {
@@ -24,7 +24,7 @@ function mountAuth(success = true) {
         '@react-native-async-storage/async-storage': { multiSet: async pairs => writes.push(pairs) },
         '../config/api': { post: async (route, body) => {
             requests.push({ route, body });
-            return { data: { success, message: 'Registration failed', data: {
+            return { data: { success, message: 'Registration failed', data: responseData || {
                 token: 'server-token', user: { id: 'tenant-id', role: 'tenant' }
             } } };
         } }
@@ -76,4 +76,23 @@ test('Google login establishes a tenant session through the backend', async () =
     assert.equal(app.requests[0].body.existingIdentifier, '+639123456789');
     assert.equal(app.render().isAuthenticated, true);
     assert.equal(app.render().token, 'server-token');
+});
+
+test('new Google identities cannot start a session before completing their contacts', async () => {
+    const app=mountAuth(true,{profileRequired:true,email:'verified@example.com',name:'Verified Name'});
+    const result=await app.render().loginWithGoogle('google-access-token');
+    assert.equal(result.profileRequired,true);
+    assert.equal(app.render().isAuthenticated,false);
+    assert.equal(app.writes.length,0);
+    assert.equal(app.render().googleSetup.email,'verified@example.com');
+    await app.render().completeGoogleProfile({name:'Full Name',phone:'+639123456789'});
+    assert.equal(app.requests[1].body.accessToken,'google-access-token');
+    assert.equal(app.requests[1].body.profile.phone,'+639123456789');
+});
+test('pending email registration returns only challenge information without a session', async () => {
+    const app=mountAuth(true,{challengeId:'challenge',email:'tenant@example.com',expiresAt:'expiry',resendAt:'resend',serverNow:'now'});
+    const result=await app.render().register({email:'tenant@example.com',password:'secret123',confirmPassword:'secret123'});
+    assert.equal(result.challengeId,'challenge');
+    assert.equal(app.render().isAuthenticated,false);
+    assert.equal(app.writes.length,0);
 });

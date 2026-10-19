@@ -27,6 +27,8 @@ const StallsScreen = ({ navigation, route }) => {
     const [loading, setLoading] = useState(true);
     const [myStallIds, setMyStallIds] = useState([]);
     const [appliedStallIds, setAppliedStallIds] = useState([]);
+    const [pendingApplications, setPendingApplications] = useState([]);
+    const [cancelling, setCancelling] = useState(false);
     const [viewedStallIds, setViewedStallIds] = useState([]);
 
     // Apply Modal
@@ -103,6 +105,7 @@ const StallsScreen = ({ navigation, route }) => {
 
             if (appsRes.status === 'fulfilled' && appsRes.value.data?.success) {
                 const myApps = appsRes.value.data.data || [];
+                setPendingApplications(myApps.filter(a => a.status === 'pending' && a.user_id === user?.id));
                 const ids = myApps.filter(a => a.status === 'pending' || a.status === 'approved').map((a) => a.stall_id).filter(Boolean);
                 setAppliedStallIds(ids);
             }
@@ -168,6 +171,28 @@ const StallsScreen = ({ navigation, route }) => {
         setEmail(user?.email || '');
         setNotes(`Application for ${stall.stall_number}`);
         setShowApplyModal(true);
+    };
+
+    const handleCancelApplication = () => {
+        const application = pendingApplications.find(a => a.stall_id === selectedDetailStall?.id);
+        if (!application || cancelling) return;
+        Alert.alert('Cancel Application?', 'Your application will be withdrawn. You can apply again if the stall is still available.', [
+            { text: 'Keep Application', style: 'cancel' },
+            { text: 'Cancel Application', style: 'destructive', onPress: async () => {
+                setCancelling(true);
+                try {
+                    const response = await api.patch(`/applications/${application.id}/cancel`);
+                    if (!response.data?.success) throw new Error(response.data?.message || 'Unable to cancel application.');
+                    setPendingApplications(current => current.filter(a => a.id !== application.id));
+                    setAppliedStallIds(current => current.filter(id => id !== application.stall_id));
+                    await loadStalls(true);
+                    Alert.alert('Application Cancelled', 'Your application has been withdrawn.');
+                } catch (error) {
+                    Alert.alert('Unable to Cancel', error.response?.data?.message || error.message || 'Please try again.');
+                    await loadStalls(true);
+                } finally { setCancelling(false); }
+            } }
+        ]);
     };
 
     const handleSubmitApplication = async () => {
@@ -489,7 +514,7 @@ const StallsScreen = ({ navigation, route }) => {
                                     <Text style={styles.applyBtnText}>Apply to Rent This Stall</Text>
                                 </TouchableOpacity>
                             ) : appliedStallIds.includes(selectedDetailStall?.id) ? (
-                                <View style={[styles.appliedNotice, { flex: 1, paddingVertical: 12 }]}>
+                                <View style={[styles.appliedNotice, { paddingVertical: 12 }]}>
                                     <Ionicons name="checkmark-done-circle" size={18} color="#059669" />
                                     <Text style={styles.appliedNoticeText}>✓ Application Submitted (Under Review)</Text>
                                 </View>
@@ -502,6 +527,13 @@ const StallsScreen = ({ navigation, route }) => {
                                 <View style={[styles.unavailableNotice, { flex: 1, paddingVertical: 12 }]}>
                                     <Text style={styles.unavailableNoticeText}>Currently Leased / Unavailable</Text>
                                 </View>
+                            )}
+
+                            {pendingApplications.some(a => a.stall_id === selectedDetailStall?.id) && (
+                                <TouchableOpacity accessibilityRole="button" disabled={cancelling} onPress={handleCancelApplication}
+                                    style={[styles.backToListBtn, { backgroundColor: '#fef2f2', borderWidth: 1, borderColor: '#fecaca' }]}>
+                                    {cancelling ? <ActivityIndicator color="#b91c1c" /> : <Text style={[styles.backToListBtnText, { color: '#b91c1c' }]}>Cancel Application</Text>}
+                                </TouchableOpacity>
                             )}
 
                             <TouchableOpacity
@@ -526,7 +558,7 @@ const StallsScreen = ({ navigation, route }) => {
             >
                 <KeyboardAvoidingView
                     style={styles.modalOverlay}
-                    behavior={undefined}
+                    behavior="padding"
                 >
                     <View style={styles.bottomSheet}>
                         <View style={styles.sheetHandle} />
@@ -538,7 +570,13 @@ const StallsScreen = ({ navigation, route }) => {
                             </TouchableOpacity>
                         </View>
 
-                        <ScrollView showsVerticalScrollIndicator={false}>
+                        <ScrollView
+                            style={{ flexShrink: 1 }}
+                            contentContainerStyle={{ paddingBottom: 24 }}
+                            keyboardShouldPersistTaps="handled"
+                            keyboardDismissMode="on-drag"
+                            showsVerticalScrollIndicator={false}
+                        >
                             <View style={styles.rateAlert}>
                                 <Text style={styles.rateAlertText}>
                                     {selectedStall?.rent_type === 'daily' ? 'Daily Rate: ' : 'Monthly Rate: '}₱{Number((selectedStall?.rent_type === 'daily' ? selectedStall?.daily_rent : selectedStall?.monthly_rent) || 0).toLocaleString()}
@@ -853,6 +891,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end'
     },
     bottomSheet: {
+        flexShrink: 1,
         backgroundColor: '#fff',
         borderTopLeftRadius: theme.borderRadius.xl,
         borderTopRightRadius: theme.borderRadius.xl,

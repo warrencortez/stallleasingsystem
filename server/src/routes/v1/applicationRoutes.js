@@ -29,6 +29,8 @@ router.post('/', optionalAuth, createApplication);
 // Review application (Admin/Staff only)
 router.patch('/:id/review', authenticate, authorize('admin', 'staff'), reviewApplication);
 
+router.patch('/:id/cancel', authenticate, authorize('tenant'), require('../../controllers/applicationController').cancelApplication);
+
 // Delete an application (Admin only)
 router.delete('/:id', authenticate, authorize('admin'), deleteApplication);
 

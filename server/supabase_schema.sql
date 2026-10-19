@@ -110,7 +110,7 @@ CREATE TABLE applications (
     valid_id_url TEXT,
     business_permit_url TEXT,
     notes TEXT,
-    status VARCHAR(50) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'under_review')),
+    status VARCHAR(50) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'under_review', 'cancelled')),
     reviewed_by UUID REFERENCES users(id) ON DELETE SET NULL,
     reviewed_at TIMESTAMP WITH TIME ZONE,
     rejection_reason TEXT,

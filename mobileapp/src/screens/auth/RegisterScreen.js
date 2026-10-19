@@ -11,12 +11,17 @@ import {
     ScrollView
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import GoogleButton from '../../components/common/GoogleButton';
 import { useAuth } from '../../context/AuthContext';
 import { theme } from '../../styles/theme';
 
 const RegisterScreen = ({ navigation }) => {
     const { register } = useAuth();
     const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
     const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
@@ -69,6 +74,8 @@ const RegisterScreen = ({ navigation }) => {
             return;
         }
 
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) { Alert.alert('Invalid Email', 'Please enter your email address.'); return; }
+        if (password !== confirmPassword) { Alert.alert('Passwords Do Not Match', 'Please enter the same password in both fields.'); return; }
         if (!isPasswordValid) {
             Alert.alert('Invalid Password', 'Please ensure password meets all requirements (minimum 6 digits/letters with no symbols).');
             return;
@@ -80,12 +87,13 @@ const RegisterScreen = ({ navigation }) => {
             const res = await register({
                 name: name.trim(),
                 phone: fullPhoneNumber,
-                password
+                email: email.trim().toLowerCase(),
+                password, confirmPassword
             });
 
             if (res.success) {
-                navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
-                Alert.alert('Registration Successful', 'Your account has been created. Please log in with your mobile number and password.');
+                setPassword(''); setConfirmPassword('');
+                navigation.navigate('VerifyEmail', { challenge: res });
             } else {
                 Alert.alert('Registration Failed', res.message || 'Unable to create account.');
             }
@@ -99,9 +107,9 @@ const RegisterScreen = ({ navigation }) => {
     return (
         <KeyboardAvoidingView
             style={styles.container}
-            behavior={undefined}
+            behavior="padding"
         >
-            <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+            <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" showsVerticalScrollIndicator={false}>
                 <View style={styles.header}>
                     <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
                         <Ionicons name="arrow-back" size={22} color={theme.colors.text} />
@@ -123,6 +131,12 @@ const RegisterScreen = ({ navigation }) => {
                         />
                     </View>
 
+                    <Text style={styles.label}>Email Address</Text>
+                    <View style={styles.inputContainer}>
+                        <Ionicons name="mail-outline" size={20} color={theme.colors.textMuted} style={styles.inputIcon} />
+                        <TextInput style={styles.input} placeholder="you@example.com" value={email} onChangeText={setEmail}
+                            autoCapitalize="none" autoCorrect={false} keyboardType="email-address" autoComplete="email" maxLength={254} />
+                    </View>
                     {/* Mobile Number */}
                     <Text style={styles.label}>Mobile Number</Text>
                     <View style={styles.phoneInputContainer}>
@@ -148,13 +162,26 @@ const RegisterScreen = ({ navigation }) => {
                             style={styles.input}
                             placeholder="••••••••"
                             placeholderTextColor="#94a3b8"
-                            secureTextEntry
+                            secureTextEntry={!showPassword}
+                            maxLength={72}
                             autoCapitalize="none"
                             value={password}
                             onChangeText={setPassword}
                         />
+                        <TouchableOpacity accessibilityLabel={showPassword ? 'Hide password' : 'Show password'} hitSlop={12} onPress={() => setShowPassword(!showPassword)}>
+                            <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={22} color={theme.colors.textMuted} />
+                        </TouchableOpacity>
                     </View>
 
+                    <Text style={styles.label}>Confirm Password</Text>
+                    <View style={styles.inputContainer}>
+                        <Ionicons name="lock-closed-outline" size={20} color={theme.colors.textMuted} style={styles.inputIcon} />
+                        <TextInput style={styles.input} placeholder="Enter your password again" value={confirmPassword} onChangeText={setConfirmPassword}
+                            secureTextEntry={!showConfirm} autoCapitalize="none" maxLength={72} />
+                        <TouchableOpacity accessibilityLabel={showConfirm ? 'Hide confirm password' : 'Show confirm password'} hitSlop={12} onPress={() => setShowConfirm(!showConfirm)}>
+                            <Ionicons name={showConfirm ? 'eye-off-outline' : 'eye-outline'} size={22} color={theme.colors.textMuted} />
+                        </TouchableOpacity>
+                    </View>
                     {/* Dynamic Password Requirement Indicator Circles */}
                     <View style={styles.requirementsContainer}>
                         <View style={styles.requirementRow}>
@@ -180,7 +207,7 @@ const RegisterScreen = ({ navigation }) => {
                     <TouchableOpacity
                         style={[
                             styles.registerButton,
-                            (!name.trim() || phone.length !== 10 || !isPasswordValid) && styles.registerButtonDisabled
+                            (!name.trim() || phone.length !== 10 || !isPasswordValid || !email.trim() || password !== confirmPassword) && styles.registerButtonDisabled
                         ]}
                         onPress={handleRegister}
                         disabled={loading}
@@ -191,6 +218,7 @@ const RegisterScreen = ({ navigation }) => {
                             <Text style={styles.registerButtonText}>Register as Tenant</Text>
                         )}
                     </TouchableOpacity>
+                    <GoogleButton navigation={navigation} disabled={loading} />
                 </View>
 
                 <View style={styles.footer}>

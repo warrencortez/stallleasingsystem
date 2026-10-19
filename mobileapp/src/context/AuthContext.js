@@ -10,6 +10,7 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [googleSetup, setGoogleSetup] = useState(null);
 
     useEffect(() => {
         onUnauthorized = logout;
@@ -67,9 +68,14 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const loginWithGoogle = async (accessToken, existingPassword, existingIdentifier) => {
+    const loginWithGoogle = async (accessToken, existingPassword, existingIdentifier, profile) => {
         try {
-            const res = await api.post('/auth/google', { accessToken, existingPassword, existingIdentifier, audience: 'tenant' });
+            const res = await api.post('/auth/google', { accessToken, existingPassword, existingIdentifier, profile, audience: 'tenant' });
+            if (res.data.data.profileRequired) {
+                setGoogleSetup({ accessToken, email: res.data.data.email, name: res.data.data.name });
+                return { success: true, profileRequired: true };
+            }
+            setGoogleSetup(null);
             const { token: jwtToken, user: userData } = res.data.data;
             if (userData.role !== 'tenant') return { success: false, message: 'Use the administrator portal for this account.' };
             await AsyncStorage.multiSet([['user_token', jwtToken], ['user_data', JSON.stringify(userData)]]);
@@ -88,10 +94,7 @@ export const AuthProvider = ({ children }) => {
                 role: 'tenant'
             });
             if (res.data?.success) {
-                const { user: userData } = res.data.data;
-                if (userData.role !== 'tenant') return { success: false, message: 'Use the administrator portal for this account.' };
-                // Creating an account does not start a session; the tenant must log in.
-                return { success: true, user: userData };
+                return { success: true, ...res.data.data };
             }
             return { success: false, message: res.data?.message || 'Registration failed' };
         } catch (error) {
@@ -125,6 +128,9 @@ export const AuthProvider = ({ children }) => {
                 loading,
                 login,
                 loginWithGoogle,
+                googleSetup,
+                clearGoogleSetup: () => setGoogleSetup(null),
+                completeGoogleProfile: profile => loginWithGoogle(googleSetup?.accessToken, undefined, undefined, profile),
                 register,
                 logout,
                 isTenant: user?.role === 'tenant'

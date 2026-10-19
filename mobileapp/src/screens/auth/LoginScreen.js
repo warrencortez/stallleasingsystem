@@ -23,6 +23,7 @@ const LoginScreen = ({ navigation }) => {
     const [connectExisting, setConnectExisting] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [serverIp, setServerIp] = useState('');
     const [showIpConfig, setShowIpConfig] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -79,7 +80,8 @@ const LoginScreen = ({ navigation }) => {
             }
             const result = await loginWithGoogle(token, connectExisting ? password : pendingGoogleToken ? linkPassword : undefined,
                 connectExisting ? identifier : undefined);
-            if (result.code === 'GOOGLE_LINK_REQUIRED') setPendingGoogleToken(token);
+            if (result.profileRequired) { setPendingGoogleToken(null); setLinkPassword(''); navigation.navigate('GoogleProfile'); }
+            else if (result.code === 'GOOGLE_LINK_REQUIRED') setPendingGoogleToken(token);
             else if (!result.success) Alert.alert('Google Sign-in', result.message);
             else { setPendingGoogleToken(null); setLinkPassword(''); }
         } catch (error) { Alert.alert('Google Sign-in', error.message || 'Unable to sign in. Please try again.'); }
@@ -97,9 +99,9 @@ const LoginScreen = ({ navigation }) => {
     return (
         <KeyboardAvoidingView
             style={styles.container}
-            behavior={undefined}
+            behavior="padding"
         >
-            <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+            <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" showsVerticalScrollIndicator={false}>
                 <View style={styles.header}>
                     <View style={styles.iconCircle}>
                         <Ionicons name="storefront" size={38} color={theme.colors.white} />
@@ -129,10 +131,13 @@ const LoginScreen = ({ navigation }) => {
                             style={styles.input}
                             placeholder="••••••••"
                             placeholderTextColor="#94a3b8"
-                            secureTextEntry
+                            secureTextEntry={!showPassword}
                             value={password}
                             onChangeText={setPassword}
                         />
+                        <TouchableOpacity accessibilityLabel={showPassword ? 'Hide password' : 'Show password'} hitSlop={12} onPress={() => setShowPassword(!showPassword)}>
+                            <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={22} color={theme.colors.textMuted} />
+                        </TouchableOpacity>
                     </View>
 
                     <TouchableOpacity
@@ -162,8 +167,9 @@ const LoginScreen = ({ navigation }) => {
                         <Text style={styles.registerLink}>{connectExisting ? '✓ Connect Google to my existing tenant account' : 'Already registered by phone? Connect your account to Google'}</Text>
                         {connectExisting && <Text>Enter your existing login details above before continuing.</Text>}
                     </TouchableOpacity>}
-                    <TouchableOpacity style={[styles.loginButton, { marginTop: 12, backgroundColor: '#fff', borderWidth: 1, borderColor: '#cbd5e1' }]}
+                    <TouchableOpacity style={[styles.loginButton, { marginTop: 12, backgroundColor: '#fff', borderWidth: 1, borderColor: '#cbd5e1', flexDirection: 'row', justifyContent: 'center', gap: 12 }]}
                         disabled={loading || (!!pendingGoogleToken && !linkPassword)} onPress={handleGoogle}>
+                        <Ionicons name="logo-google" size={22} color="#4285f4" />
                         <Text style={[styles.loginButtonText, { color: '#334155' }]}>{pendingGoogleToken ? 'Connect Google and Sign In' : 'Continue with Google'}</Text>
                     </TouchableOpacity>
 

@@ -145,11 +145,11 @@ const BillingScreen = () => {
                 style={styles.paymongoBtn}
                 onPress={() => handleOpenPayModal(item)}
             >
-                <Ionicons name="card" size={18} color="#fff" />
+                <Ionicons name="qr-code-outline" size={18} color="#fff" />
                 <Text style={styles.paymongoBtnText}>Pay Rent</Text>
             </TouchableOpacity>
             <Text style={styles.paymongoChannelsText}>
-                Supports GCash • Maya • BPI Online • GrabPay • Debit/Credit Cards
+                QR Ph: GCash, Maya, MariBank and participating banks or wallets
             </Text>
         </View>
     );
@@ -313,10 +313,10 @@ const BillingScreen = () => {
 
                         {!onlineStatus.ready && <Text style={styles.payModalSub}>{onlineStatus.message || 'Checking online payment availability...'}</Text>}
                         {onlineStatus.testMode && <Text style={styles.payModalSub}>Test payments only. No real money will be collected.</Text>}
-                        <Text style={styles.payModalSub}>Pay online through PayMongo. Choose an available payment method on its secure checkout page. Your payment is confirmed automatically; no receipt upload or bank reference is needed.</Text>
+                        {onlineStatus.ready && <Text style={styles.payModalSub}>Pay using QR Ph on the secure PayMongo checkout page. Scan the QR with a participating bank or wallet app. Your payment is confirmed automatically; no receipt upload or bank reference is needed.</Text>}
                         <View style={styles.payActionsRow}>
-                            <TouchableOpacity style={styles.confirmPayBtn} onPress={handlePaymongoGatewayCheckout} disabled={processingPayment || !onlineStatus.ready}>
-                                {processingPayment ? <ActivityIndicator color="#fff" /> : <Text style={styles.confirmPayBtnText}>Continue to PayMongo</Text>}
+                            <TouchableOpacity style={[styles.confirmPayBtn, !onlineStatus.ready && { opacity: 0.45 }]} onPress={handlePaymongoGatewayCheckout} disabled={processingPayment || !onlineStatus.ready}>
+                                {processingPayment ? <ActivityIndicator color="#fff" /> : <Text style={styles.confirmPayBtnText}>Pay with QR Ph</Text>}
                             </TouchableOpacity>
                         </View>
                         <Text style={styles.payModalSub}>Prefer to pay in person? Visit the HOA office with this bill. The administrator will record your cash payment and issue a receipt.</Text>

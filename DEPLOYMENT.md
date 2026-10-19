@@ -105,3 +105,13 @@ Set its signing secret and both return URLs from `server/.env.example`. Only lis
 - Run an installed Android build to verify the real Google browser callback. Mocked tests and JS exports cannot prove provider configuration.
 
 References: [Vercel Express](https://vercel.com/docs/frameworks/backend/express), [Hobby plan](https://vercel.com/docs/plans/hobby), [Supabase Google](https://supabase.com/docs/guides/auth/social-login/auth-google), [Supabase Cron](https://supabase.com/docs/guides/cron), [Expo authentication](https://docs.expo.dev/guides/authentication/).
+
+## Live QR Ph checkout
+
+The mobile checkout is configured for QR Ph only (`PAYMONGO_PAYMENT_METHODS=qrph`). Confirm QR Ph is active in the receiving merchant account and that its settlement/withdrawal capabilities meet your needs.
+
+Before enabling live payments, deploy the backend to a public HTTPS URL. In the backend environment, set `PAYMENT_MODE=live`, the account's live `PAYMONGO_SECRET_KEY`, and both `PAYMONGO_SUCCESS_URL` and `PAYMONGO_CANCEL_URL` to `https://YOUR-API/payments/return`. Keep secrets out of the mobile app and Git.
+
+In PayMongo live mode, register `https://YOUR-API/api/v1/payments/paymongo-webhook` for `checkout_session.payment.paid`, then store that endpoint's signing secret as `PAYMONGO_WEBHOOK_SECRET`. Restart or redeploy the backend and point the mobile API configuration to it. Switching payment methods applies to new checkout sessions; existing sessions retain their original options.
+
+Verify an authorized real payment against the correct invoice and check settlement in PayMongo before sharing with tenants. The current local test key and missing webhook configuration do not enable live collection.
