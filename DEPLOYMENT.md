@@ -1,5 +1,7 @@
 # Free deployment and Google sign-in
 
+For the community partner deployment using Netlify Free and live QR Ph, follow [NETLIFY_DEPLOYMENT.md](NETLIFY_DEPLOYMENT.md). The Vercel instructions below remain an alternative; Vercel Hobby is not the target for actual rent collection.
+
 The repository is prepared for two Vercel projects: `webapp` (Vite website) and `server` (Express API). No paid service is required for a personal/school demo within the free quotas. No cloud account, deployment, Google provider or scheduler is created just by editing these files.
 
 Vercel Hobby is restricted to personal, non-commercial use. Confirm that this is a school/personal demo before using Hobby; actual commercial rent collection requires a suitable hosting plan/provider. Do not upgrade to Pro or enable paid add-ons for this project. PayMongo test mode is free of real transactions; real payments incur processing fees. Supabase and Vercel free quotas are finite, and Supabase free projects may pause after inactivity. This setup does not promise unlimited or always-on service.

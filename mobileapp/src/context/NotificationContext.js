@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import api from '../config/api';
+import { AppState } from 'react-native';
 import { useAuth } from './AuthContext';
 import playNotificationSound from '../utils/notificationSound';
 import { navigate } from '../navigation/navigationRef';
@@ -62,10 +63,10 @@ export const NotificationProvider = ({ children }) => {
         if (isAuthenticated) {
             fetchNotifications();
 
-            // Fast universal polling every 2 seconds for instant updates
+            // Poll only while active to conserve free-tier requests.
             const interval = setInterval(() => {
-                fetchNotifications(true);
-            }, 2000);
+                if (AppState.currentState === 'active') fetchNotifications(true);
+            }, 60000);
 
             return () => clearInterval(interval);
         } else {

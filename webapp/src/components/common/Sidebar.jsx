@@ -34,7 +34,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             }
         };
         fetchPending();
-        const interval = setInterval(fetchPending, 5000);
+        const interval = setInterval(() => { if (!document.hidden) fetchPending(); }, 60000);
         return () => clearInterval(interval);
     }, []);
 

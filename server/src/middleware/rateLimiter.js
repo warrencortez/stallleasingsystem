@@ -8,7 +8,7 @@ const MAX_ATTEMPTS = 15; // 15 attempts
 const WINDOW_MS = 15 * 60 * 1000; // per 15 minutes
 
 const authRateLimiter = async (req, res, next) => {
-    if (process.env.VERCEL || process.env.AUTH_RATE_LIMIT_STORE === 'postgres') {
+    if ((process.env.VERCEL || process.env.NETLIFY) || process.env.AUTH_RATE_LIMIT_STORE === 'postgres') {
         try {
             const { pool } = require('../config/database');
             const key = require('node:crypto').createHash('sha256').update(req.ip || 'unknown').digest('hex');

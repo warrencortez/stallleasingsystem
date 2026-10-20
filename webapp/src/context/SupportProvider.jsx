@@ -33,7 +33,7 @@ export default function SupportProvider({ children }) {
     useEffect(() => {
         mounted.current = true;
         const initial = setTimeout(refresh, 0);
-        const poll = setInterval(() => { if (!document.hidden) refresh(); }, 4000);
+        const poll = setInterval(() => { if (!document.hidden) refresh(); }, 60000);
         const wake = () => { if (!document.hidden) refresh(); };
         document.addEventListener('visibilitychange', wake);
         return () => { mounted.current = false; clearTimeout(initial); clearInterval(poll); document.removeEventListener('visibilitychange', wake); };

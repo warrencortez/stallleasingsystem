@@ -19,8 +19,8 @@ const pool = new Pool({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
-    max: process.env.VERCEL ? 3 : 10,
-    allowExitOnIdle: !!process.env.VERCEL,
+    max: (process.env.VERCEL || process.env.NETLIFY) ? 3 : 10,
+    allowExitOnIdle: !!(process.env.VERCEL || process.env.NETLIFY),
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 3000,
 });

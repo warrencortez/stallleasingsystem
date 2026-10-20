@@ -10,7 +10,7 @@ const routes = require('./src/routes');
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
-if (process.env.VERCEL) app.set('trust proxy', 1);
+if ((process.env.VERCEL || process.env.NETLIFY)) app.set('trust proxy', 1);
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173', credentials: true }));
 app.use(morgan('dev'));
@@ -30,7 +30,7 @@ app.get('/api/cron/maintenance', require('./src/services/scheduledJobs').handle)
 app.post('/api/v1/payments/paymongo-webhook', express.raw({ type: 'application/json', limit: '1mb' }), require('./src/services/paymentSettlement').webhook);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-if (!process.env.VERCEL) app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+if (!(process.env.VERCEL || process.env.NETLIFY)) app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/v1', routes);
 app.get('/payments/return', (req, res) => res.type('html').send('<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dela Costa HOA Payments</title><body><main><h1>Return to the tenant app</h1><p>You can close this page and check Billing in the app. A receipt appears after the server confirms your payment.</p><p>If you cancelled checkout, your bill remains outstanding.</p></main></body></html>'));
 app.get('/', (req, res) => res.json({ success: true, message: 'Dela Costa HOA Stall Leasing API (API)', version: '1.0.0', documentation: '/api/v1' }));
@@ -44,7 +44,7 @@ app.use((err, req, res, next) => {
 });
 
 module.exports = app;
-if (!process.env.VERCEL && require.main === module) testConnection().then(ready => {
+if (!(process.env.VERCEL || process.env.NETLIFY) && require.main === module) testConnection().then(ready => {
     if (!ready) { process.exitCode = 1; return; }
     if (process.env.DEMO_MODE !== 'true') {
         require('./src/services/recurringBilling').start();

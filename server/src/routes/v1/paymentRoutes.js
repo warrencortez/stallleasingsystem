@@ -64,7 +64,7 @@ router.get('/report', authorize('admin', 'staff'), getMonthlyReport);
 
 // Generate monthly bills (Admin only)
 router.get('/billing-status', authorize('admin'), async (req,res) => {
-    if (!process.env.VERCEL) return res.json({success:true,data:require('../../services/recurringBilling').status});
+    if (!(process.env.VERCEL || process.env.NETLIFY)) return res.json({success:true,data:require('../../services/recurringBilling').status});
     const { rows } = await require('../../config/database').pool.query("SELECT * FROM scheduled_job_runs WHERE name='maintenance'");
     const run = rows[0];
     res.json({success:true,data:{running:false,lastSuccess:run?.last_success || null,lastCount:run?.details?.count || 0,

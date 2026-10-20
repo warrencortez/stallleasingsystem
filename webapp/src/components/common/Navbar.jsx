@@ -29,8 +29,8 @@ const Navbar = ({ onToggleSidebar }) => {
     useEffect(() => {
         if (user) {
             fetchNotifications(true);
-            // Fast auto-polling for instant real-time notifications (every 4 seconds)
-            const interval = setInterval(() => fetchNotifications(false), 4000);
+            // Reduce background requests on free hosting.
+            const interval = setInterval(() => { if (!document.hidden) fetchNotifications(false); }, 60000);
             return () => clearInterval(interval);
         }
     }, [user]);

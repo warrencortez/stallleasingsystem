@@ -8,7 +8,7 @@ const paymentProofsDir = path.join(uploadDir, 'payments');
 const maintenancePhotosDir = path.join(uploadDir, 'maintenance');
 const avatarsDir = path.join(uploadDir, 'avatars');
 
-const cloudStorage = !!process.env.VERCEL || process.env.UPLOAD_STORAGE === 'supabase';
+const cloudStorage = !!(process.env.VERCEL || process.env.NETLIFY) || process.env.UPLOAD_STORAGE === 'supabase';
 if (!cloudStorage) [uploadDir, paymentProofsDir, maintenancePhotosDir, avatarsDir].forEach((dir) => {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });

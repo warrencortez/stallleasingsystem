@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
+    AppState,
     View,
     Text,
     StyleSheet,
@@ -46,10 +47,10 @@ const BillingScreen = () => {
 
     useEffect(() => {
         loadBilling(true);
-        // Fast real-time polling every 5 seconds
+        // Limit background API usage on free hosting.
         const poll = setInterval(() => {
-            loadBilling(false);
-        }, 5000);
+            if (AppState.currentState === 'active') loadBilling(false);
+        }, 60000);
         return () => clearInterval(poll);
     }, []);
 
