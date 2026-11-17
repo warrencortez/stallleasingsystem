@@ -380,6 +380,31 @@ class Payment {
         return result.rows[0];
     }
 
+
+/**
+ * Get tenant's actual payments for a selected month and year
+ */
+static async getTenantMonthlySummary(tenantId, month, year) {
+    const result = await pool.query(`
+        SELECT
+            COUNT(*) AS paid_count,
+            COALESCE(
+                SUM(amount + COALESCE(late_fee, 0)),
+                0
+            ) AS monthly_total_paid
+        FROM payments
+        WHERE tenant_id = $1
+          AND status = 'paid'
+          AND payment_date >= make_date($2, $3, 1)
+          AND payment_date < (
+              make_date($2, $3, 1) + INTERVAL '1 month'
+          )
+    `, [tenantId, year, month]);
+
+    return result.rows[0];
+}
+
+
     /**
      * Get overdue payments
      */

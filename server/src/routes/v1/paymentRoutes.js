@@ -113,6 +113,66 @@ router.get('/tenant/:tenantId/summary', async (req, res, next) => {
     next();
 }, getTenantSummary);
 
+
+
+// Get tenant monthly payment summary
+router.get('/tenant/:tenantId/monthly-summary', async (req, res) => {
+    try {
+        const { tenantId } = req.params;
+        const { month, year } = req.query;
+
+        // Validate month and year
+        const selectedMonth = Number(month);
+        const selectedYear = Number(year);
+
+        if (
+            !Number.isInteger(selectedMonth) ||
+            selectedMonth < 1 ||
+            selectedMonth > 12 ||
+            !Number.isInteger(selectedYear) ||
+            selectedYear < 1900 ||
+            selectedYear > 9999
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid month or year.'
+            });
+        }
+
+        // Verify tenant ownership
+        if (req.userRole === 'tenant') {
+            const tenant = await Tenant.findById(tenantId);
+
+            if (!tenant || tenant.user_id !== req.userId) {
+                return res.status(403).json({
+                    success: false,
+                    message: 'You can only view your own payments.'
+                });
+            }
+        }
+
+        const summary = await Payment.getTenantMonthlySummary(
+            tenantId,
+            selectedMonth,
+            selectedYear
+        );
+
+        return res.json({
+            success: true,
+            data: summary
+        });
+
+    } catch (error) {
+        console.error('Monthly Payment Summary Error:', error);
+
+        return res.status(500).json({
+            success: false,
+            message: 'Unable to retrieve monthly payment summary.'
+        });
+    }
+});
+
+
 // Get a single payment
 router.get('/:id', requirePaymentOwner, getPayment);
 

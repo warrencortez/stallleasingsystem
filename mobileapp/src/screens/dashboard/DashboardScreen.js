@@ -23,6 +23,23 @@ const DashboardScreen = ({ navigation }) => {
     const [myTickets, setMyTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
+    // Total Amount Paid
+const [totalPaid, setTotalPaid] = useState(0);
+const [paymentTotalLoading, setPaymentTotalLoading] = useState(true);
+const [paymentTotalError, setPaymentTotalError] = useState(false);
+// Monthly Payment Summary
+const [selectedMonth, setSelectedMonth] = useState(
+    new Date().getMonth() + 1
+);
+
+const [selectedYear, setSelectedYear] = useState(
+    new Date().getFullYear()
+);
+
+const [monthlyPaid, setMonthlyPaid] = useState(0);
+const [monthlyPaidCount, setMonthlyPaidCount] = useState(0);
+const [monthlyLoading, setMonthlyLoading] = useState(true);
+const [monthlyError, setMonthlyError] = useState(false);
 
     // Active refresh every time user switches to Home tab
     useFocusEffect(
@@ -43,37 +60,183 @@ const DashboardScreen = ({ navigation }) => {
         return () => clearInterval(interval);
     }, []);
 
-    const loadDashboardData = async (isSilent = false) => {
+   
+const loadDashboardData = async (isSilent = false) => {
+    try {
+        if (!isSilent) setLoading(true);
+
+        const [annRes, tenRes, mainRes] = await Promise.allSettled([
+            api.get('/announcements'),
+            api.get('/tenants'),
+            api.get('/maintenance')
+        ]);
+
+        // Announcements
+        if (
+            annRes.status === 'fulfilled' &&
+            annRes.value.data?.success
+        ) {
+            setAnnouncements(annRes.value.data.data || []);
+        }
+
+        // Tenant Profile
+        if (
+            tenRes.status === 'fulfilled' &&
+            tenRes.value.data?.success
+        ) {
+            const list = tenRes.value.data.data || [];
+
+            const current = list.find(
+                (t) =>
+                    t.user_id === user?.id &&
+                    t.status === 'active'
+            );
+
+            setTenantProfile(current || null);
+
+            // TOTAL AMOUNT PAID
+            if (current?.id) {
+                try {
+                    setPaymentTotalError(false);
+
+                    const summaryRes = await api.get(
+                        `/payments/tenant/${current.id}/summary`
+                    );
+
+                    if (!summaryRes.data?.success) {
+                        throw new Error('Payment summary failed');
+                    }
+
+                    const amount = Number(
+                        summaryRes.data.data?.total_paid
+                    );
+
+                    setTotalPaid(
+                        Number.isFinite(amount) ? amount : 0
+                    );
+
+                } catch (error) {
+                    console.error(
+                        'Total Amount Paid Error:',
+                        error
+                    );
+
+                    setPaymentTotalError(true);
+
+                } finally {
+                    setPaymentTotalLoading(false);
+                }
+
+            } else {
+                setTotalPaid(0);
+                setPaymentTotalError(false);
+                setPaymentTotalLoading(false);
+            }
+
+        } else {
+            setPaymentTotalError(true);
+            setPaymentTotalLoading(false);
+        }
+
+        // Maintenance Tickets
+        if (
+            mainRes.status === 'fulfilled' &&
+            mainRes.value.data?.success
+        ) {
+            const list = mainRes.value.data.data || [];
+
+            setMyTickets(
+                list.filter((t) => t.status !== 'completed')
+            );
+        }
+
+    } catch (error) {
+        console.error('Dashboard load error:', error);
+    } finally {
+        setLoading(false);
+        setRefreshing(false);
+    }
+};
+
+
+// Fetch Monthly Payment Summary
+useEffect(() => {
+    if (!tenantProfile?.id) {
+        setMonthlyPaid(0);
+        setMonthlyPaidCount(0);
+        setMonthlyLoading(false);
+        setMonthlyError(false);
+        return;
+    }
+
+    let isMounted = true;
+
+    const fetchMonthlyPayment = async () => {
         try {
-            if (!isSilent) setLoading(true);
-            const [annRes, tenRes, mainRes] = await Promise.allSettled([
-                api.get('/announcements'),
-                api.get('/tenants'),
-                api.get('/maintenance')
-            ]);
+            setMonthlyLoading(true);
+            setMonthlyError(false);
 
-            if (annRes.status === 'fulfilled' && annRes.value.data?.success) {
-                setAnnouncements(annRes.value.data.data || []);
+            const response = await api.get(
+                `/payments/tenant/${tenantProfile.id}/monthly-summary`,
+                {
+                    params: {
+                        month: selectedMonth,
+                        year: selectedYear
+                    }
+                }
+            );
+
+            if (!response.data?.success) {
+                throw new Error('Monthly payment request failed.');
             }
 
-            if (tenRes.status === 'fulfilled' && tenRes.value.data?.success) {
-                const list = tenRes.value.data.data || [];
-                const current = list.find((t) => t.user_id === user?.id && t.status === 'active');
-                setTenantProfile(current || null);
+            if (isMounted) {
+                const data = response.data.data || {};
+
+                setMonthlyPaid(
+                    Number(data.monthly_total_paid) || 0
+                );
+
+                setMonthlyPaidCount(
+                    Number(data.paid_count) || 0
+                );
             }
 
-            if (mainRes.status === 'fulfilled' && mainRes.value.data?.success) {
-                const list = mainRes.value.data.data || [];
-                // Only show active/unresolved repairs on dashboard (exclude completed)
-                setMyTickets(list.filter((t) => t.status !== 'completed'));
-            }
         } catch (error) {
-            console.error('Dashboard load error:', error);
+            console.error('Monthly Payment Error:', error);
+
+            if (isMounted) {
+                setMonthlyError(true);
+            }
+
         } finally {
-            setLoading(false);
-            setRefreshing(false);
+            if (isMounted) {
+                setMonthlyLoading(false);
+            }
         }
     };
+
+    fetchMonthlyPayment();
+
+    return () => {
+        isMounted = false;
+    };
+
+}, [tenantProfile?.id, selectedMonth, selectedYear]);
+
+// Change selected month
+const changeSelectedMonth = (direction) => {
+    const newDate = new Date(
+        selectedYear,
+        selectedMonth - 1 + direction,
+        1
+    );
+
+    setSelectedMonth(newDate.getMonth() + 1);
+    setSelectedYear(newDate.getFullYear());
+};
+
+
 
     const onRefresh = () => {
         setRefreshing(true);
@@ -164,6 +327,167 @@ const DashboardScreen = ({ navigation }) => {
             </View>
 
             {/* 2. Quick Action Grid */}
+            
+{/* TOTAL AMOUNT PAID CARD */}
+<View style={styles.totalPaidCard}>
+
+    <View style={styles.totalPaidHeader}>
+
+        <View style={styles.totalPaidIcon}>
+            <Ionicons
+                name="wallet-outline"
+                size={25}
+                color={theme.colors.success}
+            />
+        </View>
+
+        <View style={{ flex: 1 }}>
+            <Text style={styles.totalPaidTitle}>
+                Total Amount Paid
+            </Text>
+
+            <Text style={styles.totalPaidDescription}>
+                Overall accumulated rental payments
+            </Text>
+        </View>
+
+    </View>
+
+    {paymentTotalLoading ? (
+
+        <ActivityIndicator
+            size="small"
+            color={theme.colors.primary}
+        />
+
+    ) : paymentTotalError ? (
+
+        <Text style={styles.totalPaidError}>
+            Unable to load payment total.
+            Pull down to refresh.
+        </Text>
+
+    ) : (
+
+        <Text style={styles.totalPaidAmount}>
+            ₱{Number(totalPaid).toLocaleString('en-PH', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            })}
+        </Text>
+
+    )}
+
+</View>
+
+
+{/* MONTHLY PAYMENT SUMMARY CARD */}
+<View style={styles.monthlyPaidCard}>
+
+    <View style={styles.monthlyPaidHeader}>
+        <View style={{ flex: 1 }}>
+            <Text style={styles.monthlyPaidTitle}>
+                Monthly Payment Summary
+            </Text>
+
+            <Text style={styles.monthlyPaidDescription}>
+                Your total rental payments per month
+            </Text>
+        </View>
+
+        <Ionicons
+            name="calendar-outline"
+            size={25}
+            color={theme.colors.primary}
+        />
+    </View>
+
+    {/* MONTH SELECTOR */}
+    <View style={styles.monthSelector}>
+
+        <TouchableOpacity
+            style={styles.monthArrow}
+            onPress={() => changeSelectedMonth(-1)}
+        >
+            <Ionicons
+                name="chevron-back"
+                size={22}
+                color={theme.colors.primary}
+            />
+        </TouchableOpacity>
+
+        <Text style={styles.selectedMonthText}>
+            {new Date(
+                selectedYear,
+                selectedMonth - 1,
+                1
+            ).toLocaleDateString('en-PH', {
+                month: 'long',
+                year: 'numeric'
+            })}
+        </Text>
+
+        <TouchableOpacity
+            style={styles.monthArrow}
+            onPress={() => {
+                const now = new Date();
+
+                if (
+                    selectedYear < now.getFullYear() ||
+                    (
+                        selectedYear === now.getFullYear() &&
+                        selectedMonth < now.getMonth() + 1
+                    )
+                ) {
+                    changeSelectedMonth(1);
+                }
+            }}
+        >
+            <Ionicons
+                name="chevron-forward"
+                size={22}
+                color={theme.colors.primary}
+            />
+        </TouchableOpacity>
+
+    </View>
+
+    {/* MONTHLY TOTAL */}
+    {monthlyLoading ? (
+
+        <ActivityIndicator
+            size="small"
+            color={theme.colors.primary}
+        />
+
+    ) : monthlyError ? (
+
+        <Text style={styles.monthlyPaidError}>
+            Unable to load monthly payments.
+            Please try again.
+        </Text>
+
+    ) : (
+
+        <>
+            <Text style={styles.monthlyPaidAmount}>
+                ₱{Number(monthlyPaid).toLocaleString('en-PH', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                })}
+            </Text>
+
+            <Text style={styles.monthlyPaidCount}>
+                {monthlyPaidCount} paid transaction(s)
+            </Text>
+        </>
+
+    )}
+
+</View>
+
+
+
             <View style={styles.actionsGrid}>
                 <TouchableOpacity
                     style={styles.actionBtn}
@@ -642,7 +966,128 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#64748b',
         lineHeight: 16
-    }
+    },
+
+    // TOTAL AMOUNT PAID CARD
+
+    totalPaidCard: {
+        backgroundColor: theme.colors.card,
+        borderRadius: theme.borderRadius.lg,
+        padding: theme.spacing.md,
+        marginBottom: theme.spacing.lg,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        ...theme.shadows.sm
+    },
+
+    totalPaidHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 15
+    },
+
+    totalPaidIcon: {
+        width: 45,
+        height: 45,
+        borderRadius: 12,
+        backgroundColor: theme.colors.successLight,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12
+    },
+
+    totalPaidTitle: {
+        fontSize: 15,
+        fontWeight: 'bold',
+        color: theme.colors.text
+    },
+
+    totalPaidDescription: {
+        fontSize: 11,
+        color: theme.colors.textMuted,
+        marginTop: 3
+    },
+
+    totalPaidAmount: {
+        fontSize: 28,
+        fontWeight: 'bold',
+        color: theme.colors.success
+    },
+
+    totalPaidError: {
+        fontSize: 12,
+        color: theme.colors.danger
+    },
+
+
+// MONTHLY PAYMENT SUMMARY CARD
+
+monthlyPaidCard: {
+    backgroundColor: theme.colors.card,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.md,
+    marginBottom: theme.spacing.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    ...theme.shadows.sm
+},
+
+monthlyPaidHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15
+},
+
+monthlyPaidTitle: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: theme.colors.text
+},
+
+monthlyPaidDescription: {
+    fontSize: 11,
+    color: theme.colors.textMuted,
+    marginTop: 3
+},
+
+monthSelector: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#f1f5f9',
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    marginBottom: 18
+},
+
+monthArrow: {
+    padding: 8
+},
+
+selectedMonthText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: theme.colors.text
+},
+
+monthlyPaidAmount: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: theme.colors.success,
+    marginBottom: 4
+},
+
+monthlyPaidCount: {
+    fontSize: 11,
+    color: theme.colors.textMuted
+},
+
+monthlyPaidError: {
+    fontSize: 12,
+    color: theme.colors.danger
+},
+
+    
 });
 
 export default DashboardScreen;
