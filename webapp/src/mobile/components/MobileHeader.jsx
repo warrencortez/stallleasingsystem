@@ -31,7 +31,7 @@ const MobileHeader = ({ title, showBack = false, subtitle }) => {
                 )}
                 <div>
                     <h6 className="mobile-header-title mb-0">
-                        {title || 'Dela Costa HOA Stall Leasing'}
+                        {title || 'MR99 Commercial Stall Leasing'}
                     </h6>
                     {subtitle && <small className="text-muted d-block" style={{ fontSize: '0.7rem' }}>{subtitle}</small>}
                 </div>

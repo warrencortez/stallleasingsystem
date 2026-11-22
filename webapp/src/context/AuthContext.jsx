@@ -85,7 +85,7 @@ export const AuthProvider = ({ children }) => {
             setUser(user);
             setToken(token);
             
-            toast.success('Registration successful. Welcome to Dela Costa HOA Stall Leasing.');
+            toast.success('Registration successful. Welcome to MR99 Commercial Stall Leasing.');
             return { success: true, user };
         } catch (error) {
             const message = error.response?.data?.message || 'Registration failed. Please try again.';

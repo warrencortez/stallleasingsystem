@@ -59,7 +59,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                         <FaStore size={20} />
                     </div>
                     <div>
-                        <h6 className="mb-0 fw-bold text-white">Dela Costa HOA Stall Leasing</h6>
+                        <h6 className="mb-0 fw-bold text-white">MR99 Commercial HOA Stall Leasing</h6>
                         <small className="text-muted" style={{ fontSize: '0.75rem' }}>
                             Admin Operations
                         </small>

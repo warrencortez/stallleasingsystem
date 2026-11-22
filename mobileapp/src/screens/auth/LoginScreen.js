@@ -106,7 +106,7 @@ const LoginScreen = ({ navigation }) => {
                     <View style={styles.iconCircle}>
                         <Ionicons name="storefront" size={38} color={theme.colors.white} />
                     </View>
-                    <Text style={styles.title}>Dela Costa HOA Stall Leasing</Text>
+                    <Text style={styles.title}>MR99 Commercial Stall Leasing</Text>
                     <Text style={styles.subtitle}>Tenant Self-Service & Rent Portal</Text>
                 </View>
 

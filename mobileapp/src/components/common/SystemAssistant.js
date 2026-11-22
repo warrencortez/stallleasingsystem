@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import api from '../../config/api';
 
 const suggestions = ['Which stalls are available?', 'Check rent due dates', 'Show maintenance reports', 'Check applications'];
-const greeting = 'Hello! I’m your Dela Costa HOA Stall Leasing assistant. Ask about stalls, dues, or maintenance. If you need a person, tap “Talk to an admin”.';
+const greeting = 'Hello! I’m your MR99 Commercial Stall Leasing assistant. Ask about stalls, dues, or maintenance. If you need a person, tap “Talk to an admin”.';
 function TypingIndicator() {
     const dots = useRef([new Animated.Value(0.3), new Animated.Value(0.3), new Animated.Value(0.3)]).current;
     useEffect(() => {
@@ -93,7 +93,7 @@ function ChatHead() {
     const messages = thread?.messages || [];
     const visible = optimistic && !messages.some(m => m.client_id === optimistic.client_id) ? [...messages, optimistic] : messages;
     const mode = thread?.status || 'bot';
-    const subtitle = mode === 'live' ? `Live with ${thread.assigned_name}` : mode === 'waiting' ? 'Waiting for an administrator' : 'Dela Costa HOA · System assistant';
+    const subtitle = mode === 'live' ? `Live with ${thread.assigned_name}` : mode === 'waiting' ? 'Waiting for an administrator' : 'MR99 Commercial · System assistant';
     return <>
         <TouchableOpacity style={[styles.head, { bottom: 78 + insets.bottom }]} accessibilityRole="button" accessibilityLabel={`Open stall leasing chat${thread?.unread ? `, ${thread.unread} unread messages` : ''}`} onPress={() => setOpen(true)}>
             <Ionicons name="chatbubble-ellipses" size={28} color="#fff" />

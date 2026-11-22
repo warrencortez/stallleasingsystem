@@ -135,7 +135,7 @@ const Navbar = ({ onToggleSidebar }) => {
                 <div className="hoa-brand">
                     <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
                         <FaStore className="text-primary" />
-                        Dela Costa HOA Stall Leasing
+                        MR99 Commercial Stall Leasing
                     </h5>
                     <small className="text-muted">Stall leasing & community management</small>
                 </div>
