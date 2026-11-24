@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { maintenanceAPI } from '../../api/endpoints';
 import { useSupport } from '../../context/supportContext';
+import mr99Logo from '../../assets/mr99-logo.png';
 import {
     FaHome,
     FaStore,
@@ -55,11 +56,9 @@ const Sidebar = ({ isOpen, onClose }) => {
         <aside className={`app-sidebar ${isOpen ? 'show-mobile' : ''}`}>
             <div className="sidebar-header d-flex align-items-center justify-content-between">
                 <div className="d-flex align-items-center gap-2">
-                    <div className="bg-primary p-2 rounded-3 text-white">
-                        <FaStore size={20} />
-                    </div>
+                    <img src={mr99Logo} alt="" width="44" height="44" className="mr99-logo" />
                     <div>
-                        <h6 className="mb-0 fw-bold text-white">MR99 Commercial HOA Stall Leasing</h6>
+                        <h6 className="mb-0 fw-bold text-white">MR99 Commercial Stall Leasing</h6>
                         <small className="text-muted" style={{ fontSize: '0.75rem' }}>
                             Admin Operations
                         </small>

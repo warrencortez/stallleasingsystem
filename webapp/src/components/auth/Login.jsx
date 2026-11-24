@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { FaStore, FaLock, FaEnvelope, FaShieldAlt } from 'react-icons/fa';
+import { FaLock, FaEnvelope, FaShieldAlt } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import { startGoogleLogin } from '../../api/supabase';
+import mr99Logo from '../../assets/mr99-logo.png';
 
 const Login = () => {
     const [formData, setFormData] = useState({
@@ -41,12 +42,7 @@ const Login = () => {
             <div className="card border-0 shadow-2xl rounded-4 overflow-hidden" style={{ width: '100%', maxWidth: '440px', background: '#ffffff' }}>
                 <div className="p-4 p-sm-5">
                     <div className="text-center mb-4">
-                        <div
-                            className="bg-primary bg-opacity-10 text-primary p-3 rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-sm"
-                            style={{ width: '64px', height: '64px' }}
-                        >
-                            <FaStore size={32} />
-                        </div>
+                        <img src={mr99Logo} alt="" width="112" height="112" className="mr99-logo auth-logo mx-auto mb-3" />
                         <h3 className="fw-bold text-dark mb-1">MR99 Commercial Stall Leasing</h3>
                         <p className="text-muted small">Administrative Management Portal</p>
                     </div>

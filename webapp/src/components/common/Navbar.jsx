@@ -2,11 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { notificationAPI } from '../../api/endpoints';
+import mr99Logo from '../../assets/mr99-logo.png';
 import {
     FaBell,
     FaUserCircle,
     FaSignOutAlt,
-    FaStore,
     FaUserShield,
     FaExchangeAlt,
     FaBars,
@@ -132,12 +132,12 @@ const Navbar = ({ onToggleSidebar }) => {
                 >
                     <FaBars />
                 </button>
-                <div className="hoa-brand">
-                    <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-                        <FaStore className="text-primary" />
-                        MR99 Commercial Stall Leasing
-                    </h5>
-                    <small className="text-muted">Stall leasing & community management</small>
+                <div className="hoa-brand d-flex align-items-center gap-2">
+                    <img src={mr99Logo} alt="" width="36" height="36" className="mr99-logo navbar-logo" />
+                    <div>
+                        <h5 className="mb-0 fw-bold text-dark">MR99 Commercial Stall Leasing</h5>
+                        <small className="text-muted">Stall leasing & community management</small>
+                    </div>
                 </div>
             </div>
 

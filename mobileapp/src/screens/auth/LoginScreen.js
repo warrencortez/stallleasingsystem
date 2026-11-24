@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import {
     View,
+    Image,
     Text,
     TextInput,
     TouchableOpacity,
@@ -8,9 +9,11 @@ import {
     ActivityIndicator,
     Alert,
     KeyboardAvoidingView,
+    Platform,
     ScrollView
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 import { setCustomServerIP } from '../../config/api';
 import { theme } from '../../styles/theme';
@@ -106,188 +109,203 @@ const LoginScreen = ({ navigation }) => {
     };
 
     return (
-        <KeyboardAvoidingView
-            style={styles.container}
-            behavior="padding"
-        >
-            <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" showsVerticalScrollIndicator={false}>
-                <View style={styles.header}>
-                    <View style={styles.iconCircle}>
-                        <Ionicons name="storefront" size={38} color={theme.colors.white} />
-                    </View>
-                    <Text style={styles.title}>MR99 Commercial Stall Leasing</Text>
-                    <Text style={styles.subtitle}>Tenant Self-Service & Rent Portal</Text>
-                </View>
-
-                <View style={styles.formCard}>
-                    <Text style={styles.label}>Mobile Phone Number or Email</Text>
-                    <View style={styles.inputContainer}>
-                        <Ionicons name="person-outline" size={20} color={theme.colors.textMuted} style={styles.inputIcon} />
-                        <TextInput
-                            style={styles.input}
-                            placeholder="e.g. 09171234567 or email"
-                            placeholderTextColor="#94a3b8"
-                            autoCapitalize="none"
-                            value={email}
-                            onChangeText={setEmail}
-                        />
-                    </View>
-
-                    <Text style={styles.label}>Password</Text>
-                    <View style={styles.inputContainer}>
-                        <Ionicons name="lock-closed-outline" size={20} color={theme.colors.textMuted} style={styles.inputIcon} />
-                        <TextInput
-                            style={styles.input}
-                            placeholder="••••••••"
-                            placeholderTextColor="#94a3b8"
-                            secureTextEntry={!showPassword}
-                            value={password}
-                            onChangeText={setPassword}
-                        />
-                        <TouchableOpacity accessibilityLabel={showPassword ? 'Hide password' : 'Show password'} hitSlop={12} onPress={() => setShowPassword(!showPassword)}>
-                            <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={22} color={theme.colors.textMuted} />
-                        </TouchableOpacity>
-                    </View>
-
-                    <TouchableOpacity disabled={loading} style={{ alignSelf: 'flex-end', paddingVertical: 8 }} onPress={() => navigation.navigate('PasswordRecovery')}>
-                        <Text style={styles.registerLink}>Forgot Password?</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={styles.loginButton}
-                        onPress={handleLogin}
-                        disabled={loading}
-                    >
-                        {loading ? (
-                            <ActivityIndicator color="#fff" />
-                        ) : (
-                            <Text style={styles.loginButtonText}>Sign In to Tenant Portal</Text>
-                        )}
-                    </TouchableOpacity>
-
-                    {pendingGoogleToken && (
-                        <View style={{ marginTop: 16 }}>
-                            <Text style={styles.label}>Connect your existing account</Text>
-                            <Text style={{ marginBottom: 8 }}>Enter your current account password to connect Google.</Text>
-                            <TextInput style={styles.inputContainer} value={linkPassword} onChangeText={setLinkPassword}
-                                placeholder="Existing account password" secureTextEntry autoCapitalize="none" />
-                            <TouchableOpacity disabled={loading} onPress={() => { setPendingGoogleToken(null); setLinkPassword(''); }}>
-                                <Text style={styles.registerLink}>Cancel connecting Google</Text>
-                            </TouchableOpacity>
+        <SafeAreaView style={styles.container}>
+            <KeyboardAvoidingView style={styles.keyboardArea} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+                <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" showsVerticalScrollIndicator={false}>
+                    <View style={styles.content}>
+                        <View style={styles.header}>
+                            <Image source={require('../../../assets/mr99-logo.png')} style={styles.logo}
+                                resizeMode="contain" accessible accessibilityLabel="MR99 logo" />
+                            <Text style={styles.title}>MR99 Commercial Stall Leasing</Text>
+                            <Text style={styles.subtitle}>Tenant Self-Service & Rent Portal</Text>
                         </View>
-                    )}
-                    {!pendingGoogleToken && <TouchableOpacity disabled={loading} style={{ marginTop: 16 }} onPress={() => setConnectExisting(!connectExisting)}>
-                        <Text style={styles.registerLink}>{connectExisting ? '✓ Connect Google to my existing tenant account' : 'Already registered by phone? Connect your account to Google'}</Text>
-                        {connectExisting && <Text>Enter your existing login details above before continuing.</Text>}
-                    </TouchableOpacity>}
-                    <TouchableOpacity style={[styles.loginButton, { marginTop: 12, backgroundColor: '#fff', borderWidth: 1, borderColor: '#cbd5e1', flexDirection: 'row', justifyContent: 'center', gap: 12 }]}
-                        disabled={loading || (!!pendingGoogleToken && !linkPassword)} onPress={handleGoogle}>
-                        <Ionicons name="logo-google" size={22} color="#4285f4" />
-                        <Text style={[styles.loginButtonText, { color: '#334155' }]}>{pendingGoogleToken ? 'Connect Google and Sign In' : 'Continue with Google'}</Text>
-                    </TouchableOpacity>
 
-                    {__DEV__ && !process.env.EXPO_PUBLIC_API_URL && <TouchableOpacity
-                        style={styles.ipToggle}
-                        onPress={() => setShowIpConfig(!showIpConfig)}
-                    >
-                        <Ionicons name="settings-outline" size={14} color={theme.colors.textMuted} />
-                        <Text style={styles.ipToggleText}>Server Host Network Config</Text>
-                    </TouchableOpacity>}
-
-                    {showIpConfig && (
-                        <View style={styles.ipBox}>
-                            <Text style={styles.ipHint}>Enter host server IP address (e.g. 192.168.1.187):</Text>
-                            <View style={styles.ipInputRow}>
+                        <View style={styles.formCard}>
+                            <Text style={[styles.label, styles.firstLabel]}>Mobile Phone Number or Email</Text>
+                            <View style={styles.inputContainer}>
+                                <Ionicons name="person-outline" size={20} color={theme.colors.textMuted} style={styles.inputIcon} />
                                 <TextInput
-                                    style={styles.ipInput}
-                                    placeholder="192.168.x.x"
-                                    placeholderTextColor="#94a3b8"
-                                    value={serverIp}
-                                    onChangeText={setServerIp}
+                                    style={styles.input}
+                                    placeholder="e.g. 09171234567 or email"
+                                    placeholderTextColor={theme.colors.textMuted}
+                                    autoCapitalize="none"
+                                    value={email}
+                                    onChangeText={setEmail}
                                 />
-                                <TouchableOpacity style={styles.ipSaveBtn} onPress={handleSaveServerIP}>
-                                    <Text style={styles.ipSaveBtnText}>Save</Text>
+                            </View>
+
+                            <View style={styles.passwordRow}>
+                                <Text style={styles.label}>Password</Text>
+                                <TouchableOpacity disabled={loading} accessibilityRole="button" style={styles.forgotButton} onPress={() => navigation.navigate('PasswordRecovery')}>
+                                    <Text style={styles.forgotLink}>Forgot Password?</Text>
                                 </TouchableOpacity>
                             </View>
-                        </View>
-                    )}
-                </View>
+                            <View style={styles.inputContainer}>
+                                <Ionicons name="lock-closed-outline" size={20} color={theme.colors.textMuted} style={styles.inputIcon} />
+                                <TextInput
+                                    style={styles.input}
+                                    placeholder="Enter your password"
+                                    placeholderTextColor={theme.colors.textMuted}
+                                    secureTextEntry={!showPassword}
+                                    value={password}
+                                    onChangeText={setPassword}
+                                />
+                                <TouchableOpacity accessibilityLabel={showPassword ? 'Hide password' : 'Show password'} hitSlop={12} onPress={() => setShowPassword(!showPassword)}>
+                                    <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={22} color={theme.colors.textMuted} />
+                                </TouchableOpacity>
+                            </View>
 
-                <View style={styles.footer}>
-                    <Text style={styles.footerText}>New commercial tenant?</Text>
-                    <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                        <Text style={styles.registerLink}>Register Tenant Account</Text>
-                    </TouchableOpacity>
-                </View>
-            </ScrollView>
-        </KeyboardAvoidingView>
+                            <TouchableOpacity
+                                style={[styles.loginButton, loading && styles.disabledButton]}
+                                onPress={handleLogin}
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <ActivityIndicator color="#fff" />
+                                ) : (
+                                    <Text style={styles.loginButtonText}>Sign In to Tenant Portal</Text>
+                                )}
+                            </TouchableOpacity>
+
+                            <View style={styles.divider}>
+                                <View style={styles.dividerLine} />
+                                <Text style={styles.dividerText}>Or continue with</Text>
+                                <View style={styles.dividerLine} />
+                            </View>
+
+                            {pendingGoogleToken && (
+                                <View style={styles.linkPanel}>
+                                    <Text style={styles.label}>Connect your existing account</Text>
+                                    <Text style={styles.linkHint}>Enter your current account password to connect Google.</Text>
+                                    <View style={styles.inputContainer}>
+                                        <TextInput style={styles.input} value={linkPassword} onChangeText={setLinkPassword}
+                                            placeholder="Existing account password" placeholderTextColor={theme.colors.textMuted} secureTextEntry autoCapitalize="none" />
+                                    </View>
+                                    <TouchableOpacity disabled={loading} style={styles.cancelLinkButton} onPress={() => { setPendingGoogleToken(null); setLinkPassword(''); }}>
+                                        <Text style={styles.registerLink}>Cancel connecting Google</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            )}
+                            <TouchableOpacity style={[styles.googleButton, (loading || (!!pendingGoogleToken && !linkPassword)) && styles.disabledButton]}
+                                disabled={loading || (!!pendingGoogleToken && !linkPassword)} onPress={handleGoogle}>
+                                <Ionicons name="logo-google" size={22} color="#4285f4" />
+                                <Text style={styles.googleButtonText}>{pendingGoogleToken ? 'Connect Google and Sign In' : 'Continue with Google'}</Text>
+                            </TouchableOpacity>
+                            {!pendingGoogleToken && <TouchableOpacity disabled={loading} style={styles.googleLinkButton} onPress={() => setConnectExisting(!connectExisting)}>
+                                <Text style={[styles.registerLink, styles.googleLinkText]}>{connectExisting ? '✓ Connect Google to my existing tenant account' : 'Already registered by phone? Connect your account to Google'}</Text>
+                                {connectExisting && <Text style={[styles.linkHint, styles.googleLinkText]}>Enter your existing login details above before continuing.</Text>}
+                            </TouchableOpacity>}
+
+                            {__DEV__ && !process.env.EXPO_PUBLIC_API_URL && <TouchableOpacity
+                                style={styles.ipToggle}
+                                onPress={() => setShowIpConfig(!showIpConfig)}
+                            >
+                                <Ionicons name="settings-outline" size={14} color={theme.colors.textMuted} />
+                                <Text style={styles.ipToggleText}>Server Host Network Config</Text>
+                            </TouchableOpacity>}
+
+                            {showIpConfig && (
+                                <View style={styles.ipBox}>
+                                    <Text style={styles.ipHint}>Enter host server IP address (e.g. 192.168.1.187):</Text>
+                                    <View style={styles.ipInputRow}>
+                                        <TextInput
+                                            style={styles.ipInput}
+                                            placeholder="192.168.x.x"
+                                            placeholderTextColor="#94a3b8"
+                                            value={serverIp}
+                                            onChangeText={setServerIp}
+                                        />
+                                        <TouchableOpacity style={styles.ipSaveBtn} onPress={handleSaveServerIP}>
+                                            <Text style={styles.ipSaveBtnText}>Save</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            )}
+                        </View>
+
+                        <View style={styles.footer}>
+                            <Text style={styles.footerText}>New commercial tenant?</Text>
+                            <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                                <Text style={styles.registerLink}>Register Tenant Account</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </ScrollView>
+            </KeyboardAvoidingView>
+        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: theme.colors.background
+        backgroundColor: '#f4f1ff'
     },
+    keyboardArea: { flex: 1 },
     scrollContainer: {
         flexGrow: 1,
         justifyContent: 'center',
-        padding: theme.spacing.lg
+        alignItems: 'center',
+        paddingHorizontal: theme.spacing.md,
+        paddingVertical: theme.spacing.lg
     },
+    content: { width: '100%', maxWidth: 460 },
     header: {
         alignItems: 'center',
-        marginBottom: theme.spacing.xl
+        paddingHorizontal: theme.spacing.sm,
+        marginBottom: theme.spacing.lg
     },
-    iconCircle: {
-        width: 72,
-        height: 72,
-        borderRadius: 24,
-        backgroundColor: theme.colors.primary,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: theme.spacing.md,
-        ...theme.shadows.md
+    logo: {
+        width: 100,
+        height: 100,
+        marginBottom: theme.spacing.md
     },
     title: {
-        fontSize: 24,
+        fontSize: 26,
         textAlign: 'center',
-        fontWeight: 'bold',
+        fontWeight: '800',
+        letterSpacing: -0.5,
         color: theme.colors.text
     },
     subtitle: {
-        fontSize: 14,
+        fontSize: 15,
+        textAlign: 'center',
         color: theme.colors.textMuted,
-        marginTop: 4
+        marginTop: 6
     },
     formCard: {
         backgroundColor: theme.colors.card,
-        borderRadius: theme.borderRadius.lg,
-        padding: theme.spacing.lg,
+        borderRadius: 24,
+        padding: 20,
         borderWidth: 1,
-        borderColor: theme.colors.border,
-        ...theme.shadows.sm
+        borderColor: '#e9e4fa',
+        ...theme.shadows.md
     },
     label: {
-        fontSize: 13,
-        fontWeight: '600',
-        color: theme.colors.textMuted,
-        marginBottom: 6
+        fontSize: 14,
+        fontWeight: '700',
+        color: theme.colors.text
     },
+    firstLabel: { marginBottom: 8 },
+    passwordRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', columnGap: 12, marginTop: 4 },
+    forgotButton: { marginLeft: 'auto', justifyContent: 'center', minHeight: 44, flexShrink: 1 },
+    forgotLink: { color: theme.colors.primaryDark, textAlign: 'right', fontSize: 13, fontWeight: '700' },
     inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#f8fafc',
+        backgroundColor: '#faf9ff',
         borderRadius: theme.borderRadius.md,
         borderWidth: 1,
-        borderColor: theme.colors.border,
+        borderColor: '#e4dff3',
         paddingHorizontal: theme.spacing.md,
-        marginBottom: theme.spacing.md
+        minHeight: 52
     },
     inputIcon: {
         marginRight: theme.spacing.sm
     },
     input: {
         flex: 1,
+        minWidth: 0,
         paddingVertical: 12,
         fontSize: 15,
         color: theme.colors.text
@@ -295,27 +313,56 @@ const styles = StyleSheet.create({
     loginButton: {
         backgroundColor: theme.colors.primary,
         borderRadius: theme.borderRadius.md,
-        paddingVertical: 14,
+        minHeight: 52,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        justifyContent: 'center',
         alignItems: 'center',
-        marginTop: theme.spacing.sm,
+        marginTop: theme.spacing.md,
         ...theme.shadows.md
     },
     loginButtonText: {
         color: theme.colors.white,
         fontSize: 16,
-        fontWeight: 'bold'
+        fontWeight: '700',
+        textAlign: 'center'
     },
+    disabledButton: { opacity: 0.6 },
+    divider: { flexDirection: 'row', alignItems: 'center', gap: 12, marginVertical: 18 },
+    dividerLine: { flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: '#d9d2ee' },
+    dividerText: { flexShrink: 1, color: theme.colors.textMuted, textAlign: 'center', fontSize: 13 },
+    googleButton: {
+        minHeight: 52,
+        paddingHorizontal: 14,
+        paddingVertical: 12,
+        borderRadius: theme.borderRadius.md,
+        borderWidth: 1,
+        borderColor: '#ded8f2',
+        backgroundColor: theme.colors.white,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 10
+    },
+    googleButtonText: { flexShrink: 1, fontSize: 15, fontWeight: '700', color: theme.colors.text, textAlign: 'center' },
+    googleLinkButton: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 4, paddingTop: 8 },
+    googleLinkText: { textAlign: 'center', fontSize: 13 },
+    linkPanel: { backgroundColor: '#f6f3ff', borderRadius: 14, padding: 12, marginBottom: 12 },
+    linkHint: { color: theme.colors.textMuted, marginVertical: 8, fontSize: 13 },
+    cancelLinkButton: { justifyContent: 'center', minHeight: 44 },
     ipToggle: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         gap: 6,
         marginTop: theme.spacing.md,
-        paddingVertical: 4
+        minHeight: 44,
+        paddingVertical: 8
     },
     ipToggleText: {
         fontSize: 12,
-        color: theme.colors.textMuted
+        color: theme.colors.textMuted,
+        flexShrink: 1
     },
     ipBox: {
         marginTop: 10,
@@ -332,22 +379,25 @@ const styles = StyleSheet.create({
     },
     ipInputRow: {
         flexDirection: 'row',
+        flexWrap: 'wrap',
         gap: 8
     },
     ipInput: {
         flex: 1,
+        minWidth: 112,
         backgroundColor: '#fff',
         borderWidth: 1,
         borderColor: '#cbd5e1',
         borderRadius: 6,
         paddingHorizontal: 8,
-        paddingVertical: 4,
+        paddingVertical: 8,
         fontSize: 13
     },
     ipSaveBtn: {
         backgroundColor: theme.colors.primary,
         borderRadius: 6,
         paddingHorizontal: 12,
+        minHeight: 44,
         justifyContent: 'center'
     },
     ipSaveBtnText: {
@@ -357,19 +407,22 @@ const styles = StyleSheet.create({
     },
     footer: {
         flexDirection: 'row',
+        flexWrap: 'wrap',
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 6,
-        marginTop: theme.spacing.xl
+        columnGap: 6,
+        rowGap: 2,
+        marginTop: theme.spacing.md
     },
     footerText: {
         fontSize: 14,
-        color: theme.colors.textMuted
+        color: theme.colors.textMuted,
+        textAlign: 'center'
     },
     registerLink: {
         fontSize: 14,
         fontWeight: 'bold',
-        color: theme.colors.primary
+        color: theme.colors.primaryDark
     }
 });
 

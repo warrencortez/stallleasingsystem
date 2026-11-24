@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { FaStore, FaLock, FaEnvelope, FaUser, FaPhoneAlt, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaLock, FaEnvelope, FaUser, FaPhoneAlt, FaMapMarkerAlt } from 'react-icons/fa';
+import mr99Logo from '../../assets/mr99-logo.png';
 import toast from 'react-hot-toast';
 
 const Register = () => {
@@ -57,14 +58,9 @@ const Register = () => {
             <div className="card border-0 shadow-2xl rounded-4 overflow-hidden my-4" style={{ width: '100%', maxWidth: '520px', background: '#ffffff' }}>
                 <div className="p-4 p-sm-5">
                     <div className="text-center mb-4">
-                        <div
-                            className="bg-primary bg-opacity-10 text-primary p-3 rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-sm"
-                            style={{ width: '60px', height: '60px' }}
-                        >
-                            <FaStore size={28} />
-                        </div>
+                        <img src={mr99Logo} alt="" width="112" height="112" className="mr99-logo auth-logo mx-auto mb-3" />
                         <h3 className="fw-bold text-dark mb-1">Create an Account</h3>
-                        <p className="text-muted small">Join Dela Costa HOA Stall Leasing</p>
+                        <p className="text-muted small">Join MR99 Commercial Stall Leasing</p>
                     </div>
 
                     <form onSubmit={handleSubmit}>
