@@ -20,6 +20,8 @@ test('verification uses transactional storage, expires, limits guesses and canno
         await db.query(`CREATE TEMP TABLE users(id UUID DEFAULT gen_random_uuid(),name TEXT,email TEXT UNIQUE,phone TEXT UNIQUE,password TEXT,role TEXT,supabase_user_id UUID)`);
         const migration=fs.readFileSync(path.join(__dirname,'../migrations/20261015_registration_verification.sql'),'utf8');
         await db.query(migration.slice(migration.indexOf('CREATE TABLE'),migration.indexOf('ALTER TABLE')).replace('CREATE TABLE IF NOT EXISTS','CREATE TEMP TABLE'));
+        const completion=fs.readFileSync(path.join(__dirname,'../migrations/20261125_registration_completion.sql'),'utf8');
+        await db.query(completion.split('\n').find(line=>line.startsWith('ALTER TABLE')).replace('public.','pg_temp.'));
         assert.match((await db.query("SELECT 'users'::regclass::oid::regclass::text AS name, relpersistence FROM pg_class WHERE oid='users'::regclass")).rows[0].relpersistence,/t/);
         let queue=Promise.resolve();
         const pool={withTransaction: fn=>{const job=queue.then(async()=>{await db.query('SAVEPOINT verification_case');try{const value=await fn(db);await db.query('RELEASE SAVEPOINT verification_case');return value;}catch(e){await db.query('ROLLBACK TO SAVEPOINT verification_case');throw e;}});queue=job.catch(()=>{});return job;}};
@@ -37,7 +39,7 @@ test('verification uses transactional storage, expires, limits guesses and canno
         const stored=(await db.query('SELECT * FROM registration_verifications')).rows[0];
         assert.notEqual(stored.password_hash,input.password);
         const ttl=new Date(first.expiresAt)-new Date(first.serverNow);
-        assert.ok(ttl>59000 && ttl<=60000);
+        assert.ok(ttl>295000 && ttl<=300000);
         await assert.rejects(service.resend(first.challengeId),e=>e.status===429);
         await assert.rejects(service.start(input),e=>e.status===429);
         const wrong=sent[0].code==='000000'?'000001':'000000';
@@ -49,13 +51,19 @@ test('verification uses transactional storage, expires, limits guesses and canno
         assert.notEqual(sent[0].code,sent[1].code);
         await assert.rejects(service.verify(first.challengeId,sent[0].code),/Incorrect/);
         const results=await Promise.allSettled([service.verify(second.challengeId,sent[1].code),service.verify(second.challengeId,sent[1].code)]);
-        assert.equal(results.filter(r=>r.status==='fulfilled').length,1);
+        assert.equal(results.filter(r=>r.status==='fulfilled' && r.value.verified).length,2);
         assert.equal((await db.query('SELECT * FROM users')).rowCount,1);
-        assert.equal((await db.query('SELECT role FROM users')).rows[0].role,'tenant');
-        assert.equal((await db.query('SELECT * FROM registration_verifications')).rowCount,0);
+        const tenant = (await db.query('SELECT role,password FROM users WHERE phone=$1', [input.phone])).rows[0];
+        assert.equal(tenant.role,'tenant');
+        assert.equal(await require('bcryptjs').compare(input.password, tenant.password), true);
+        const completed=(await db.query('SELECT verified_at,password_hash FROM registration_verifications')).rows[0];
+        assert.ok(completed.verified_at);
+        assert.equal(completed.password_hash,'');
+        await assert.rejects(service.resend(first.challengeId),/already verified/);
         await assert.rejects(service.start(input),e=>e.status===409);
+        await assert.rejects(service.start({...input,email:'different@example.com'}),e=>e.status===409);
         const failure=createRegistrationService({pool,sendCode:async()=>{throw new Error('Mail failed');}});
         await assert.rejects(failure.start({...input,email:'other@example.com',phone:'+639123456780'}),/Mail failed/);
-        assert.equal((await db.query('SELECT * FROM registration_verifications')).rowCount,0);
+        assert.equal((await db.query('SELECT * FROM registration_verifications')).rowCount,1);
     } finally { await db.query('ROLLBACK'); await db.query('DROP TABLE IF EXISTS pg_temp.registration_verifications, pg_temp.users'); await db.end(); }
 });

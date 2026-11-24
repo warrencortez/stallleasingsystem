@@ -13,18 +13,21 @@ function profile(input) {
 }
 function createRegistrationService({ pool, sendCode, verifyCode }) {
     const metadata = row => ({ challengeId: row.id, email: row.email, expiresAt: row.expires_at, resendAt: row.resend_at, serverNow: row.server_now });
-    async function available(client, email, phone) {
+    async function lockContact(client, email, phone) {
         // Shared with Google creation, including phone uniqueness across concurrent requests.
         for (const key of ['email:' + email, 'phone:' + phone].sort()) await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', [key]);
+    }
+    async function available(client, email, phone) {
         const existing = await client.query('SELECT id FROM users WHERE LOWER(email)=$1 OR phone=$2', [email, phone]);
         if (existing.rowCount) fail(409, 'An account with this email or mobile number already exists. Please sign in.');
     }
-    async function issue(client, row) {
+    async function issue(client, row, resend = false) {
         // Keep a row lock through delivery so concurrent resend/verify requests cannot race.
-        await sendCode(row.email);
+        const { rows: [{ requested_at: requestedAt }] } = await client.query('SELECT clock_timestamp() AS requested_at');
+        await sendCode(row.email, resend);
         const result = await client.query(`UPDATE registration_verifications SET attempts=0,
-            expires_at=clock_timestamp()+INTERVAL '60 seconds', resend_at=clock_timestamp()+INTERVAL '60 seconds'
-            WHERE id=$1 RETURNING *, clock_timestamp() AS server_now`, [row.id]);
+            expires_at=$2::timestamptz+INTERVAL '5 minutes', resend_at=clock_timestamp()+INTERVAL '60 seconds'
+            WHERE id=$1 RETURNING *, clock_timestamp() AS server_now`, [row.id, requestedAt]);
         return metadata(result.rows[0]);
     }
     return {
@@ -36,6 +39,7 @@ function createRegistrationService({ pool, sendCode, verifyCode }) {
             if (input.password !== input.confirmPassword) fail(400, 'Passwords do not match.');
             const passwordHash = await bcrypt.hash(input.password, 10);
             return pool.withTransaction(async client => {
+                await lockContact(client, email, contact.phone);
                 await available(client, email, contact.phone);
                 const previous = (await client.query('SELECT *, clock_timestamp() AS server_now FROM registration_verifications WHERE email=$1 FOR UPDATE', [email])).rows[0];
                 if (previous && new Date(previous.resend_at) > new Date(previous.server_now)) fail(429, 'Wait before requesting another code.', { retryAfter: Math.ceil((new Date(previous.resend_at)-new Date(previous.server_now))/1000) });
@@ -52,19 +56,23 @@ function createRegistrationService({ pool, sendCode, verifyCode }) {
             if (!Joi.string().uuid().required().validate(id).error) return pool.withTransaction(async client => {
                 const row = (await client.query('SELECT *, clock_timestamp() AS server_now FROM registration_verifications WHERE id=$1 FOR UPDATE', [id])).rows[0];
                 if (!row || new Date(row.server_now)-new Date(row.created_at)>86400000) fail(400, 'Registration expired. Please register again.');
+                if (row.verified_at) fail(409, 'Your email is already verified. Please sign in.');
                 if (new Date(row.resend_at)>new Date(row.server_now)) fail(429, 'Wait before requesting another code.', { retryAfter: Math.ceil((new Date(row.resend_at)-new Date(row.server_now))/1000) });
-                return issue(client, row);
+                return issue(client, row, true);
             });
             fail(400, 'Invalid verification request.');
         },
         async verify(id, code) {
             if (Joi.string().uuid().required().validate(id).error || typeof code !== 'string' || !/^\d{6}$/.test(code)) fail(400, 'Enter the six-digit code from your email.');
             const result = await pool.withTransaction(async client => {
-                const candidate = (await client.query('SELECT * FROM registration_verifications WHERE id=$1', [id])).rows[0];
+                const candidate = (await client.query(`SELECT email, phone FROM registration_verifications
+                    WHERE id=$1 AND created_at > clock_timestamp() - INTERVAL '1 day'`, [id])).rows[0];
                 if (!candidate) return { error: 'This code is no longer available. Please register again.' };
-                await available(client,candidate.email,candidate.phone);
+                await lockContact(client, candidate.email, candidate.phone);
                 const row = (await client.query('SELECT *, clock_timestamp() AS server_now FROM registration_verifications WHERE id=$1 FOR UPDATE', [id])).rows[0];
                 if (!row) return { error: 'This code is no longer available. Please register again.' };
+                if (row.verified_at) return { verified: true };
+                await available(client, row.email, row.phone);
                 if (new Date(row.expires_at)<=new Date(row.server_now)) return { error: 'Code expired. Request a new code.' };
                 if (row.attempts>=5) return { error: 'Too many incorrect codes. Request a new code.' };
                 const identity = await verifyCode(row.email,code);
@@ -75,8 +83,8 @@ function createRegistrationService({ pool, sendCode, verifyCode }) {
                 const stillValid = (await client.query('SELECT expires_at > clock_timestamp() AS valid FROM registration_verifications WHERE id=$1', [id])).rows[0]?.valid;
                 if (!stillValid) return { error: 'Code expired. Request a new code.' };
                 await client.query(`INSERT INTO users(name,email,phone,password,role,supabase_user_id) VALUES($1,$2,$3,$4,'tenant',$5)`, [row.name,row.email,row.phone,row.password_hash,identity.id]);
-                // Creation and consumption commit together: replay can never create a second account.
-                await client.query('DELETE FROM registration_verifications WHERE id=$1', [id]);
+                // Mark completion for safe retries and clear the pending password hash.
+                await client.query("UPDATE registration_verifications SET verified_at=clock_timestamp(), password_hash='' WHERE id=$1", [id]);
                 return { verified: true };
             });
             if (result.error) fail(400,result.error);

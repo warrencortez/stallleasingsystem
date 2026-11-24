@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { KeyboardAvoidingView, ScrollView, View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
@@ -9,15 +9,24 @@ export default function GoogleProfileScreen({ navigation }) {
     const [phone, setPhone] = useState('');
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState('');
+    const saving = useRef(false);
     async function save() {
+        if (saving.current) return;
         if (name.trim().length<2 || !/^9\d{9}$/.test(phone)) { setError('Enter your full name and a 10-digit mobile number starting with 9.'); return; }
+        saving.current = true;
         setBusy(true); setError('');
-        try { const result = await completeGoogleProfile({ name: name.trim(), phone: '+63'+phone }); if (!result.success) setError(result.message); }
-        finally { setBusy(false); }
+        try {
+            const result = await completeGoogleProfile({ name: name.trim(), phone: '+63'+phone });
+            if (result.code === 'GOOGLE_TOKEN_INVALID') clearGoogleSetup();
+            if (!result.success) setError(result.message);
+        } finally {
+            saving.current = false;
+            setBusy(false);
+        }
     }
     return <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
         <ScrollView contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
-        <TouchableOpacity accessibilityLabel="Cancel Google registration" style={styles.back} onPress={() => { clearGoogleSetup(); navigation.navigate('Login'); }}><Ionicons name="arrow-back" size={24} /></TouchableOpacity>
+        <TouchableOpacity accessibilityLabel="Cancel Google registration" disabled={busy} style={styles.back} onPress={() => { clearGoogleSetup(); navigation.navigate('Login'); }}><Ionicons name="arrow-back" size={24} /></TouchableOpacity>
         <Text style={styles.title}>Complete Your Contact Details</Text>
         <Text style={styles.hint}>Your Google email is verified. Add your name and mobile number to finish creating your tenant account.</Text>
         <View style={styles.card}>

@@ -11,7 +11,7 @@ test('Vercel import exports an idle app, lazily initializes DB and preserves web
     routes.get('/', (req, res) => res.json({ success: true }));
     const mocks = {
         express, cors: require('cors'), helmet: require('helmet'), morgan: () => (req, res, next) => next(),
-        dotenv: { config() {} }, path,
+        dotenv: { config() {} }, path, 'node:crypto': require('node:crypto'),
         './src/config/database': { testConnection: async () => { connections++; return true; } },
         './src/routes': routes,
         './src/services/scheduledJobs': { handle: (req, res) => res.sendStatus(401) },

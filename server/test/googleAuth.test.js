@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 
-function fixture({ accounts = [], valid = true, google = true, confirmed = true } = {}) {
+function fixture({ accounts = [], valid = true, google = true, confirmed = true, authError } = {}) {
     const records = structuredClone(accounts);
     const identity = { id: 'google-user', email: 'tenant@example.com', email_confirmed_at: confirmed ? '2026-10-10' : null,
         identities: google ? [{ provider: 'google', identity_data: { email_verified: true, email: 'tenant@example.com', full_name: 'Tenant' } }] : [] };
@@ -28,7 +28,7 @@ function fixture({ accounts = [], valid = true, google = true, confirmed = true 
             const before = structuredClone(records);
             try { return await fn({ query }); } catch (error) { records.splice(0, records.length, ...before); throw error; }
         } } },
-        '../config/supabase': { auth: () => ({ auth: { getUser: async token => ({ data: { user: identity }, error: valid && token === 'verified-token' ? null : new Error('Invalid') }) } }) },
+        '../config/supabase': { auth: () => ({ auth: { getUser: async token => ({ data: { user: identity }, error: authError || (valid && token === 'verified-token' ? null : new Error('Invalid')) }) } }) },
         '../models/User': {
             comparePassword: async (password, hash) => password === 'correct-password' && hash === 'hashed-password',
             toPublic: ({ id, role, email, is_active }) => ({ id, role, email, is_active }),
@@ -52,9 +52,16 @@ const account = { id: 'existing', email: 'tenant@example.com', role: 'tenant', i
 test('forged, non-Google and unconfirmed identities never reach account storage', async () => {
     for (const options of [{ valid: false }, { google: false }, { confirmed: false }]) {
         const app = fixture(options);
-        assert.equal((await app.login()).statusCode, 401);
+        const response = await app.login();
+        assert.equal(response.statusCode, 401);
+        assert.equal(response.body.code, 'GOOGLE_TOKEN_INVALID');
         assert.equal(app.lookups, 0);
     }
+});
+test('an unavailable identity provider returns a retryable error before any account lookup', async () => {
+    const app = fixture({ authError: { name: 'AuthRetryableFetchError' } });
+    assert.equal((await app.login()).statusCode, 503);
+    assert.equal(app.lookups, 0);
 });
 test('new Google users are tenants and cannot self-provision an administrator', async () => {
     const app = fixture();

@@ -132,13 +132,13 @@ class User {
      * @param {string} newPassword - New password
      * @returns {boolean} - True if update was successful
      */
-    static async updatePassword(id, newPassword) {
+    static async updatePassword(id, newPassword, previousHash) {
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
         
         const result = await pool.query(
-            'UPDATE users SET password = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
-            [hashedPassword, id]
+            'UPDATE users SET password = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 AND password = $3',
+            [hashedPassword, id, previousHash]
         );
         
         return result.rowCount > 0;

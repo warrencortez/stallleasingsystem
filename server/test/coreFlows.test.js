@@ -45,6 +45,7 @@ test('public signup cannot bypass email verification with the old registration p
 });
 test('repeat login works, wrong demo passwords fail, profiles hide hashes', async () => {
     for (let i = 0; i < 2; i++) assert.equal((await request('/auth/login', null, { email: owner.user.email, password: 'QaPass123' })).status, 200);
+    assert.equal((await request('/auth/login', null, { email: '+639111111111', password: 'QaPass123' })).status, 200);
     assert.equal((await request('/auth/login', null, { email: owner.user.email, password: 'tenant123' })).status, 401);
     assert.equal((await request('/auth/me', owner.token)).body.data.user.password, undefined);
     const hash = await require('bcryptjs').hash('DifferentPassword', 10);

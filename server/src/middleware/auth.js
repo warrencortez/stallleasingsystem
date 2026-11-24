@@ -32,13 +32,17 @@ const authenticate = async (req, res, next) => {
         }
 
         // 5. Get the user from the database
-        const user = await User.findById(decoded.id);
+        const user = await User.findForAuthentication(decoded.id);
         
         if (!user) {
             return res.status(401).json({
                 success: false,
                 message: 'User not found. Please login again.'
             });
+        }
+
+        if ((decoded.authVersion ?? 0) !== (user.auth_version ?? 0)) {
+            return res.status(401).json({ success: false, message: 'Your session has ended. Please sign in again.' });
         }
 
         // 6. Check if account is active
@@ -52,7 +56,7 @@ const authenticate = async (req, res, next) => {
         if (!['admin', 'tenant'].includes(user.role)) return res.status(403).json({ success: false, message: 'This role is no longer supported. Contact the administrator.' });
 
         // 7. Attach user to request object
-        req.user = user;
+        req.user = User.toPublic(user);
         req.userId = user.id;
         req.userRole = user.role;
         
@@ -104,9 +108,9 @@ const optionalAuth = async (req, res, next) => {
             const token = authHeader.split(' ')[1];
             const decoded = verifyToken(token);
             if (decoded) {
-                const user = await User.findById(decoded.id);
-                if (user && user.is_active) {
-                    req.user = user;
+                const user = await User.findForAuthentication(decoded.id);
+                if (user && user.is_active && (decoded.authVersion ?? 0) === (user.auth_version ?? 0)) {
+                    req.user = User.toPublic(user);
                     req.userId = user.id;
                     req.userRole = user.role;
                 }

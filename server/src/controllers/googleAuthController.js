@@ -9,16 +9,18 @@ async function googleLogin(req, res) {
     res.set('Cache-Control', 'no-store');
     try {
         const { accessToken, audience = 'tenant', existingPassword, existingIdentifier, profile } = req.body;
-        if (typeof accessToken !== 'string' || accessToken.length > 16384 || !['tenant', 'admin'].includes(audience)) fail(400, 'Invalid Google sign-in request.');
+        if (typeof accessToken !== 'string' || !accessToken.trim() || accessToken.length > 16384 || !['tenant', 'admin'].includes(audience)) fail(400, 'Invalid Google sign-in request.');
         if (existingIdentifier !== undefined && (typeof existingIdentifier !== 'string' || !existingIdentifier.trim() || existingIdentifier.length > 254)) fail(400, 'Enter your existing mobile number or email.');
+        if (existingPassword !== undefined && typeof existingPassword !== 'string') fail(400, 'Enter your existing account password.');
         // Verify against this project's Auth server, never a client-supplied email or role.
         const { data, error } = await supabase.auth().auth.getUser(accessToken);
+        if (error?.name === 'AuthRetryableFetchError' || error?.status >= 500) fail(503, 'Google identity verification is temporarily unavailable. Please try again.');
         const identity = data?.user;
         const google = identity?.identities?.find(item => item.provider === 'google');
         if (error || !identity?.id || !identity.email_confirmed_at || !google ||
             google.identity_data?.email_verified !== true || !identity.email ||
             google.identity_data.email?.toLowerCase() !== identity.email.toLowerCase()) {
-            fail(401, 'Google sign-in could not be verified. Please try again.');
+            fail(401, 'Google sign-in could not be verified. Start Google sign-in again.', 'GOOGLE_TOKEN_INVALID');
         }
         const email = identity.email.toLowerCase().trim();
         const user = await pool.withTransaction(async client => {
@@ -46,6 +48,7 @@ async function googleLogin(req, res) {
                     if (!profile) return { profileRequired: true, email, name: String(google.identity_data.full_name || '').slice(0,100) };
                     const contact = validateProfile(profile);
                     for (const key of ['email:' + email, 'phone:' + contact.phone].sort()) await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', [key]);
+                    if ((await client.query('SELECT id FROM users WHERE LOWER(email)=$1', [email])).rows.length) fail(409, 'An account with this email was just registered. Return to sign-in to connect Google.');
                     if ((await client.query('SELECT id FROM users WHERE phone=$1', [contact.phone])).rows.length) fail(409, 'This mobile number is already registered. Sign in to that account to connect Google.');
                     const id = await User.create({ ...contact,
                         email, password: randomBytes(36).toString('hex'), role: 'tenant' });
@@ -54,10 +57,10 @@ async function googleLogin(req, res) {
                 }
             }
             if (!account.is_active || account.role !== audience) fail(403, 'This account cannot access this portal.');
-            return User.toPublic(account);
+            return { user: User.toPublic(account), authVersion: account.auth_version };
         });
         if (user.profileRequired) return res.json({ success: true, data: user });
-        return res.json({ success: true, data: { user, token: generateToken(user.id, user.role) } });
+        return res.json({ success: true, data: { user: user.user, token: generateToken(user.user.id, user.user.role, user.authVersion) } });
     } catch (error) {
         if (!error.status) console.error('[Google sign-in]', error.code || error.name);
         return res.status(error.status || 503).json({ success: false, code: error.status ? error.code : undefined,

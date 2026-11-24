@@ -1,3 +1,5 @@
+const { randomBytes } = require('node:crypto');
+
 // Isolated clients prevent one verification request from retaining another user's session.
 function client() {
     const { createClient } = require('@supabase/supabase-js');
@@ -6,11 +8,26 @@ function client() {
     return createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},
         global:{fetch:(url,options)=>fetch(url,{...options,signal:AbortSignal.timeout(10000)})}});
 }
-async function sendCode(email) {
-    const { error } = await client().auth.signInWithOtp({email,options:{shouldCreateUser:true}});
-    if (!error) return;
+async function sendCode(email, resend = false) {
+    const auth = client().auth;
+    // MR99 owns the tenant password. Supabase only needs an independent signup credential.
+    const { data, error } = resend
+        ? await auth.resend({ email, type: 'signup' })
+        : await auth.signUp({ email, password: `${randomBytes(32).toString('hex')}!A1` });
+    if (!error) {
+        if (!resend && (data?.session || !data?.user)) {
+            throw Object.assign(new Error('Email confirmation is temporarily unavailable. Please contact MR99 support.'), { status: 503 });
+        }
+        if (!resend && data.user.identities?.length === 0) {
+            throw Object.assign(new Error('This email is already verified. Try signing in or contact MR99 support.'), { status: 409 });
+        }
+        return;
+    }
+    if (['user_already_exists', 'email_exists', 'email_already_confirmed'].includes(error.code)) {
+        throw Object.assign(new Error('This email is already verified. Try signing in or contact MR99 support.'), { status: 409 });
+    }
     if (error.status===429) throw Object.assign(new Error('Email sending limit reached. Please try again later.'),{status:429,retryAfter:60});
-    throw Object.assign(new Error('Unable to send the verification email. The administrator must check Supabase email delivery settings.'),{status:503});
+    throw Object.assign(new Error('Unable to send the verification email. Please try again later or contact MR99 support.'),{status:503});
 }
 async function verifyCode(email,code) {
     const { data,error } = await client().auth.verifyOtp({email,token:code,type:'email'});

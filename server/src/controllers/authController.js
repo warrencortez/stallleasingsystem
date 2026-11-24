@@ -49,7 +49,7 @@ const login = async (req, res) => {
             });
         }
 
-        const token = generateToken(user.id, user.role);
+        const token = generateToken(user.id, user.role, user.auth_version);
         user = User.toPublic(user);
 
         res.status(200).json({
@@ -184,7 +184,9 @@ const changePassword = async (req, res) => {
             });
         }
 
-        await User.updatePassword(userId, newPassword);
+        if (!await User.updatePassword(userId, newPassword, user.password)) {
+            return res.status(409).json({ success: false, message: 'Your password changed. Please sign in again.' });
+        }
 
         res.status(200).json({
             success: true,

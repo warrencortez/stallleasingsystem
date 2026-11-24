@@ -10,6 +10,7 @@ const {
 } = require('../../controllers/authController');
 const { authenticate } = require('../../middleware/auth');
 const { authRateLimiter } = require('../../middleware/rateLimiter');
+const recovery = require('../../controllers/passwordRecoveryController');
 
 // ==================================================
 // PUBLIC ROUTES (No authentication needed - Rate Limited)
@@ -19,6 +20,10 @@ const { authRateLimiter } = require('../../middleware/rateLimiter');
 router.post('/register', authRateLimiter, register);
 router.post('/register/verify', authRateLimiter, require('../../controllers/registrationController').verify);
 router.post('/register/resend', authRateLimiter, require('../../controllers/registrationController').resend);
+router.post('/forgot-password', authRateLimiter, recovery.start);
+router.post('/forgot-password/resend', authRateLimiter, recovery.resend);
+router.post('/forgot-password/verify', authRateLimiter, recovery.verify);
+router.post('/reset-password', authRateLimiter, recovery.reset);
 
 // Login user
 router.post('/login', authRateLimiter, login);

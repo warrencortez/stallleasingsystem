@@ -12,11 +12,12 @@ const JWT_EXPIRY = process.env.JWT_EXPIRY || '7d';
  * @param {string} role - The user's role (admin, staff, tenant)
  * @returns {string} - JWT token
  */
-const generateToken = (userId, role) => {
+const generateToken = (userId, role, authVersion = 0) => {
     return jwt.sign(
         { 
             id: userId,      // Store user ID in token
-            role: role       // Store user role in token
+            role: role,
+            authVersion
         },
         JWT_SECRET,          // Our secret key
         { expiresIn: JWT_EXPIRY } // When token expires

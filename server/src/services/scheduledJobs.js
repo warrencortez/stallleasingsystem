@@ -15,6 +15,7 @@ async function handle(req, res) {
         const result = await billing.runDueBilling();
         await payments.reconcile({ throwOnError: true });
         await pool.query('DELETE FROM auth_rate_limits WHERE expires_at < NOW()');
+        await pool.query("DELETE FROM password_recoveries WHERE expires_at < NOW() - INTERVAL '1 day'");
         await pool.query(`INSERT INTO scheduled_job_runs(name, last_success, details)
             VALUES ('maintenance', NOW(), $1) ON CONFLICT(name)
             DO UPDATE SET last_success=NOW(), details=EXCLUDED.details`, [JSON.stringify(result)]);

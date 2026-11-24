@@ -272,10 +272,13 @@ const dbQuery = async (text, params = []) => {
     }
 
     if (sql.startsWith('update users')) {
-        const id = params[params.length - 1];
+        const [assignments, predicate] = sql.split(' where ');
+        const idParam = predicate?.match(/\bid = \$(\d+)/);
+        const id = idParam ? params[Number(idParam[1]) - 1] : params[params.length - 1];
         const u = memoryDB.users.find(x => x.id === id);
-        if (u) {
-            for (const match of sql.matchAll(/(\w+) = \$(\d+)/g)) {
+        const passwordParam = predicate?.match(/\bpassword = \$(\d+)/);
+        if (u && (!passwordParam || u.password === params[Number(passwordParam[1]) - 1])) {
+            for (const match of assignments.matchAll(/(\w+) = \$(\d+)/g)) {
                 if (match[1] !== 'id') u[match[1]] = params[Number(match[2]) - 1];
             }
             return { rows: [u], rowCount: 1 };

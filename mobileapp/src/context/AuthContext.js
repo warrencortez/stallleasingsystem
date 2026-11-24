@@ -83,7 +83,8 @@ export const AuthProvider = ({ children }) => {
             setUser(userData);
             return { success: true };
         } catch (error) {
-            return { success: false, code: error.response?.data?.code, message: error.response?.data?.message || 'Unable to sign in with Google.' };
+            return { success: false, code: error.response?.data?.code, message: error.response?.data?.message ||
+                'Could not complete Google sign-in. Check your internet connection and try again.' };
         }
     };
 

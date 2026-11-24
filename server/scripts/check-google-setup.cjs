@@ -26,7 +26,7 @@ async function main() {
         auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false, flowType: 'pkce' }
     });
     const oauth = await authClient.auth.signInWithOAuth({ provider: 'google', options: {
-        redirectTo: 'http://localhost:5173/auth/callback', skipBrowserRedirect: true
+        redirectTo: 'leasehub://auth/callback', skipBrowserRedirect: true
     } });
     if (oauth.error) throw new Error('Could not create the Google authorization request.');
     const authorize = await fetch(oauth.data.url, { redirect: 'manual', signal: AbortSignal.timeout(15000) });

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
     View,
     Text,
@@ -27,6 +27,7 @@ const LoginScreen = ({ navigation }) => {
     const [serverIp, setServerIp] = useState('');
     const [showIpConfig, setShowIpConfig] = useState(false);
     const [loading, setLoading] = useState(false);
+    const googleInProgress = useRef(false);
 
     const handleLogin = async () => {
         const rawInput = email.trim();
@@ -64,10 +65,12 @@ const LoginScreen = ({ navigation }) => {
     };
 
     const handleGoogle = async () => {
+        if (loading || googleInProgress.current) return;
         if (connectExisting && (!email.trim() || !password)) {
             Alert.alert('Existing Account', 'Enter your mobile number or email and password above, then connect Google.');
             return;
         }
+        googleInProgress.current = true;
         setLoading(true);
         try {
             const token = pendingGoogleToken || await googleAccessToken();
@@ -82,10 +85,16 @@ const LoginScreen = ({ navigation }) => {
                 connectExisting ? identifier : undefined);
             if (result.profileRequired) { setPendingGoogleToken(null); setLinkPassword(''); navigation.navigate('GoogleProfile'); }
             else if (result.code === 'GOOGLE_LINK_REQUIRED') setPendingGoogleToken(token);
-            else if (!result.success) Alert.alert('Google Sign-in', result.message);
+            else if (!result.success) {
+                if (result.code === 'GOOGLE_TOKEN_INVALID') {
+                    setPendingGoogleToken(null);
+                    setLinkPassword('');
+                }
+                Alert.alert('Google Sign-in', result.message);
+            }
             else { setPendingGoogleToken(null); setLinkPassword(''); }
         } catch (error) { Alert.alert('Google Sign-in', error.message || 'Unable to sign in. Please try again.'); }
-        finally { setLoading(false); }
+        finally { googleInProgress.current = false; setLoading(false); }
     };
 
     const handleSaveServerIP = async () => {
@@ -139,6 +148,10 @@ const LoginScreen = ({ navigation }) => {
                             <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={22} color={theme.colors.textMuted} />
                         </TouchableOpacity>
                     </View>
+
+                    <TouchableOpacity disabled={loading} style={{ alignSelf: 'flex-end', paddingVertical: 8 }} onPress={() => navigation.navigate('PasswordRecovery')}>
+                        <Text style={styles.registerLink}>Forgot Password?</Text>
+                    </TouchableOpacity>
 
                     <TouchableOpacity
                         style={styles.loginButton}

@@ -1,37 +1,20 @@
 # Tenant registration and email verification
 
-Registration now uses Supabase Auth email OTP. No Resend SDK, SMTP password, or service-role key is needed in the mobile app.
+## Supabase dashboard
 
-## Supabase dashboard setup
+1. Open the project identified by Render’s `SUPABASE_URL`. Under **Authentication → Sign In / Providers → Email**, enable Email and keep **Confirm email** enabled. Under the sign-in settings, allow new users to sign up. Set **Email OTP length** to **6** and **Email OTP expiration** to **300 seconds**. The MR99 backend allows up to five minutes from the send request, using the database clock.
+2. Open **Authentication → Email Templates → Confirm signup**. Set the subject to `MR99 - Verify Your Email Address` and paste the entire [registration email template](templates/registration-verification.html) into the body. Save the template. The signup and signup resend calls both use this template.
+3. Under **Authentication → Rate Limits**, review the signup confirmation cooldown and keep it at **60 seconds** where configurable. With custom SMTP, set the email-sending limit to a volume your sender and expected traffic can support. The backend also enforces a 60-second resend cooldown, a five-guess limit per issued code, authentication rate limits, and a 24-hour registration window.
+4. For tenant Gmail addresses, open **Authentication → SMTP Settings**, enable **Custom SMTP**, then enter your provider’s SMTP host, TLS port, username, password, and a verified sender email/name such as `MR99`. Verify the sending domain with the DNS records supplied by the SMTP provider. Save and test a new registration with a non-team Gmail address. Supabase’s built-in sender allows project team recipients and is limited to two messages per hour. [Supabase SMTP setup](https://supabase.com/docs/guides/auth/auth-smtp) · [Supabase Auth rate limits](https://supabase.com/docs/guides/auth/rate-limits)
 
-1. Use the same Supabase project configured by the server's `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` and the mobile Google sign-in settings.
-2. Enable the Email provider and allow new user signups. Set Email OTP length to **6** and Email OTP expiry to **60 seconds** in the Email provider settings. The application also independently rejects codes after 60 seconds and prevents resending for 60 seconds.
-3. In Authentication > Email Templates, update **Magic Link** and **Confirm signup** to display the code rather than requiring a link. Use this body:
+## Render and Expo
 
-   ```html
-   <h2>Verify your tenant email</h2>
-   <p>Your verification code is:</p>
-   <p style="font-size:32px;font-weight:bold;letter-spacing:6px">{{ .Token }}</p>
-   <p>This code expires in 1 minute and can be used only once.</p>
-   ```
+1. In Render, open the deployed API service and verify `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` reference the same project. SMTP credentials belong in Supabase. For persistent API authentication rate limits on Render, set `AUTH_RATE_LIMIT_STORE=postgres` if the `auth_rate_limits` table is available and the service is ready to use the shared limit.
+2. Apply [the base registration migration](migrations/20261015_registration_verification.sql) if the registration table is absent. Apply [the completion migration](migrations/20261125_registration_completion.sql) to the existing database before releasing the updated API through your approved Render deployment process.
+3. Verify `EXPO_PUBLIC_API_URL` is `https://stall-leasing-server.onrender.com/api/v1` in the EAS **preview** environment. Keep the existing Google sign-in Supabase public values aligned with the backend project. Restart and reload Metro for Expo Go, or build a new preview APK to pick up the updated screen in an installed standalone app.
 
-4. The built-in Supabase sender is for testing: it sends only to project team addresses and permits 2 emails per hour. Configure custom SMTP in Supabase before opening registration to tenants. Provider limits still apply even after the app's resend countdown reaches zero.
-5. Keep `leasehub://auth/callback` in Redirect URLs for Google sign-in.
+## Verification behavior
 
-References: https://supabase.com/docs/guides/auth/auth-smtp and https://supabase.com/docs/guides/auth/auth-email-templates
+Supabase validates the signup code. The backend creates the tenant and marks the challenge completed in the same transaction. A repeat request for the completed challenge returns success without creating another user or issuing a session. The pending password hash is cleared after successful verification. A new code is subject to Supabase’s signup-token replacement behavior, so tenants should enter the code from their most recent email. Older pending registrations may need a fresh signup or resend after deployment.
 
-## Backend and mobile
-
-Apply `migrations/20261015_registration_verification.sql` to each target database before running the updated API. It was applied to the database configured in the local server environment during implementation. Restart the API and Metro (`npm run start:dev` in mobileapp). If using the deployed API, deploy these backend changes and apply the migration there as well. These mobile changes are JavaScript only and do not require a new development APK.
-
-The API stores pending contact details and a bcrypt password hash in a private RLS-enabled table. It never stores or returns the email code, Supabase session, or plaintext password. Supabase creates an Auth identity when sending an OTP; the application's tenant user is created only after successful verification. Five wrong guesses block that code until a new one is requested. Delivery failures do not report success. Resending invalidates the old Supabase OTP. A successful verification consumes the pending registration transactionally. Codes are verified only on the backend.
-
-New Google users receive a contact-details prompt before an application session is issued. Their verified email comes from Supabase, never from client input. Existing linked users sign in normally; existing password accounts still require their password when linking Google. Admin registration remains forbidden.
-
-Expired pending registrations may be pruned with `DELETE FROM public.registration_verifications WHERE created_at < NOW() - INTERVAL '1 day'`; old pending registrations cannot be resent after one day.
-
-## Validation
-
-Run `node --test test/*.test.js` from server. For database integration coverage set `RUN_DB_AUTH_TESTS=1` and run `node --test test/registrationVerification.test.js`. Integration tests use temporary tables and rollback; email delivery is mocked and no real accounts are created. Run `node --test test/*.test.cjs` from mobileapp.
-
-Actual delivery and phone execution require the Supabase dashboard setup above and a fresh registration using an allowed recipient.
+Run the phone test with a fresh Gmail address and a mobile number that is unused in MR99. Submit the registration, enter a wrong code, then request a new code after the cooldown. Verify with the newest code and confirm you land on Login. Sign in with your original MR99 password. Repeat with the app backgrounded long enough for the code to expire. Use an installed APK for the Google and payment-return regressions.

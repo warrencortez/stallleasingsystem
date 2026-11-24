@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const babel = require('@babel/core');
-function fixture(result, appOwnership = 'standalone') {
+function fixture(result, appOwnership = 'standalone', exchangeError) {
     const calls = [];
     const mocks = {
         'react-native-url-polyfill/auto': {},
@@ -14,8 +14,8 @@ function fixture(result, appOwnership = 'standalone') {
         '@supabase/supabase-js': { createClient: (url, key, options) => {
             assert.equal(options.auth.flowType, 'pkce');
             return { auth: {
-                signInWithOAuth: async () => ({ data: { url: 'https://auth.example/authorize' } }),
-                exchangeCodeForSession: async code => { calls.push(code); return { data: { session: { access_token: 'verified-session' } } }; }
+                signInWithOAuth: async () => ({ data: { url: 'https://auth.example/authorize?redirect_to=' + encodeURIComponent('leasehub://auth/callback?sb_flow_id=active-flow') } }),
+                exchangeCodeForSession: async (code, options) => { calls.push([code, options?.flowId]); return { error: exchangeError, data: { session: { access_token: 'verified-session' } } }; }
             } };
         } }
     };
@@ -37,9 +37,18 @@ test('only the registered callback can exchange a Google code', async () => {
     const wrong = fixture({ type: 'success', url: 'https://attacker.invalid/auth/callback?code=stolen' });
     await assert.rejects(wrong.login(), /Unexpected sign-in redirect/);
     assert.equal(wrong.calls.length, 0);
-    const good = fixture({ type: 'success', url: 'leasehub://auth/callback?code=one-time-code' });
+    const good = fixture({ type: 'success', url: 'leasehub://auth/callback?code=one-time-code&sb_flow_id=active-flow' });
     assert.equal(await good.login(), 'verified-session');
-    assert.deepEqual(good.calls, ['one-time-code']);
+    assert.deepEqual(good.calls, [['one-time-code', 'active-flow']]);
+});
+test('callbacks from another PKCE flow cannot exchange a code', async () => {
+    const app = fixture({ type: 'success', url: 'leasehub://auth/callback?code=old-code&sb_flow_id=old-flow' });
+    await assert.rejects(app.login(), /Unexpected Google sign-in session/);
+    assert.equal(app.calls.length, 0);
+});
+test('code-exchange connectivity errors are distinct from expired authentication', async () => {
+    const app = fixture({ type: 'success', url: 'leasehub://auth/callback?code=one-time-code' }, 'standalone', { name: 'AuthRetryableFetchError' });
+    await assert.rejects(app.login(), /Check your internet connection/);
 });
 test('Expo Go gives an actionable message instead of opening a broken callback', async () => {
     const app = fixture({}, 'expo');
