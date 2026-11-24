@@ -10,8 +10,8 @@ class PayMongoService {
         this.secretKey = process.env.PAYMONGO_SECRET_KEY || '';
         this.publicKey = process.env.PAYMONGO_PUBLIC_KEY || '';
         this.baseUrl = 'https://api.paymongo.com/v1';
-        this.successUrl = process.env.PAYMONGO_SUCCESS_URL || 'http://localhost:5173/payments?payment_status=success';
-        this.cancelUrl = process.env.PAYMONGO_CANCEL_URL || 'http://localhost:5173/payments?payment_status=cancelled';
+        this.successUrl = process.env.PAYMONGO_SUCCESS_URL || 'https://stall-leasing-server.onrender.com/payments/return?status=success';
+        this.cancelUrl = process.env.PAYMONGO_CANCEL_URL || 'https://stall-leasing-server.onrender.com/payments/return?status=cancelled';
     }
 
     modeAllowed() {

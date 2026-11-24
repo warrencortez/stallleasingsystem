@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
 const path = require('path');
+const { randomBytes } = require('node:crypto');
 const { testConnection } = require('./src/config/database');
 const routes = require('./src/routes');
 
@@ -32,7 +33,55 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 if (!(process.env.VERCEL || process.env.NETLIFY)) app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/v1', routes);
-app.get('/payments/return', (req, res) => res.type('html').send('<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dela Costa HOA Payments</title><body><main><h1>Return to the tenant app</h1><p>You can close this page and check Billing in the app. A receipt appears after the server confirms your payment.</p><p>If you cancelled checkout, your bill remains outstanding.</p></main></body></html>'));
+
+app.get('/payments/return', helmet.contentSecurityPolicy({
+    directives: {
+        scriptSrc: ["'self'", (_req, res) => {
+            res.locals.paymentReturnNonce = randomBytes(16).toString('base64');
+            return `'nonce-${res.locals.paymentReturnNonce}'`;
+        }]
+    }
+}), (req, res) => {
+    // Treat all return parameters as untrusted routing hints. Payment state is
+    // only established by the authenticated verification API / signed webhook.
+    const rawPaymentId = typeof req.query.payment_id === 'string' ? req.query.payment_id : '';
+    const paymentId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(rawPaymentId)
+        ? rawPaymentId
+        : '';
+    const rawStatus = typeof req.query.status === 'string' ? req.query.status : '';
+    const status = ['success', 'cancelled', 'failed', 'pending'].includes(rawStatus) ? rawStatus : 'unknown';
+    const returnQuery = `${paymentId ? `payment_id=${encodeURIComponent(paymentId)}&` : ''}status=${encodeURIComponent(status)}`;
+    const deepLink = `leasehub://payment-return?${returnQuery}`;
+    const intentLink = `intent://payment-return?${returnQuery}#Intent;scheme=leasehub;package=com.leasehub.tenant;end`;
+    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('Referrer-Policy', 'no-referrer');
+    res.type('html').send(`<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Returning to MR99 Mobile App</title>
+</head>
+<body>
+    <main>
+        <h2>Opening MR99 Mobile App…</h2>
+        <p>Your payment will be checked securely in the app.</p>
+        <a href="${intentLink}">Continue to MR99 Mobile App</a>
+    </main>
+    <script nonce="${res.locals.paymentReturnNonce}">
+        // Android Chrome supports intent URLs with an explicit package target.
+        // The custom scheme remains the fallback for browsers that do not.
+        const intentUrl = ${JSON.stringify(intentLink)};
+        const appUrl = ${JSON.stringify(deepLink)};
+        window.location.href = intentUrl;
+        setTimeout(() => {
+            if (document.visibilityState === 'visible') window.location.href = appUrl;
+        }, 900);
+    </script>
+</body>
+</html>`);
+});
+
 app.get('/', (req, res) => res.json({ success: true, message: 'Dela Costa HOA Stall Leasing API (API)', version: '1.0.0', documentation: '/api/v1' }));
 app.use((req, res) => res.status(404).json({ success: false, message: `Route not found: ${req.originalUrl}` }));
 app.use((err, req, res, next) => {

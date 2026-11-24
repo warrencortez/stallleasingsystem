@@ -2,12 +2,7 @@
   "expo": {
     "name": "MR99 Commercial Stall Leasing",
     "slug": "leasehub-tenant",
-    "owner": "tealicieuxtest",
-    "extra": {
-      "eas": {
-        "projectId": "f6fa1783-a50e-415e-bea0-ea5fa7f6fde1"
-      }
-    },
+    "owner": "mr99commercialstall",
     "scheme": "leasehub",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -19,7 +14,10 @@
       "adaptiveIcon": {
         "backgroundColor": "#4f46e5"
       },
-      "package": "com.leasehub.tenant"
+      "package": "com.leasehub.tenant",
+      "permissions": [
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ]
     },
     "plugins": [
       "expo-dev-client",
@@ -44,6 +42,11 @@
           "enableBackgroundPlayback": false
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "848d1377-ed0a-4f77-9a71-0acbb5bc20bc"
+      }
+    }
   }
 }

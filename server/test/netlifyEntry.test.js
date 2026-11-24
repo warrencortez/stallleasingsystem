@@ -12,7 +12,7 @@ test('Netlify adapter routes API requests and preserves signed webhook bytes', a
     routes.get('/', (req, res) => res.json({ success: true }));
     const mocks = {
         express, cors: require('cors'), helmet: require('helmet'), morgan: () => (req, res, next) => next(),
-        dotenv: { config() {} }, path,
+        dotenv: { config() {} }, path, 'node:crypto': crypto,
         './src/config/database': { testConnection: async () => { connections++; return true; } },
         './src/routes': routes,
         './src/services/scheduledJobs': { handle: (req, res) => res.sendStatus(401) },
@@ -45,7 +45,14 @@ test('Netlify adapter routes API requests and preserves signed webhook bytes', a
     assert.equal((await invoke('/health')).statusCode, 200);
     assert.equal(connections, 0);
     assert.equal((await invoke('/api/v1')).statusCode, 200);
-    assert.equal((await invoke('/payments/return')).statusCode, 200);
+    const returnBridge = await invoke('/payments/return');
+    assert.equal(returnBridge.statusCode, 200);
+    assert.match(returnBridge.body, /intent:\/\/payment-return\?status=unknown#Intent;scheme=leasehub;package=com\.leasehub\.tenant;end/);
+    assert.match(returnBridge.body, /Your payment will be checked securely in the app/);
+    const nonce = returnBridge.body.match(/<script nonce="([^"]+)">/)?.[1];
+    assert.ok(nonce);
+    assert.ok(returnBridge.headers['content-security-policy'].includes(`'nonce-${nonce}'`));
+    assert.ok(!(await invoke('/health')).headers['content-security-policy'].includes('nonce-'));
     assert.equal((await invoke('/api/cron/maintenance')).statusCode, 401);
     const raw = '{ "data": {"message":"PHP payment"} }';
     const signature = crypto.createHmac('sha256', 'test-only').update(raw).digest('hex');

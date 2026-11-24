@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     AppState,
     View,
@@ -11,6 +11,7 @@ import {
     Alert,
     ScrollView
 } from 'react-native';
+
 import * as WebBrowser from 'expo-web-browser';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
@@ -27,7 +28,7 @@ const PAYMENT_CHANNELS = [
     { id: 'cash', label: 'Cash Counter Deposit', icon: 'cash-outline', color: '#64748B' }
 ];
 
-const BillingScreen = () => {
+const BillingScreen = ({ navigation, route } = {}) => {
     const { user } = useAuth();
     const [loadError, setLoadError] = useState('');
     const [onlineStatus, setOnlineStatus] = useState({ready:false});
@@ -44,6 +45,11 @@ const BillingScreen = () => {
     // Digital Receipt Modal
     const [selectedReceipt, setSelectedReceipt] = useState(null);
     const [showReceiptModal, setShowReceiptModal] = useState(false);
+    const [pendingReturnId, setPendingReturnId] = useState(null);
+    const [pendingReturnStatus, setPendingReturnStatus] = useState('unknown');
+    const [checkingReturn, setCheckingReturn] = useState(false);
+    const verifyingReturns = useRef(new Set());
+    const receiptReturns = useRef(new Set());
 
     useEffect(() => {
         loadBilling(true);
@@ -84,35 +90,141 @@ const BillingScreen = () => {
         }
     };
 
+    const verifyReturnedPayment = async (paymentId, checkoutId, statusHint = 'unknown') => {
+        const key = String(paymentId || '').toLowerCase();
+        if (!key || verifyingReturns.current.has(key)) return;
+        verifyingReturns.current.add(key);
+        setCheckingReturn(true);
+        try {
+            const verification = await api.post(
+                `/payments/${encodeURIComponent(paymentId)}/verify-paymongo`,
+                checkoutId ? { checkout_id: checkoutId } : {}
+            );
+            const refreshed = await api.get('/payments');
+            const updatedPayments = refreshed.data?.data || [];
+            setPayments(updatedPayments);
+            const exactInvoice = updatedPayments.find(payment =>
+                String(payment.id) === String(paymentId) && payment.status === 'paid'
+            );
+
+            if (verification.data?.data?.status === 'paid' && exactInvoice) {
+                setPendingReturnId(null);
+                if (!receiptReturns.current.has(key)) {
+                    receiptReturns.current.add(key);
+                    setSelectedReceipt(exactInvoice);
+                    setShowReceiptModal(true);
+                }
+            } else {
+                setPendingReturnId(paymentId);
+                setPendingReturnStatus(statusHint);
+            }
+        } catch (error) {
+            setPendingReturnId(paymentId);
+            setPendingReturnStatus(statusHint);
+            const cancelled = statusHint === 'cancelled' || statusHint === 'failed';
+            Alert.alert(cancelled ? 'Checkout Not Completed' : 'Payment Not Confirmed', cancelled
+                ? 'The checkout was not completed. Your invoice remains unpaid. You can check again if you completed the QR payment.'
+                : error.response?.data?.message || 'The payment is not confirmed yet. You can check again shortly.');
+        } finally {
+            verifyingReturns.current.delete(key);
+            setCheckingReturn(false);
+        }
+    };
+
+    useEffect(() => {
+        const paymentReturn = route?.params?.paymentReturn;
+        if (!paymentReturn?.paymentId) return;
+        setPendingReturnId(paymentReturn.paymentId);
+        setPendingReturnStatus(paymentReturn.status || 'unknown');
+        void verifyReturnedPayment(paymentReturn.paymentId, undefined, paymentReturn.status || 'unknown');
+        navigation?.setParams({ paymentReturn: undefined });
+    }, [route?.params?.paymentReturn?.paymentId]);
+
     // Open Payment Channel Modal
     const handleOpenPayModal = (payment) => {
         setSelectedPayment(payment);
         setShowPayModal(true);
     };
 
-    // Pay with PayMongo Gateway Browser Checkout
-    const handlePaymongoGatewayCheckout = async () => {
-        if (!selectedPayment || !onlineStatus.ready) return;
-        try {
-            setProcessingPayment(true);
-            const res = await api.post(`/payments/${selectedPayment.id}/paymongo-checkout`);
-            if (res.data?.success) {
-                const { checkoutUrl, checkoutId } = res.data.data;
-                setShowPayModal(false);
-                await WebBrowser.openBrowserAsync(checkoutUrl);
-                const verification = await api.post(`/payments/${selectedPayment.id}/verify-paymongo`, { checkout_id: checkoutId });
-                if (verification.data?.data?.status === 'paid') Alert.alert('Payment confirmed', 'Your payment has been verified.');
-                loadBilling(false);
-            } else {
-                Alert.alert('PayMongo Error', 'Unable to initiate PayMongo gateway session.');
-            }
-        } catch (error) {
-            Alert.alert('Payment not confirmed', error.response?.data?.message || 'Unable to verify payment. Refresh billing before trying again.');
-            loadBilling(false);
-        } finally {
-            setProcessingPayment(false);
+    // Pay with PayMongo Gateway and handle app return
+const handlePaymongoGatewayCheckout = async () => {
+    if (!selectedPayment || !onlineStatus.ready) return;
+
+    try {
+        setProcessingPayment(true);
+
+        const paymentId = selectedPayment.id;
+
+        // 1. Create PayMongo checkout session
+        const res = await api.post(
+            `/payments/${paymentId}/paymongo-checkout`
+        );
+
+        if (!res.data?.success) {
+            Alert.alert(
+                'PayMongo Error',
+                'Unable to initiate PayMongo gateway session.'
+            );
+            return;
         }
-    };
+
+        const { checkoutUrl, checkoutId } = res.data.data;
+
+        if (!checkoutUrl || !checkoutId) {
+            Alert.alert(
+                'PayMongo Error',
+                'Missing checkout information. Please try again.'
+            );
+            return;
+        }
+
+        // 2. Close payment modal
+        setShowPayModal(false);
+
+        // 3. Open checkout and wait for return to leasehub://
+        const browserResult = await WebBrowser.openAuthSessionAsync(
+            checkoutUrl,
+            'leasehub://payment-return'
+        );
+
+        // 4. Check whether the user returned to the app
+        if (browserResult.type === 'success') {
+            const returnedUrl = browserResult.url || '';
+            const isPaymentReturn = returnedUrl.startsWith(
+                'leasehub://payment-return'
+            );
+
+            if (!isPaymentReturn) {
+                Alert.alert(
+                    'Payment Not Confirmed',
+                    'Unexpected return link. Please check your billing history.'
+                );
+                return;
+            }
+        }
+
+        // Verify through the authenticated API; the return URL is only a routing hint.
+        await verifyReturnedPayment(paymentId, checkoutId);
+
+    } catch (error) {
+        console.error(
+            'PayMongo Checkout Error:',
+            error.response?.data || error.message
+        );
+
+        Alert.alert(
+            'Payment Not Confirmed',
+            error.response?.data?.message ||
+            'Unable to verify payment. Please refresh your billing history before trying again.'
+        );
+
+        await loadBilling(false);
+
+    } finally {
+        setProcessingPayment(false);
+    }
+};
+
 
     const unpaidInvoices = payments.filter((p) => p.status !== 'paid');
     const paidInvoices = payments.filter((p) => p.status === 'paid');
@@ -223,6 +335,17 @@ const BillingScreen = () => {
                     </Text>
                 </TouchableOpacity>
             </View>
+
+            {pendingReturnId && (
+                <View style={styles.returnPendingBox}>
+                    <Text style={styles.returnPendingText}>{pendingReturnStatus === 'cancelled' || pendingReturnStatus === 'failed'
+                        ? 'Checkout was not completed. The invoice is not marked paid.'
+                        : 'Payment confirmation is still pending.'}</Text>
+                    <TouchableOpacity disabled={checkingReturn} onPress={() => verifyReturnedPayment(pendingReturnId, undefined, pendingReturnStatus)}>
+                        <Text style={styles.returnPendingAction}>{checkingReturn ? 'Checking…' : 'Check payment status'}</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
 
             {loading ? (
                 <View style={styles.centerLoader}>
@@ -350,11 +473,15 @@ const BillingScreen = () => {
                             <View style={styles.receiptSuccessIcon}>
                                 <Ionicons name="checkmark-circle" size={36} color="#059669" />
                             </View>
-                            <Text style={styles.receiptModalTitle}>Official Payment Receipt</Text>
-                            <Text style={styles.receiptModalRef}>Ref: {selectedReceipt?.reference_number || 'SETTLED'}</Text>
+                            <Text style={styles.receiptModalTitle}>PAYMENT SUCCESSFUL</Text>
+                            <Text style={styles.receiptModalRef}>Ref: {selectedReceipt?.reference_number || 'Not recorded'}</Text>
                         </View>
 
                         <View style={styles.receiptDetailsBox}>
+                            <View style={styles.receiptRow}>
+                                <Text style={styles.receiptLabel}>Invoice ID:</Text>
+                                <Text style={styles.receiptVal}>{selectedReceipt?.id || 'Not recorded'}</Text>
+                            </View>
                             <View style={styles.receiptRow}>
                                 <Text style={styles.receiptLabel}>Tenant Name:</Text>
                                 <Text style={styles.receiptVal}>{selectedReceipt?.tenant_name || user?.name}</Text>
@@ -371,7 +498,11 @@ const BillingScreen = () => {
                             </View>
                             <View style={styles.receiptRow}>
                                 <Text style={styles.receiptLabel}>Settlement Date:</Text>
-                                <Text style={styles.receiptVal}>{new Date(selectedReceipt?.payment_date || selectedReceipt?.updated_at || Date.now()).toLocaleDateString()}</Text>
+                                <Text style={styles.receiptVal}>{selectedReceipt?.payment_date ? new Date(selectedReceipt.payment_date).toLocaleDateString() : 'Not recorded'}</Text>
+                            </View>
+                            <View style={styles.receiptRow}>
+                                <Text style={styles.receiptLabel}>Payment Status:</Text>
+                                <Text style={styles.receiptVal}>PAID</Text>
                             </View>
                             <View style={[styles.receiptRow, styles.receiptTotalRow]}>
                                 <Text style={styles.receiptTotalLabel}>Amount Paid:</Text>
@@ -404,6 +535,25 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: theme.colors.border,
         gap: 6
+    },
+    returnPendingBox: {
+        marginHorizontal: theme.spacing.md,
+        marginTop: 10,
+        padding: 12,
+        borderRadius: 10,
+        backgroundColor: '#fff7ed',
+        borderWidth: 1,
+        borderColor: '#fed7aa'
+    },
+    returnPendingText: {
+        color: '#9a3412',
+        fontSize: 13,
+        marginBottom: 6
+    },
+    returnPendingAction: {
+        color: theme.colors.primary,
+        fontSize: 13,
+        fontWeight: '700'
     },
     tabBtn: {
         flex: 1,

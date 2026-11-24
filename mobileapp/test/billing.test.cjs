@@ -18,11 +18,12 @@ function compile(file, mocks) {
 }
 const theme = compile('styles/theme.js', {}).theme;
 const flush = () => new Promise(resolve => setImmediate(resolve));
-async function mountBilling({ offline = false, cancel = false, onlineReady = true } = {}) {
+async function mountBilling({ offline = false, cancel = false, onlineReady = true, paymentReturn = null } = {}) {
     const state = [], effects = [], calls = [], alerts = [];
     let cursor = 0, initial = true;
     const React = { createElement: (type, props, ...children) => ({ type, props: props || {}, children: children.flat(Infinity) }),
         Fragment: 'Fragment', useState: value => { const index = cursor++; if (!(index in state)) state[index] = value; return [state[index], value => state[index] = typeof value === 'function' ? value(state[index]) : value]; },
+        useRef: value => { const index = cursor++; if (!(index in state)) state[index] = { current: value }; return state[index]; },
         useEffect: effect => { if (initial) effects.push(effect); }
     };
     let payment = { id: 'invoice', tenant_id: 'lease', amount: 1000, late_fee: 50, due_date: '2026-10-28', status: 'unpaid' };
@@ -38,11 +39,13 @@ async function mountBilling({ offline = false, cancel = false, onlineReady = tru
     const native = Object.fromEntries(['View','Text','FlatList','TouchableOpacity','Modal','ActivityIndicator','ScrollView','TextInput'].map(x => [x, x]));
     Object.assign(native, { StyleSheet: { create: x => x }, Alert: { alert: (...args) => alerts.push(args) } });
     const Screen = compile('screens/billing/BillingScreen.js', { react: React, 'react-native': native,
-        'expo-web-browser': { openBrowserAsync: async () => ({ type: 'dismiss' }) }, '@expo/vector-icons': { Ionicons: 'Icon' },
+        'expo-web-browser': { openAuthSessionAsync: async () => ({ type: 'dismiss' }) }, '@expo/vector-icons': { Ionicons: 'Icon' },
         '../../context/AuthContext': { useAuth: () => ({ user: { id: 'owner', email: 'owner@example.invalid' } }) },
         '../../config/api': api, '../../styles/theme': { theme }
     }).default;
-    const render = () => { cursor = 0; const tree = Screen(); initial = false; return tree; };
+    const navigation = { setParams() {} };
+    const route = { params: paymentReturn ? { paymentReturn } : {} };
+    const render = () => { cursor = 0; const tree = Screen({ navigation, route }); initial = false; return tree; };
     let tree = render(); effects.forEach(fn => fn()); await flush(); tree = render();
     const nodes = value => {
         if (!value || typeof value !== 'object') return [];
@@ -74,13 +77,24 @@ test('closing unpaid checkout only asks the server to verify; no manual paid wri
     assert.equal(app.calls.filter(c => c.method === 'patch').length, 0);
     assert.equal(app.calls[1].body.checkout_id, 'cs_owned');
     assert.match(app.text(), /Receipts \(0\)/);
-    assert.equal(app.alerts.at(-1)[0], 'Payment not confirmed');
+    assert.equal(app.alerts.at(-1)[0], 'Payment Not Confirmed');
 });
 test('server-confirmed checkout moves invoice into receipts', async () => {
     const app = await mountBilling();
     await app.press('Pay Rent'); await app.press('Pay with QR Ph');
     assert.match(app.text(), /Receipts \(1\)/);
-    assert.equal(app.alerts.at(-1)[0], 'Payment confirmed');
+    assert.match(app.text(), /PAYMENT SUCCESSFUL/);
+});
+test('deep-link return verifies the exact invoice and opens its server-confirmed receipt', async () => {
+    const app = await mountBilling({ paymentReturn: { paymentId: 'invoice' } });
+    assert.ok(app.calls.some(call => call.route === '/payments/invoice/verify-paymongo'));
+    assert.match(app.text(), /PAYMENT SUCCESSFUL/);
+    assert.match(app.text(), /Invoice ID:/);
+});
+test('deep-link return stays pending and offers a safe status retry', async () => {
+    const app = await mountBilling({ cancel: true, paymentReturn: { paymentId: 'invoice' } });
+    assert.match(app.text(), /Payment confirmation is still pending/);
+    assert.ok(app.findButton?.('Check payment status') || app.text().includes('Check payment status'));
 });
 test('unconfigured online payments show office instructions and cannot start checkout', async () => {
     const app=await mountBilling({onlineReady:false});
